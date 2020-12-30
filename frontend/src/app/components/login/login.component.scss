@@ -1,0 +1,32 @@
+.container {
+  text-align: center;
+}
+.box {
+  display: inline-block;
+  width: 40%;
+}
+.form-group {
+  text-align: left;
+}
+.loading {
+  margin-top: 3%;
+}
+.autoConnect {
+  margin-bottom: 3%;
+}
+.button-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60%;
+  margin: auto;
+}
+
+@media all and (max-width: 767px) {
+  .box {
+    width: 80%;
+  }
+  .button-box {
+    display: inline;
+  }
+}

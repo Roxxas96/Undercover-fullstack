@@ -1,0 +1,9 @@
+<div class="nav-bar">
+  <div class="left">
+    <img src="../../../favicon.ico" class="logo" />
+    <h5>Undercover</h5>
+  </div>
+  <div class="right" *ngIf="isAuth">
+    <a (click)="onLogout()">Deconnexion</a>
+  </div>
+</div>
