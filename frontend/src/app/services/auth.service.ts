@@ -33,6 +33,7 @@ export class AuthService {
               })
               //Throw login errors
               .catch((error) => {
+                console.log(error);
                 reject(error);
               });
           },
@@ -50,7 +51,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       //Send HTTP request POST
       this.http
-        .post<{ userId: string; token: string }>(
+        .post<{ userId: string; token: string; test: string }>(
           'http://localhost:3000/api/auth/login',
           {
             login: login,
@@ -60,7 +61,7 @@ export class AuthService {
         //Catch response
         .subscribe(
           //TODO : voir pourquoi c'est une erreur
-          (authData: { userId: string; token: string }) => {
+          (authData: { userId: string; token: string; test: string }) => {
             //Stock local info
             this.token = authData.token;
             this.userId = authData.userId;
@@ -80,6 +81,7 @@ export class AuthService {
                 localStorage.removeItem('userId');
               }
             }
+            console.log(authData);
             resolve(null);
           },
           //Throw errors
@@ -107,7 +109,10 @@ export class AuthService {
     //Tell backen we disconnected (userId is needed)
     this.authRequest()
       .then(() => (this.userId = ''))
-      .catch(() => (this.userId = ''));
+      .catch((error) => {
+        this.userId = '';
+        console.log(error);
+      });
   }
 
   //AuthRequest : fetch session info with backend to ensure that token hasn't expired
@@ -119,6 +124,7 @@ export class AuthService {
         .post('http://localhost:3000/api/auth', { userId: this.userId })
         .subscribe(
           (res) => {
+            console.log(res);
             resolve(null);
           },
           //Catch errors (could be wrong token or other)

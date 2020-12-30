@@ -44,8 +44,18 @@ export class LoginComponent implements OnInit {
       })
       //If bad login info, catch it
       .catch((error) => {
-        if ((error.status = 401)) {
+        //Error messages are stored in ObjectName.error.error
+        if (
+          error.error.error == 'Utilisateur non trouvé !' ||
+          error.error.error == 'Mot de passe incorrect !'
+        ) {
           this.errorMessage.password = 'Login ou mot de passe incorect';
+          this.loading = false;
+          return;
+        }
+        if (error.error.error == "Quelqu'un est déjà connecté à ce compte !") {
+          this.errorMessage.username =
+            "Quelqu'un est déjà connecté à ce compte";
           this.loading = false;
           return;
         }

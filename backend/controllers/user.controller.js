@@ -5,6 +5,8 @@ const User = require("../models/user.model");
 
 const Auth = require("../middleware/Auth");
 
+let connectedPlayers = [];
+
 //Signup func : send new uer info to DB
 exports.signUp = (req, res, next) => {
   //Crypt password
@@ -21,7 +23,7 @@ exports.signUp = (req, res, next) => {
       user
         .save()
         .then((createdUser) =>
-          res.status(201).json({ message: "Utilisateur créé !" + createdUser })
+          res.status(201).json({ message: "Utilisateur créé !" })
         )
         //Error : User already exist
         .catch((error) => res.status(400).json({ error }));
@@ -46,12 +48,22 @@ exports.login = (req, res, next) => {
           .then((valid) => {
             //Invalid password
             if (!valid)
-              return status(401).json({ error: "Mot de passe incorrect !" });
+              return res
+                .status(401)
+                .json({ error: "Mot de passe incorrect !" });
+            if (connectedPlayers.find((val) => val == user._id) != null)
+              return res.status(401).json({
+                error: "Quelqu'un est déjà connecté à ce compte !",
+              });
             res.status(202).json({
               userId: user._id,
-              token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-                expiresIn: "24h",
-              }),
+              token: jwt.sign(
+                { userId: user._id },
+                "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p",
+                {
+                  expiresIn: "72h",
+                }
+              ),
             });
           })
           //Bcrypt compare errors
@@ -69,7 +81,13 @@ exports.login = (req, res, next) => {
           .compare(req.body.password, user.password)
           .then((valid) => {
             if (!valid)
-              return status(401).json({ error: "Mot de passe incorrect !" });
+              return res
+                .status(401)
+                .json({ error: "Mot de passe incorrect !" });
+            if (connectedPlayers.find((val) => val == user._id) != null)
+              return res.status(401).json({
+                error: "Quelqu'un est déjà connecté à ce compte !",
+              });
             res.status(202).json({
               userId: user._id,
               token: jwt.sign(
@@ -87,16 +105,19 @@ exports.login = (req, res, next) => {
   }
 };
 
-var connectedPlayers = [];
-
+//Auth : check validity of user's token + register if connected or not
 exports.auth = (req, res, next) => {
   const authResult = Auth(req, res, next);
   const index = connectedPlayers.indexOf(req.body.userId);
   if (authResult) {
+    //Add user only if not in connectedPlayers
     if (index == -1) connectedPlayers.push(req.body.userId);
-    return res.status(202).json({ message: "Authentification réussie !" });
+    return res
+      .status(202)
+      .json({ message: "Authentification réussie !", test: connectedPlayers });
   }
   if (!authResult) {
+    //Remove user from connectedPlayers
     if (index >= 0) connectedPlayers.splice(index, 1);
     return res.status(401).json({ error: "Authentification échouée !" });
   }
