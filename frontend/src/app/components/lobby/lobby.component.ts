@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 
@@ -21,6 +21,8 @@ export class LobbyComponent implements OnInit {
 
   players: Array<User> = [];
 
+  refresh: Subscription = new Observable<string>().subscribe();
+
   constructor(
     private authService: AuthService,
     private gameService: GameService
@@ -30,12 +32,16 @@ export class LobbyComponent implements OnInit {
     this.getPlayers();
     this.getRooms();
     //Refresh data every sec
-    new Observable<string>((observer) => {
+    this.refresh = new Observable<string>((observer) => {
       setInterval(() => {
         this.getPlayers();
         this.getRooms();
       }, 1000);
     }).subscribe();
+  }
+
+  ngOnDestroy() {
+    this.refresh.unsubscribe();
   }
 
   //Get an array of connected players from backend

@@ -1,6 +1,16 @@
 const Room = require("../models/room.model");
 
-let Rooms = [];
+let Rooms = [
+  {
+    name: "coucou",
+    max_players: 8,
+    players: [
+      {
+        userId: "",
+      },
+    ],
+  },
+];
 
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
