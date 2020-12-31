@@ -51,7 +51,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       //Send HTTP request POST
       this.http
-        .post<{ userId: string; token: string; test: string }>(
+        .post<{ userId: string; token: string }>(
           'http://localhost:3000/api/auth/login',
           {
             login: login,
@@ -60,8 +60,7 @@ export class AuthService {
         )
         //Catch response
         .subscribe(
-          //TODO : voir pourquoi c'est une erreur
-          (authData: { userId: string; token: string; test: string }) => {
+          (authData: { userId: string; token: string }) => {
             //Stock local info
             this.token = authData.token;
             this.userId = authData.userId;
@@ -81,7 +80,6 @@ export class AuthService {
                 localStorage.removeItem('userId');
               }
             }
-            console.log(authData);
             resolve(null);
           },
           //Throw errors
@@ -124,7 +122,6 @@ export class AuthService {
         .post('http://localhost:3000/api/auth', { userId: this.userId })
         .subscribe(
           (res) => {
-            console.log(res);
             resolve(null);
           },
           //Catch errors (could be wrong token or other)
@@ -134,5 +131,25 @@ export class AuthService {
           }
         );
     });
+  }
+
+  getConnectedPlayers() {
+    return new Promise<{ message: Array<{ _id: string; username: string }> }>(
+      (resolve, reject) => {
+        this.http
+          .get<{ message: Array<{ _id: string; username: string }> }>(
+            'http://localhost:3000/api/auth/get'
+          )
+          .subscribe(
+            (res: { message: Array<{ _id: string; username: string }> }) => {
+              resolve(res);
+            },
+            (error) => {
+              console.log(error);
+              reject(error);
+            }
+          );
+      }
+    );
   }
 }

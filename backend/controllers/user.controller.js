@@ -112,13 +112,21 @@ exports.auth = (req, res, next) => {
   if (authResult) {
     //Add user only if not in connectedPlayers
     if (index == -1) connectedPlayers.push(req.body.userId);
-    return res
-      .status(202)
-      .json({ message: "Authentification réussie !", test: connectedPlayers });
+    return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {
     //Remove user from connectedPlayers
     if (index >= 0) connectedPlayers.splice(index, 1);
     return res.status(401).json({ error: "Authentification échouée !" });
   }
+};
+
+exports.getConnectedPlayers = (req, res, next) => {
+  User.find({ _id: { $in: connectedPlayers } }, { username: true })
+    .then((users) => {
+      return res.status(200).json({ message: users });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error });
+    });
 };

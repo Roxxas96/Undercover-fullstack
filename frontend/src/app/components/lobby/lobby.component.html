@@ -1,1 +1,12 @@
-<div class="content"></div>
+<div class="content">
+  <div class="left"></div>
+  <div class="right">
+    <h3>Joueurs connectés</h3>
+    <div class="alert alert-danger" *ngIf="errorMessage != ''">
+      {{ errorMessage }}
+    </div>
+    <div class="player" *ngFor="let player of players">
+      <h5>{{ player }}</h5>
+    </div>
+  </div>
+</div>
