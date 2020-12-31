@@ -1,5 +1,8 @@
-let Rooms = [{ name: "couddddddddddddcou", players: "4/10" }];
+const Room = require("../models/room.model");
 
+let Rooms = [];
+
+//Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
-  return res.status(200).json({ message: Rooms });
+  return res.status(200).json({ result: Rooms });
 };

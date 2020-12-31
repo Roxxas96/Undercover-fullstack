@@ -7,7 +7,7 @@ const Auth = require("../middleware/Auth");
 
 let connectedPlayers = [];
 
-//Signup func : send new uer info to DB
+//Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
   //Crypt password
   bcrypt
@@ -51,10 +51,12 @@ exports.login = (req, res, next) => {
               return res
                 .status(401)
                 .json({ error: "Mot de passe incorrect !" });
+            //User already connected (prevent 2 users to be on the same account)
             if (connectedPlayers.find((val) => val == user._id) != null)
               return res.status(401).json({
                 error: "Quelqu'un est déjà connecté à ce compte !",
               });
+            //Return user id + a connection token that last 72h max
             res.status(202).json({
               userId: user._id,
               token: jwt.sign(
@@ -107,6 +109,7 @@ exports.login = (req, res, next) => {
 
 //Auth : check validity of user's token + register if connected or not
 exports.auth = (req, res, next) => {
+  //Call auth to check token and return succession
   const authResult = Auth(req, res, next);
   const index = connectedPlayers.indexOf(req.body.userId);
   if (authResult) {
@@ -121,10 +124,11 @@ exports.auth = (req, res, next) => {
   }
 };
 
+//Get connected players : return an array of all connected players (return their id + username)
 exports.getConnectedPlayers = (req, res, next) => {
   User.find({ _id: { $in: connectedPlayers } }, { username: true })
     .then((users) => {
-      return res.status(200).json({ message: users });
+      return res.status(200).json({ result: users });
     })
     .catch((error) => {
       return res.status(500).json({ error: error });

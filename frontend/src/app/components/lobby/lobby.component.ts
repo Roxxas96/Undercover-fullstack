@@ -3,6 +3,9 @@ import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 
+import { Room } from '../../models/Room.model';
+import { User } from '../../models/User.model';
+
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -14,9 +17,9 @@ export class LobbyComponent implements OnInit {
     rooms: '',
   };
 
-  rooms: Array<{ name: string }> = [];
+  rooms: Array<Room> = [];
 
-  players: Array<string> = [];
+  players: Array<User> = [];
 
   constructor(
     private authService: AuthService,
@@ -26,6 +29,7 @@ export class LobbyComponent implements OnInit {
   ngOnInit(): void {
     this.getPlayers();
     this.getRooms();
+    //Refresh data every sec
     new Observable<string>((observer) => {
       setInterval(() => {
         this.getPlayers();
@@ -34,28 +38,31 @@ export class LobbyComponent implements OnInit {
     }).subscribe();
   }
 
+  //Get an array of connected players from backend
   getPlayers() {
     this.authService
       .getConnectedPlayers()
-      .then((users: { message: Array<{ _id: string; username: string }> }) => {
-        this.players = [];
-        users.message.forEach((val) => {
-          this.players.push(val.username);
-        });
+      .then((users: Array<User>) => {
+        //Update players array
+        this.players = users;
       })
+      //Catcn any errors
       .catch((error) => {
-        this.errorMessage = error.message;
+        this.errorMessage.players = error.message;
       });
   }
 
+  //Get an array of rooms from backend
   getRooms() {
     this.gameService
       .getRooms()
-      .then((rooms: { message: Array<{ name: string; players: string }> }) => {
-        this.rooms = [];
-        rooms.message.forEach((val) => {
-          this.rooms.push(val);
-        });
+      .then((rooms: Array<Room>) => {
+        //Update rooms array
+        this.rooms = rooms;
+      })
+      //Catch any errors
+      .catch((error) => {
+        this.errorMessage.rooms = error.message;
       });
   }
 }

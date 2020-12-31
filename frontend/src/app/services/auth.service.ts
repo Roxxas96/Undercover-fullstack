@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+import { User } from '../models/User.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -61,14 +63,14 @@ export class AuthService {
         //Catch response
         .subscribe(
           (authData: { userId: string; token: string }) => {
-            //Stock local info
+            //Store local info
             this.token = authData.token;
             this.userId = authData.userId;
             this.isAuth$.next(true);
-            //Stock session info
+            //Store session info
             sessionStorage.setItem('token', this.token);
             sessionStorage.setItem('userId', this.userId);
-            //Stock or delete localstorage vars
+            //Store or delete localstorage vars
             switch (autoConnect) {
               case true: {
                 localStorage.setItem('token', this.token);
@@ -133,23 +135,23 @@ export class AuthService {
     });
   }
 
+  //Get connected players : return an array of connected players, return type : Array<User> (see User.model for more info)
   getConnectedPlayers() {
-    return new Promise<{ message: Array<{ _id: string; username: string }> }>(
-      (resolve, reject) => {
-        this.http
-          .get<{ message: Array<{ _id: string; username: string }> }>(
-            'http://localhost:3000/api/auth'
-          )
-          .subscribe(
-            (res: { message: Array<{ _id: string; username: string }> }) => {
-              resolve(res);
-            },
-            (error) => {
-              console.log(error);
-              reject(error);
-            }
-          );
-      }
-    );
+    return new Promise<Array<User>>((resolve, reject) => {
+      //HTTP request : GET
+      this.http
+        .get<{ result: Array<User> }>('http://localhost:3000/api/auth')
+        .subscribe(
+          //Returned array is stored in result key
+          (res: { result: Array<User> }) => {
+            resolve(res.result);
+          },
+          //Catch errors
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
   }
 }

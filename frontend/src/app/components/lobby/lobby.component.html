@@ -5,7 +5,7 @@
       <div class="room list-group-item" *ngFor="let room of rooms">
         <h5>{{ room.name }}</h5>
         <div class="room-spacer">
-          <h5>{{ room.players }}</h5>
+          <h5>{{ room.players.length }}/{{ room.max_players }}</h5>
           <button class="btn btn-outline-success">Rejoindre</button>
         </div>
       </div>
@@ -17,7 +17,7 @@
       {{ errorMessage.players }}
     </div>
     <div class="player" *ngFor="let player of players">
-      <h5>{{ player }}</h5>
+      <h5>{{ player.name }}</h5>
     </div>
   </div>
 </div>

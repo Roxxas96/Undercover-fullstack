@@ -20,12 +20,17 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean> {
     return new Observable((observer) => {
+      //Sub to auth$ so AuthGuard can activate at each time it changes (and not on route change only)
       this.authService.isAuth$.subscribe((auth) => {
+        //If user is not auth redirect to login page
         if (!auth) {
           this.router.navigate(['login']);
         } else {
+          //If user is auth, tell backend to check his token
           this.authService
             .authRequest()
+            //If token invalid
+            //TODO : à préciser
             .catch(() => this.authService.isAuth$.next(false));
         }
         observer.next(true);
