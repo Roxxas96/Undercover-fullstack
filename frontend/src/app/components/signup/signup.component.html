@@ -72,9 +72,12 @@
         <p style="margin: 0">ou</p>
         <a routerLink="/login">Connectez vous</a>
       </div>
-      <div class="alert alert-success loading" *ngIf="loading">
-        Chargement...
-      </div>
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="margin-top: 5%"
+        *ngIf="loading"
+      ></div>
     </form>
   </div>
 </div>

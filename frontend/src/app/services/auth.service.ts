@@ -138,7 +138,7 @@ export class AuthService {
       (resolve, reject) => {
         this.http
           .get<{ message: Array<{ _id: string; username: string }> }>(
-            'http://localhost:3000/api/auth/get'
+            'http://localhost:3000/api/auth'
           )
           .subscribe(
             (res: { message: Array<{ _id: string; username: string }> }) => {

@@ -1,9 +1,20 @@
 <div class="content">
-  <div class="left"></div>
-  <div class="right">
+  <div class="left">
+    <h3>Salles disponibles</h3>
+    <div class="list-group">
+      <div class="room list-group-item" *ngFor="let room of rooms">
+        <h5>{{ room.name }}</h5>
+        <div class="room-spacer">
+          <h5>{{ room.players }}</h5>
+          <button class="btn btn-outline-success">Rejoindre</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right list-group-item">
     <h3>Joueurs connectés</h3>
-    <div class="alert alert-danger" *ngIf="errorMessage != ''">
-      {{ errorMessage }}
+    <div class="alert alert-danger" *ngIf="errorMessage.players != ''">
+      {{ errorMessage.players }}
     </div>
     <div class="player" *ngFor="let player of players">
       <h5>{{ player }}</h5>

@@ -15,15 +15,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 60%;
+  width: 70%;
   margin: auto;
 }
 
-@media all and (max-width: 767px) {
+@media all and (max-width: 992px) {
   .box {
     width: 80%;
   }
   .button-box {
-    display: inline;
+    display: block;
   }
 }
