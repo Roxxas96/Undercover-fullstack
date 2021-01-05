@@ -28,4 +28,27 @@ export class GameService {
         );
     });
   }
+
+  createRoom(roomName: string, maxPlayers: number) {
+    return new Promise<number>((resolve, reject) => {
+      this.http
+        .post<{ message: string; result: number }>(
+          'http://localhost:3000/api/room/create',
+          {
+            roomName: roomName,
+            maxPlayers: maxPlayers,
+          }
+        )
+        .subscribe(
+          (res: { message: string; result: number }) => {
+            resolve(res.result);
+            console.log(res);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
 }

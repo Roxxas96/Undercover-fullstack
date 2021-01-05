@@ -13,6 +13,7 @@ import { AuthInterceptor } from './services/auth.interceptor';
 import { HeaderComponent } from './components/header/header.component';
 import { AuthGuard } from './services/auth.guard';
 import { GameService } from './services/game.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,7 @@ import { GameService } from './services/game.service';
     LobbyComponent,
     HeaderComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule],
+  imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule, NgbModule],
   providers: [
     AuthService,
     AuthGuard,

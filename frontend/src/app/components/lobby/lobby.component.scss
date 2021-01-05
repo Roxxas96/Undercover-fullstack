@@ -7,17 +7,28 @@
 }
 .left {
   width: 60%;
-  overflow-y: auto;
+  height: fit-content;
+}
+.right {
+  width: 30%;
+  height: fit-content;
 }
 .left h3 {
   margin-bottom: 3%;
 }
-.right {
-  width: 30%;
-  overflow-y: auto;
+.right h3 {
+  margin-bottom: 3%;
 }
-.right h5 {
-  overflow-x: hidden;
+.rooms {
+  overflow-y: auto;
+  max-height: 70vh;
+  height: fit-content;
+  margin-bottom: 2%;
+}
+.players {
+  overflow-y: auto;
+  max-height: 75vh;
+  height: fit-content;
 }
 .room {
   display: flex;
@@ -25,15 +36,23 @@
   align-items: center;
 }
 .room h5 {
-  margin-top: 1%;
-  overflow-x: hidden;
+  margin: 0;
+  overflow: hidden;
 }
-.room-spacer {
+.player h5 {
+  overflow: hidden;
+  margin: 0;
+}
+.room-left {
   display: flex;
   margin-left: 10%;
 }
-.room-spacer h5 {
-  margin-top: 7%;
+.room-left h5 {
+  margin-top: 6%;
+}
+.spinner-border {
+  margin-top: 0 !important;
+  margin-right: 3%;
 }
 
 @media all and (max-width: 992px) {
