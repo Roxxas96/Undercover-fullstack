@@ -18,7 +18,6 @@ export class LobbyComponent implements OnInit {
     players: '',
     rooms: '',
   };
-
   errorMessageCreateRoom = {
     name: '',
     maxPlayers: '',
@@ -27,6 +26,7 @@ export class LobbyComponent implements OnInit {
 
   createRoomLoading = false;
 
+  //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 2;
 
   rooms: Array<Room> = [];
@@ -48,10 +48,11 @@ export class LobbyComponent implements OnInit {
     //Refresh data every sec
     this.refreshSub = this.refresh.subscribe(() => {
       this.getPlayers();
-      this.getRooms;
+      this.getRooms();
     });
   }
 
+  //On lobby quit stop refreshing
   ngOnDestroy() {
     this.refreshSub.unsubscribe();
   }
@@ -91,32 +92,41 @@ export class LobbyComponent implements OnInit {
     this.modalService.open(modal);
   }
 
+  //Create room : Gather form info and call gameService to create a room
   onCreateRoom(form: NgForm) {
+    //Reset var & draw loading hint
     this.createRoomLoading = true;
     this.errorMessageCreateRoom = {
       name: '',
       maxPlayers: '',
       other: '',
     };
+    //Retreive form data
     const roomName = form.value['name'];
     const maxPlayers = form.value['max-players'];
+    //Call gameService createRoom func
     this.gameService
       .createRoom(roomName, maxPlayers)
       .then(() => {
+        //If creation succeded hide loading hint
+        //TODO : make the player join
         this.createRoomLoading = false;
       })
       .catch((error) => {
+        //Catch name unique error
         if (error.error.error == 'Nom de salle déjà pris !') {
           this.errorMessageCreateRoom.name = 'Ce nom est déjà pris';
           this.createRoomLoading = false;
           return;
         }
+        //Catch invalid number error (useless in theory)
         if (error.error.error == 'Nombre de joueurs invalide !') {
           this.errorMessageCreateRoom.maxPlayers =
             'Il y a eu un problème, veuillez réessayer';
           this.createRoomLoading = false;
           return;
         }
+        //Catch other errors
         this.errorMessageCreateRoom.other = error.message;
         this.createRoomLoading = false;
       });

@@ -29,8 +29,10 @@ export class GameService {
     });
   }
 
+  //Create room : call backend to create a room, return the index of created room
   createRoom(roomName: string, maxPlayers: number) {
     return new Promise<number>((resolve, reject) => {
+      //POST request
       this.http
         .post<{ message: string; result: number }>(
           'http://localhost:3000/api/room/create',
@@ -40,10 +42,12 @@ export class GameService {
           }
         )
         .subscribe(
+          //Stored in result
           (res: { message: string; result: number }) => {
             resolve(res.result);
             console.log(res);
           },
+          //Throw errors
           (error) => {
             console.log(error);
             reject(error);
