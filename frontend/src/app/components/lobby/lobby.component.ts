@@ -64,7 +64,7 @@ export class LobbyComponent implements OnInit {
       .getConnectedPlayers()
       .then((users: Array<User>) => {
         //Update players array
-        this.players = users;
+        if (this.players != users) this.players = users;
       })
       //Catcn any errors
       .catch((error) => {
@@ -78,7 +78,7 @@ export class LobbyComponent implements OnInit {
       .getRooms()
       .then((rooms: Array<Room>) => {
         //Update rooms array
-        this.rooms = rooms;
+        if (rooms.toString() != this.rooms.toString()) this.rooms = rooms;
       })
       //Catch any errors
       .catch((error) => {
