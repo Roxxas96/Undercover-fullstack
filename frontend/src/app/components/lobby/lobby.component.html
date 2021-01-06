@@ -89,7 +89,12 @@
 <div class="content">
   <div class="left">
     <h3>Salles disponibles</h3>
-    <div class="alert alert-danger" *ngIf="errorMessageMain.rooms != ''">
+    <div
+      class="alert alert-danger"
+      *ngIf="errorMessageMain.rooms != ''"
+      (click)="errorMessageMain.rooms = ''"
+      style="cursor: pointer"
+    >
       {{ errorMessageMain.rooms }}
     </div>
     <div class="list-group rooms">
@@ -116,7 +121,12 @@
   </div>
   <div class="right list-group-item">
     <h3>Joueurs connectés</h3>
-    <div class="alert alert-danger" *ngIf="errorMessageMain.players != ''">
+    <div
+      class="alert alert-danger"
+      *ngIf="errorMessageMain.players != ''"
+      (click)="errorMessageMain.players = ''"
+      style="cursor: pointer"
+    >
       {{ errorMessageMain.players }}
     </div>
     <div class="players">
