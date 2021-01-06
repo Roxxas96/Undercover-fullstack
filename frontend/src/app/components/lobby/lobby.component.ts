@@ -14,7 +14,7 @@ import { User } from '../../models/User.model';
   styleUrls: ['./lobby.component.scss'],
 })
 export class LobbyComponent implements OnInit {
-  errorMessageRefresh = {
+  errorMessageMain = {
     players: '',
     rooms: '',
   };
@@ -25,6 +25,7 @@ export class LobbyComponent implements OnInit {
   };
 
   createRoomLoading = false;
+  joinRoomLoading = false;
 
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 2;
@@ -59,7 +60,6 @@ export class LobbyComponent implements OnInit {
 
   //Get an array of connected players from backend
   getPlayers() {
-    this.errorMessageRefresh.players = '';
     this.authService
       .getConnectedPlayers()
       .then((users: Array<User>) => {
@@ -68,13 +68,12 @@ export class LobbyComponent implements OnInit {
       })
       //Catcn any errors
       .catch((error) => {
-        this.errorMessageRefresh.players = error.message;
+        this.errorMessageMain.players = error.message;
       });
   }
 
   //Get an array of rooms from backend
   getRooms() {
-    this.errorMessageRefresh.rooms = '';
     this.gameService
       .getRooms()
       .then((rooms: Array<Room>) => {
@@ -83,7 +82,7 @@ export class LobbyComponent implements OnInit {
       })
       //Catch any errors
       .catch((error) => {
-        this.errorMessageRefresh.rooms = error.message;
+        this.errorMessageMain.rooms = error.message;
       });
   }
 
@@ -129,6 +128,34 @@ export class LobbyComponent implements OnInit {
         //Catch other errors
         this.errorMessageCreateRoom.other = error.message;
         this.createRoomLoading = false;
+      });
+  }
+
+  onJoinRoom(roomId: number) {
+    this.joinRoomLoading = true;
+    this.gameService
+      .joinRoom(this.authService.userId, roomId)
+      .then(() => {})
+      .catch((error) => {
+        if (error.error.error == 'Cet user est déjà dans la parite !') {
+          this.errorMessageMain.rooms =
+            'Une érreur est survenue ! Vous semblez déjà être dans la partie';
+          this.joinRoomLoading = false;
+          return;
+        }
+        if (error.error.error == "Cette salle n'existe pas !") {
+          this.errorMessageMain.rooms =
+            "Il semblerait que cette salle n'existe pas, veuillez réssayer";
+          this.joinRoomLoading = false;
+          return;
+        }
+        if (error.error.error == 'La salle est pleine !') {
+          this.errorMessageMain.rooms = 'Cette salle est pleine';
+          this.joinRoomLoading = false;
+          return;
+        }
+        this.errorMessageMain.rooms = error.message;
+        this.joinRoomLoading = false;
       });
   }
 }

@@ -89,15 +89,24 @@
 <div class="content">
   <div class="left">
     <h3>Salles disponibles</h3>
-    <div class="alert alert-danger" *ngIf="errorMessageRefresh.rooms != ''">
-      {{ errorMessageRefresh.rooms }}
+    <div class="alert alert-danger" *ngIf="errorMessageMain.rooms != ''">
+      {{ errorMessageMain.rooms }}
     </div>
     <div class="list-group rooms">
-      <div class="room list-group-item" *ngFor="let room of rooms">
+      <div
+        class="room list-group-item"
+        *ngFor="let room of rooms; let i = index"
+      >
         <h5>{{ room.name }}</h5>
         <div class="room-left">
           <h5>{{ room.players.length }}/{{ room.max_players }}</h5>
-          <button class="btn btn-outline-success">Rejoindre</button>
+          <button
+            class="btn btn-outline-success"
+            (click)="onJoinRoom(i)"
+            [disabled]="room.players.length >= room.max_players"
+          >
+            Rejoindre
+          </button>
         </div>
       </div>
     </div>
@@ -107,8 +116,8 @@
   </div>
   <div class="right list-group-item">
     <h3>Joueurs connectés</h3>
-    <div class="alert alert-danger" *ngIf="errorMessageRefresh.players != ''">
-      {{ errorMessageRefresh.players }}
+    <div class="alert alert-danger" *ngIf="errorMessageMain.players != ''">
+      {{ errorMessageMain.players }}
     </div>
     <div class="players">
       <div class="player" *ngFor="let player of players">

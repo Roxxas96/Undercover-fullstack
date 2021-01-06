@@ -27,12 +27,22 @@ exports.createRoom = (req, res, next) => {
 };
 
 exports.joinRoom = (req, res, next) => {
-  if (Rooms.find((val) => val.players.userId === req.body.userId))
+  if (Rooms[req.params.roomId] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  if (
+    Rooms[req.params.roomId].players.find(
+      (val) => val.userId == req.body.userId
+    )
+  )
     return res
       .status(400)
       .json({ error: "Cet user est déjà dans la parite !" });
-  if (!Rooms[req.params.roomId])
-    return res.status(400).json({ error: "Cette salle existe déjà !" });
+  //Not needed in theory
+  if (
+    Rooms[req.params.roomId].players.length >=
+    Rooms[req.params.roomId].max_players
+  )
+    return res.status(401).json({ error: "La salle est pleine !" });
   Rooms[req.params.roomId].players.push({ userId: req.body.userId });
   return res.status(200).json({ message: "Salle rejoint !" });
 };
