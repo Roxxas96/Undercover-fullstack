@@ -64,7 +64,7 @@ export class LobbyComponent implements OnInit {
       .getConnectedPlayers()
       .then((users: Array<User>) => {
         //Update players array
-        if (this.players != users) this.players = users;
+        if (users.toString() != this.players.toString()) this.players = users;
       })
       //Catcn any errors
       .catch((error) => {
