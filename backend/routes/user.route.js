@@ -4,7 +4,7 @@ const Auth = require("../middleware/Auth");
 
 const router = express.Router();
 
-router.get("", Auth, UserController.getConnectedPlayers);
+router.get("/players", Auth, UserController.getConnectedPlayers);
 router.post("/signup", UserController.signUp);
 router.post("/login", UserController.login);
 router.get("", UserController.auth);

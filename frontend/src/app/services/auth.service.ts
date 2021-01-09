@@ -140,7 +140,7 @@ export class AuthService {
     return new Promise<Array<User>>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Array<User> }>('http://localhost:3000/api/auth')
+        .get<{ result: Array<User> }>('http://localhost:3000/api/auth/players')
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
