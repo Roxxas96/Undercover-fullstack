@@ -78,7 +78,9 @@ export class LobbyComponent implements OnInit {
       .getRooms()
       .then((rooms: Array<Room>) => {
         //Update rooms array
-        if (rooms.toString() != this.rooms.toString()) this.rooms = rooms;
+        if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
+          this.rooms = rooms;
+        }
       })
       //Catch any errors
       .catch((error) => {

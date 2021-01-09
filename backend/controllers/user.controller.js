@@ -7,6 +7,16 @@ const Auth = require("../middleware/Auth");
 
 let connectedPlayers = [];
 
+getUserId = (req) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(
+    token,
+    "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
+  );
+  const userId = decodedToken.userId;
+  return userId;
+};
+
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
   //Crypt password
@@ -111,10 +121,10 @@ exports.login = (req, res, next) => {
 exports.auth = (req, res, next) => {
   //Call auth to check token and return succession
   const authResult = Auth(req, res, next);
-  const index = connectedPlayers.indexOf(req.body.userId);
+  const index = connectedPlayers.indexOf(getUserId(req));
   if (authResult) {
     //Add user only if not in connectedPlayers
-    if (index == -1) connectedPlayers.push(req.body.userId);
+    if (index == -1) connectedPlayers.push(getUserId(req));
     return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {

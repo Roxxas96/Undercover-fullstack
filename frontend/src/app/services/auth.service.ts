@@ -121,7 +121,7 @@ export class AuthService {
       //HTTP request POST
       this.http
         //Provide userId (token is in header)
-        .post('http://localhost:3000/api/auth', { userId: this.userId })
+        .get('http://localhost:3000/api/auth')
         .subscribe(
           (res) => {
             resolve(null);

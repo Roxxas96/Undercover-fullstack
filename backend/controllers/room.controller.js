@@ -1,7 +1,18 @@
 const Room = require("../models/room.model");
 
+const jwt = require("jsonwebtoken");
+
 let Rooms = [];
 
+getUserId = (req) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const decodedToken = jwt.verify(
+    token,
+    "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
+  );
+  const userId = decodedToken.userId;
+  return userId;
+};
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
   return res.status(200).json({ result: Rooms });
@@ -30,9 +41,7 @@ exports.joinRoom = (req, res, next) => {
   if (Rooms[req.params.roomId] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   if (
-    Rooms[req.params.roomId].players.find(
-      (val) => val.userId == req.body.userId
-    )
+    Rooms[req.params.roomId].players.find((val) => val.userId == getUserId(req))
   )
     return res
       .status(400)
@@ -43,6 +52,6 @@ exports.joinRoom = (req, res, next) => {
     Rooms[req.params.roomId].max_players
   )
     return res.status(401).json({ error: "La salle est pleine !" });
-  Rooms[req.params.roomId].players.push({ userId: req.body.userId });
+  Rooms[req.params.roomId].players.push({ userId: getUserId(req) });
   return res.status(200).json({ message: "Salle rejoint !" });
 };

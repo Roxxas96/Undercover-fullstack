@@ -7,6 +7,6 @@ const router = express.Router();
 router.get("", Auth, UserController.getConnectedPlayers);
 router.post("/signup", UserController.signUp);
 router.post("/login", UserController.login);
-router.post("", UserController.auth);
+router.get("", UserController.auth);
 
 module.exports = router;
