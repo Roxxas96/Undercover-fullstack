@@ -1,6 +1,6 @@
 <!--Create room Modal-->
 <ng-template #content let-modal class="modal-dialog">
-  <form (ngSubmit)="onCreateRoom(f)" #f="ngForm">
+  <form (ngSubmit)="onCreateRoom(f, modal)" #f="ngForm">
     <div class="modal-header">
       <h5 class="modal-title" id="modal-basic-title">Créer une salle</h5>
       <button
@@ -76,7 +76,6 @@
       <button
         type="submit"
         class="btn btn-primary"
-        (click)="modal.dismiss()"
         [disabled]="f.invalid"
         ngbAutofocus
       >

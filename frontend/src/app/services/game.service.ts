@@ -45,7 +45,6 @@ export class GameService {
           //Stored in result
           (res: { message: string; result: number }) => {
             resolve(res.result);
-            console.log(res);
           },
           //Throw errors
           (error) => {

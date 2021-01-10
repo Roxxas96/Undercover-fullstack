@@ -118,11 +118,24 @@ exports.login = (req, res, next) => {
   }
 };
 
+exports.logout = (req, res, next) => {
+  const index = connectedPlayers.indexOf(getUserId(req));
+  if (index >= 0) {
+    connectedPlayers.splice(index, 1);
+    return res.status(200).json({ message: "Utilisateur déconnecté !" });
+  }
+  return res
+    .status(400)
+    .json({
+      error: "L'utilisateur n'est pas dans la liste des joueurs connectés !",
+    });
+};
+
 //Auth : check validity of user's token + register if connected or not
 exports.auth = (req, res, next) => {
+  const index = connectedPlayers.indexOf(getUserId(req));
   //Call auth to check token and return succession
   const authResult = Auth(req, res, next);
-  const index = connectedPlayers.indexOf(getUserId(req));
   if (authResult) {
     //Add user only if not in connectedPlayers
     if (index == -1) connectedPlayers.push(getUserId(req));

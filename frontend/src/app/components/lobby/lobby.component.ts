@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { interval, Observable, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
@@ -95,7 +95,7 @@ export class LobbyComponent implements OnInit {
   }
 
   //Create room : Gather form info and call gameService to create a room
-  onCreateRoom(form: NgForm) {
+  onCreateRoom(form: NgForm, modal: NgbActiveModal) {
     //Reset var & draw loading hint
     this.createRoomLoading = true;
     this.errorMessageCreateRoom = {
@@ -113,6 +113,7 @@ export class LobbyComponent implements OnInit {
         //If creation succeded hide loading hint
         //TODO : make the player join
         this.createRoomLoading = false;
+        modal.dismiss();
       })
       .catch((error) => {
         //Catch name unique error

@@ -96,7 +96,7 @@ export class AuthService {
   //Logout
   logout(forceLogout: boolean) {
     //Set local var
-    this.token = '';
+    this.userId = '';
     this.isAuth$.next(false);
     //Force logout mean widown close/refresh
     if (!forceLogout) {
@@ -106,13 +106,16 @@ export class AuthService {
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
     }
-    //Tell backen we disconnected (userId is needed)
-    this.authRequest()
-      .then(() => (this.userId = ''))
-      .catch((error) => {
-        this.userId = '';
+    //Tell backen we disconnected
+    this.http.get('http://localhost:3000/api/auth/logout').subscribe(
+      () => {
+        this.token = '';
+      },
+      (error) => {
         console.log(error);
-      });
+        this.token = '';
+      }
+    );
   }
 
   //AuthRequest : fetch session info with backend to ensure that token hasn't expired
@@ -124,7 +127,6 @@ export class AuthService {
         .get('http://localhost:3000/api/auth')
         .subscribe(
           (res) => {
-            console.log(res);
             resolve(null);
           },
           //Catch errors (could be wrong token or other)
@@ -145,7 +147,6 @@ export class AuthService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
-            console.log(res.result);
             resolve(res.result);
           },
           //Catch errors
