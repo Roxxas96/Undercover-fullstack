@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 
+const cryptKey =
+  "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p";
+
 module.exports = (req, res, next) => {
   var authSucceded = false;
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(
-      token,
-      "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
-    );
+    const decodedToken = jwt.verify(token, cryptKey);
     const userId = decodedToken.userId;
     //if token deos not match
     if (req.body.userId && req.body.userId !== userId)

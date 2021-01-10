@@ -138,7 +138,7 @@ export class LobbyComponent implements OnInit {
   onJoinRoom(roomId: number) {
     this.joinRoomLoading = true;
     this.gameService
-      .joinRoom(this.authService.userId, roomId)
+      .joinRoom(roomId)
       //TODO : diriger vers la page de la salle
       .then(() => {})
       .catch((error) => {

@@ -57,7 +57,7 @@ export class GameService {
   }
 
   //Join room : call backend to make the player join a room and catch the result
-  joinRoom(userId: string, roomId: number) {
+  joinRoom(roomId: number) {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http.get('http://localhost:3000/api/room/' + roomId).subscribe(
