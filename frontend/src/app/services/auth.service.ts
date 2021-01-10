@@ -118,7 +118,7 @@ export class AuthService {
   //AuthRequest : fetch session info with backend to ensure that token hasn't expired
   authRequest() {
     return new Promise((resolve, reject) => {
-      //HTTP request POST
+      //HTTP request GET
       this.http
         //Provide userId (token is in header)
         .get('http://localhost:3000/api/auth')

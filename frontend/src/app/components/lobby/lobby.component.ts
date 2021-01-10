@@ -134,29 +134,35 @@ export class LobbyComponent implements OnInit {
       });
   }
 
+  //Join room : make the player join a room
   onJoinRoom(roomId: number) {
     this.joinRoomLoading = true;
     this.gameService
       .joinRoom(this.authService.userId, roomId)
+      //TODO : diriger vers la page de la salle
       .then(() => {})
       .catch((error) => {
+        //Error : User already in the game
         if (error.error.error == 'Cet user est déjà dans la parite !') {
           this.errorMessageMain.rooms =
             'Une érreur est survenue ! Vous semblez déjà être dans la partie';
           this.joinRoomLoading = false;
           return;
         }
+        //Error unknown room (useless in theory)
         if (error.error.error == "Cette salle n'existe pas !") {
           this.errorMessageMain.rooms =
             "Il semblerait que cette salle n'existe pas, veuillez réssayer";
           this.joinRoomLoading = false;
           return;
         }
+        //Error : room full
         if (error.error.error == 'La salle est pleine !') {
           this.errorMessageMain.rooms = 'Cette salle est pleine';
           this.joinRoomLoading = false;
           return;
         }
+        //Other errors
         this.errorMessageMain.rooms = error.message;
         this.joinRoomLoading = false;
       });
