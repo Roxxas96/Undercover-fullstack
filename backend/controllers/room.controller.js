@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 let Rooms = [];
 
+//Get userId from headers
 getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(

@@ -124,6 +124,7 @@ export class AuthService {
         .get('http://localhost:3000/api/auth')
         .subscribe(
           (res) => {
+            console.log(res);
             resolve(null);
           },
           //Catch errors (could be wrong token or other)
@@ -144,6 +145,7 @@ export class AuthService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
+            console.log(res.result);
             resolve(res.result);
           },
           //Catch errors

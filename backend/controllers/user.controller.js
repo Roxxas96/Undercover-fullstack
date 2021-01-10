@@ -7,6 +7,7 @@ const Auth = require("../middleware/Auth");
 
 let connectedPlayers = [];
 
+//Get userId from headers
 getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   const decodedToken = jwt.verify(
@@ -136,7 +137,10 @@ exports.auth = (req, res, next) => {
 
 //Get connected players : return an array of all connected players (return their id + username)
 exports.getConnectedPlayers = (req, res, next) => {
-  User.find({ _id: { $in: connectedPlayers } }, { username: true })
+  User.find(
+    { _id: { $in: connectedPlayers } },
+    { _id: false, password: false, email: false }
+  )
     .then((users) => {
       return res.status(200).json({ result: users });
     })
