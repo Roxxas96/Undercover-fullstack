@@ -1,1 +1,23 @@
-<p>{{ test }}</p>
+<div class="content">
+  <div
+    class="alert alert-danger"
+    *ngIf="errorMessage != ''"
+    (click)="errorMessage = ''"
+    style="cursor: pointer; width: fit-content; margin: auto"
+  >
+    {{ errorMessage }}
+  </div>
+  <div class="players">
+    <div class="player" *ngFor="let player of Room.players; let i1 = index">
+      <h5>{{ player.userId }}</h5>
+      <div class="words">
+        <div class="word" *ngFor="let word of player.words; let i2 = index">
+          {{ word }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-outline-success vote-btn">
+    <h5 style="margin: 5px">Voter</h5>
+  </button>
+</div>

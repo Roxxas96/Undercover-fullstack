@@ -1,9 +1,7 @@
 export class Room {
   name: String = '';
   max_players: Number = 0;
-  players: [
-    {
-      userId: String;
-    }
-  ] = [{ userId: '' }];
+  players: Array<{ userId: string; words: Array<string> }> = [
+    { userId: '', words: [] },
+  ];
 }

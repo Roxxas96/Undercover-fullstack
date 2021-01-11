@@ -14,9 +14,14 @@ getUserId = (req) => {
   const userId = decodedToken.userId;
   return userId;
 };
+
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
   return res.status(200).json({ result: Rooms });
+};
+
+exports.getSingleRoom = (req, res, next) => {
+  return res.status(200).json({ result: Rooms[req.params.roomId] });
 };
 
 //Create room, create a room and push it to Rooms array
@@ -53,7 +58,7 @@ exports.joinRoom = (req, res, next) => {
     Rooms[req.params.roomId].max_players
   )
     return res.status(401).json({ error: "La salle est pleine !" });
-  Rooms[req.params.roomId].players.push({ userId: getUserId(req) });
+  Rooms[req.params.roomId].players.push({ userId: getUserId(req), words: [] });
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 

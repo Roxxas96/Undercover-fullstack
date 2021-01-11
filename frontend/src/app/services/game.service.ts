@@ -29,6 +29,26 @@ export class GameService {
     });
   }
 
+  //Get single room, return type : Room
+  getSingleRoom(roomId: number) {
+    return new Promise<Room>((resolve, reject) => {
+      //HTTP request : GET
+      this.http
+        .get<{ result: Room }>('http://localhost:3000/api/room/get/' + roomId)
+        .subscribe(
+          //Returned object is stored in result key
+          (res: { result: Room }) => {
+            resolve(res.result);
+          },
+          //Throw errors
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
   //Create room : call backend to create a room, return the index of created room
   createRoom(roomName: string, maxPlayers: number) {
     return new Promise<number>((resolve, reject) => {
