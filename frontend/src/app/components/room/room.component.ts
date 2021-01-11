@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Room } from '../models/Room.model';
-import { GameService } from '../services/game.service';
+import { Room } from '../../models/Room.model';
+import { GameService } from '../../services/game.service';
 
 @Component({
   selector: 'app-room',

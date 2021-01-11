@@ -14,7 +14,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { AuthGuard } from './services/auth.guard';
 import { GameService } from './services/game.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { RoomComponent } from './room/room.component';
+import { RoomComponent } from './components/room/room.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +25,13 @@ import { RoomComponent } from './room/room.component';
     HeaderComponent,
     RoomComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule, NgbModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    NgbModule,
+  ],
   providers: [
     AuthService,
     AuthGuard,
