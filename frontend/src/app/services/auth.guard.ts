@@ -30,7 +30,6 @@ export class AuthGuard implements CanActivate {
           this.authService
             .authRequest()
             //If token invalid
-            //TODO : à préciser
             .catch(() => this.authService.isAuth$.next(false));
         }
         observer.next(true);

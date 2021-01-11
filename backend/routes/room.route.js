@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("", Auth, RoomController.getRooms);
 router.post("/create", Auth, RoomController.createRoom);
-router.get("/:roomId", Auth, RoomController.joinRoom);
+router.get("/join/:roomId", Auth, RoomController.joinRoom);
+router.get("/quit/:roomId", Auth, RoomController.quitRoom);
 
 module.exports = router;

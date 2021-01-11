@@ -59,12 +59,27 @@ export class GameService {
   joinRoom(roomId: number) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get('http://localhost:3000/api/room/' + roomId).subscribe(
+      this.http.get('http://localhost:3000/api/room/join/' + roomId).subscribe(
         (res) => {
           resolve(null);
         },
         (error) => {
           //Throw
+          console.log(error);
+          reject(error);
+        }
+      );
+    });
+  }
+
+  quitRoom(roomId: number) {
+    return new Promise((resolve, reject) => {
+      this.http.get('http://localhost:3000/api/room/quit/' + roomId).subscribe(
+        (res) => {
+          console.log(res);
+          resolve(null);
+        },
+        (error) => {
           console.log(error);
           reject(error);
         }

@@ -25,6 +25,7 @@
           }"
           ngModel
           required
+          ngbAutofocus
         />
         <div class="invalid-feedback">
           {{ errorMessageCreateRoom.name }}
@@ -73,12 +74,7 @@
       >
         Fermer
       </button>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="f.invalid"
-        ngbAutofocus
-      >
+      <button type="submit" class="btn btn-primary" [disabled]="f.invalid">
         Créér la salle
       </button>
     </div>

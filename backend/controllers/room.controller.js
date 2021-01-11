@@ -56,3 +56,20 @@ exports.joinRoom = (req, res, next) => {
   Rooms[req.params.roomId].players.push({ userId: getUserId(req) });
   return res.status(200).json({ message: "Salle rejoint !" });
 };
+
+exports.quitRoom = (req, res, next) => {
+  if (Rooms[req.params.roomId] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  const index = Rooms[req.params.roomId].players
+    .map(function (e) {
+      return e.userId;
+    })
+    .indexOf(getUserId(req));
+  if (index == -1)
+    return res.status(400).json({
+      error: "Cet user n'est pas dans la parite !",
+      test: Rooms[req.params.roomId].players,
+    });
+  Rooms[req.params.roomId].players.splice(index, 1);
+  return res.status(200).json({ message: "Salle quitée !" });
+};

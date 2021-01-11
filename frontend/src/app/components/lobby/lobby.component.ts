@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { interval, Observable, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
@@ -40,7 +41,8 @@ export class LobbyComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private gameService: GameService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -109,11 +111,11 @@ export class LobbyComponent implements OnInit {
     //Call gameService createRoom func
     this.gameService
       .createRoom(roomName, maxPlayers)
-      .then(() => {
+      .then((res) => {
         //If creation succeded hide loading hint
-        //TODO : make the player join
         this.createRoomLoading = false;
         modal.dismiss();
+        this.onJoinRoom(res);
       })
       .catch((error) => {
         //Catch name unique error
@@ -140,8 +142,9 @@ export class LobbyComponent implements OnInit {
     this.joinRoomLoading = true;
     this.gameService
       .joinRoom(roomId)
-      //TODO : diriger vers la page de la salle
-      .then(() => {})
+      .then(() => {
+        this.router.navigate(['room/' + roomId]);
+      })
       .catch((error) => {
         //Error : User already in the game
         if (error.error.error == 'Cet user est déjà dans la parite !') {
