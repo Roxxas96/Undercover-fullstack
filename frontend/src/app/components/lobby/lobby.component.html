@@ -99,11 +99,11 @@
       >
         <h5>{{ room.name }}</h5>
         <div class="room-left">
-          <h5>{{ room.players.length }}/{{ room.max_players }}</h5>
+          <h5>{{ room.players }}/{{ room.max_players }}</h5>
           <button
             class="btn btn-outline-success"
             (click)="onJoinRoom(i)"
-            [disabled]="room.players.length >= room.max_players"
+            [disabled]="room.players >= room.max_players"
           >
             Rejoindre
           </button>

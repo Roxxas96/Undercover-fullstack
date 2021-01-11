@@ -1,6 +1,6 @@
-const Room = require("../models/room.model");
-
 const jwt = require("jsonwebtoken");
+
+const User = require("../models/user.model");
 
 let Rooms = [];
 
@@ -17,11 +17,45 @@ getUserId = (req) => {
 
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
-  return res.status(200).json({ result: Rooms });
+  return res.status(200).json({
+    result: Rooms.map((e) => {
+      return {
+        name: e.name,
+        max_players: e.max_players,
+        players: e.players.length,
+      };
+    }),
+  });
 };
 
 exports.getSingleRoom = (req, res, next) => {
-  return res.status(200).json({ result: Rooms[req.params.roomId] });
+  User.find(
+    {
+      _id: {
+        $in: Rooms[req.params.roomId].players.map((Player) => {
+          return Player.userId;
+        }),
+      },
+    },
+    { _id: false, password: false, email: false }
+  )
+    .then((users) => {
+      return res.status(200).json({
+        result: {
+          name: Rooms[req.params.roomId].name,
+          max_players: Rooms[req.params.roomId].max_players,
+          players: Rooms[req.params.roomId].players.map((Player, index) => {
+            return {
+              userInfo: users[index],
+              words: Player.words,
+            };
+          }),
+        },
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error });
+    });
 };
 
 //Create room, create a room and push it to Rooms array
@@ -66,8 +100,8 @@ exports.quitRoom = (req, res, next) => {
   if (Rooms[req.params.roomId] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   const index = Rooms[req.params.roomId].players
-    .map(function (e) {
-      return e.userId;
+    .map((user) => {
+      return user.userId;
     })
     .indexOf(getUserId(req));
   if (index == -1)

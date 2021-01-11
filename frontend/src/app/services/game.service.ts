@@ -11,13 +11,23 @@ export class GameService {
 
   //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)
   getRooms() {
-    return new Promise<Array<Room>>((resolve, reject) => {
+    return new Promise<
+      Array<{ name: string; max_players: number; players: number }>
+    >((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Array<Room> }>('http://localhost:3000/api/room')
+        .get<{
+          result: Array<{ name: string; max_players: number; players: number }>;
+        }>('http://localhost:3000/api/room')
         .subscribe(
           //Returned array is stored in result key
-          (res: { result: Array<Room> }) => {
+          (res: {
+            result: Array<{
+              name: string;
+              max_players: number;
+              players: number;
+            }>;
+          }) => {
             resolve(res.result);
           },
           //Throw errors
@@ -38,6 +48,7 @@ export class GameService {
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
+            console.log(res.result);
             resolve(res.result);
           },
           //Throw errors

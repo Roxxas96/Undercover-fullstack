@@ -9,7 +9,7 @@
   </div>
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
-      <h5>{{ player.userId }}</h5>
+      <h5>{{ player.userInfo.username }}</h5>
       <div class="words">
         <div class="word" *ngFor="let word of player.words; let i2 = index">
           {{ word }}

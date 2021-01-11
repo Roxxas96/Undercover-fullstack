@@ -17,7 +17,7 @@ export class RoomComponent implements OnInit {
   Room: Room = {
     name: '',
     max_players: 0,
-    players: [{ userId: '', words: [] }],
+    players: [{ userInfo: { username: '' }, words: [] }],
   };
 
   refresh = interval(1000);
@@ -30,56 +30,10 @@ export class RoomComponent implements OnInit {
 
   ngOnInit(): void {
     this.roomId = this.route.snapshot.params['roomId'];
-    this.Room = {
-      name: 'fqsfqsf',
-      max_players: 10,
-      players: [
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-        {
-          userId: '00000000000000000000000000',
-          words: ['salu', 'coucou', 'bbbbbb'],
-        },
-      ],
-    };
-    // this.getRoomInfo();
-    // this.refreshSub = this.refresh.subscribe(() => {
-    //   this.getRoomInfo();
-    // });
+    this.getRoomInfo();
+    this.refreshSub = this.refresh.subscribe(() => {
+      this.getRoomInfo();
+    });
     //TODO : Fix le bug du perso qui se déco pas de la liste des joueurs sur ce component
     window.onbeforeunload = () => {
       this.gameService.quitRoom(this.roomId);

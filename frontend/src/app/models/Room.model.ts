@@ -1,7 +1,9 @@
+import { User } from './User.model';
+
 export class Room {
   name: String = '';
   max_players: Number = 0;
-  players: Array<{ userId: string; words: Array<string> }> = [
-    { userId: '', words: [] },
+  players: Array<{ userInfo: User; words: Array<string> }> = [
+    { userInfo: { username: '' }, words: [] },
   ];
 }

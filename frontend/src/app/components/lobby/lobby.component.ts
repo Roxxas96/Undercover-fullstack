@@ -31,7 +31,7 @@ export class LobbyComponent implements OnInit {
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 2;
 
-  rooms: Array<Room> = [];
+  rooms: Array<{ name: string; max_players: number; players: number }> = [];
 
   players: Array<User> = [];
 
@@ -79,12 +79,16 @@ export class LobbyComponent implements OnInit {
   getRooms() {
     this.gameService
       .getRooms()
-      .then((rooms: Array<Room>) => {
-        //Update rooms array
-        if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
-          this.rooms = rooms;
+      .then(
+        (
+          rooms: Array<{ name: string; max_players: number; players: number }>
+        ) => {
+          //Update rooms array
+          if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
+            this.rooms = rooms;
+          }
         }
-      })
+      )
       //Catch any errors
       .catch((error) => {
         this.errorMessageMain.rooms = error.message;
