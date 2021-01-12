@@ -122,19 +122,24 @@ export class LobbyComponent implements OnInit {
         this.onJoinRoom(res);
       })
       .catch((error) => {
-        //Catch name unique error
-        if (error.error.error == 'Nom de salle déjà pris !') {
-          this.errorMessageCreateRoom.name = 'Ce nom est déjà pris';
+        if ((error.status = 400)) {
+          if (error.error.error == 'Nom de la salle vide !') {
+            this.errorMessageCreateRoom.name =
+              'Veuillez saisir un nom de salle valide';
+          }
+          //Catch name unique error
+          if (error.error.error == 'Nom de salle déjà pris !') {
+            this.errorMessageCreateRoom.name = 'Ce nom est déjà pris';
+          }
+          //Catch invalid number error (useless in theory)
+          if (error.error.error == 'Nombre de joueurs invalide !') {
+            this.errorMessageCreateRoom.maxPlayers =
+              'Il y a eu un problème, veuillez réessayer';
+          }
           this.createRoomLoading = false;
           return;
         }
-        //Catch invalid number error (useless in theory)
-        if (error.error.error == 'Nombre de joueurs invalide !') {
-          this.errorMessageCreateRoom.maxPlayers =
-            'Il y a eu un problème, veuillez réessayer';
-          this.createRoomLoading = false;
-          return;
-        }
+
         //Catch other errors
         this.errorMessageCreateRoom.other = error.message;
         this.createRoomLoading = false;

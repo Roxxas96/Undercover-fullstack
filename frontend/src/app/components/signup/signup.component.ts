@@ -60,6 +60,16 @@ export class SignupComponent implements OnInit {
           if (error.error.error.message.includes('email')) {
             this.errorMessage.email = 'Cette adresse mail est déjà utilisée';
           }
+          if ((error.error.error = 'Pseudo vide !')) {
+            this.errorMessage.username = 'Veuillez saisir un pseudo valide';
+          }
+          if ((error.error.error = 'Email invalide !')) {
+            this.errorMessage.email = 'Veuillez saisir une adresse mail valide';
+          }
+          if ((error.error.error = 'Mot de passe trop court !')) {
+            this.errorMessage.email =
+              'Veuillez saisir un mot de pass valide (8 caractères minimum)';
+          }
           this.loading = false;
           return;
         }
