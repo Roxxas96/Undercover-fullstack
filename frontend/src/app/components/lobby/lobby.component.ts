@@ -122,7 +122,7 @@ export class LobbyComponent implements OnInit {
         this.onJoinRoom(res);
       })
       .catch((error) => {
-        if ((error.status = 400)) {
+        if (error.status == 400) {
           if (error.error.error == 'Nom de la salle vide !') {
             this.errorMessageCreateRoom.name =
               'Veuillez saisir un nom de salle valide';

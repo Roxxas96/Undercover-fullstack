@@ -53,22 +53,28 @@ export class SignupComponent implements OnInit {
       })
       .catch((error) => {
         //If user alrdy exists catch it
-        if ((error.status = 400)) {
-          if (error.error.error.message.includes('username')) {
-            this.errorMessage.username = 'Ce pseudo est déjà utilisé';
-          }
-          if (error.error.error.message.includes('email')) {
-            this.errorMessage.email = 'Cette adresse mail est déjà utilisée';
-          }
-          if ((error.error.error = 'Pseudo vide !')) {
+        if (error.status == 400) {
+          if (error.error.error == 'Pseudo vide !') {
             this.errorMessage.username = 'Veuillez saisir un pseudo valide';
           }
-          if ((error.error.error = 'Email invalide !')) {
+          if (error.error.error == 'Email invalide !') {
             this.errorMessage.email = 'Veuillez saisir une adresse mail valide';
           }
-          if ((error.error.error = 'Mot de passe trop court !')) {
-            this.errorMessage.email =
+          if (error.error.error == 'Mot de passe trop court !') {
+            this.errorMessage.password =
               'Veuillez saisir un mot de pass valide (8 caractères minimum)';
+          }
+          if (
+            error.error.error.message &&
+            error.error.error.message.includes('username')
+          ) {
+            this.errorMessage.username = 'Ce pseudo est déjà utilisé';
+          }
+          if (
+            error.error.error.message &&
+            error.error.error.message.includes('email')
+          ) {
+            this.errorMessage.email = 'Cette adresse mail est déjà utilisée';
           }
           this.loading = false;
           return;

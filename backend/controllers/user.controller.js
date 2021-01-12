@@ -24,7 +24,7 @@ exports.signUp = (req, res, next) => {
     return res.status(400).json({ error: "Pseudo vide !" });
   if (!req.body.email.includes("@"))
     return res.status(400).json({ error: "Email invalide !" });
-  if (req.body.password.length <= 8)
+  if (req.body.password.length < 8)
     return res.status(400).json({ error: "Mot de passe trop court !" });
   //Crypt password
   bcrypt
