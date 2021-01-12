@@ -39,10 +39,6 @@ export class RoomComponent implements OnInit {
     this.refreshSub = this.refresh.subscribe(() => {
       this.getRoomInfo();
     });
-    //TODO : Fix le bug du perso qui se déco pas de la liste des joueurs sur ce component
-    window.onbeforeunload = () => {
-      this.gameService.quitRoom(this.roomId);
-    };
   }
 
   ngOnDestroy() {
