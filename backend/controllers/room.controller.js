@@ -113,6 +113,8 @@ exports.quitRoom = (req, res, next) => {
       test: Rooms[req.params.roomId].players,
     });
   Rooms[req.params.roomId].players.splice(index, 1);
+  if (Rooms[req.params.roomId].players.length <= 0)
+    Rooms.splice(req.params.roomId, 1);
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
