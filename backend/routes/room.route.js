@@ -10,5 +10,6 @@ router.post("/create", Auth, RoomController.createRoom);
 router.get("/join/:roomId", Auth, RoomController.joinRoom);
 router.get("/quit/:roomId", Auth, RoomController.quitRoom);
 router.post("/word/:roomId", Auth, RoomController.pushWord);
+router.get("/vote/:roomId", Auth, RoomController.playerVote);
 
 module.exports = router;

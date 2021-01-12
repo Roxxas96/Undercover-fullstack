@@ -16,18 +16,17 @@ export class RoomComponent implements OnInit {
     word: '',
   };
 
-  Loading = false;
+  WordLoading = false;
+  VoteLoading = false;
 
   roomId = -1;
 
-  Room: Room = {
-    name: '',
-    max_players: 0,
-    players: [{ userInfo: { username: '' }, words: [], isOwner: false }],
-  };
+  Room: Room = new Room();
 
   refresh = interval(1000);
   refreshSub: Subscription = new Observable().subscribe();
+
+  ownerIndex = -1;
 
   constructor(
     private gameService: GameService,
@@ -58,6 +57,7 @@ export class RoomComponent implements OnInit {
         //Update rooms array
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
           this.Room = res;
+          this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
         }
       })
       .catch((error) => {
@@ -67,30 +67,46 @@ export class RoomComponent implements OnInit {
 
   onSubmitWord(form: NgForm) {
     this.errorMessage.word = '';
-    this.Loading = true;
+    this.WordLoading = true;
 
     const word = form.value['word'];
 
     if (word == '') {
-      this.Loading = false;
+      this.WordLoading = false;
       this.errorMessage.word = 'Veuillez entrer un mot valide';
       return;
     }
 
-    const ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
-
-    this.Room.players[ownerIndex].words.push(word);
+    this.Room.players[this.ownerIndex].words.push(word);
 
     this.gameService
       .pushWord(this.roomId, word)
       .then(() => {
-        this.Loading = false;
+        this.WordLoading = false;
         form.reset();
       })
       .catch((error) => {
         this.errorMessage.global = error.message;
-        this.Loading = false;
+        this.WordLoading = false;
         form.reset();
       });
+  }
+
+  onPlayerVote() {
+    this.VoteLoading = true;
+
+    this.gameService
+      .playerVote(this.roomId)
+      .then(() => {
+        this.VoteLoading = false;
+      })
+      .catch((error) => {
+        this.errorMessage.global = error.message;
+        this.VoteLoading = false;
+      });
+
+    this.Room.players[this.ownerIndex].vote = !this.Room.players[
+      this.ownerIndex
+    ].vote;
   }
 }

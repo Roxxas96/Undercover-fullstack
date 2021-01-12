@@ -9,40 +9,59 @@
   </div>
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
-      <h5>{{ player.userInfo.username }}</h5>
+      <div style="display: flex; justify-content: center">
+        <h5 style="margin-right: 2%">{{ player.userInfo.username }}</h5>
+        <h5 *ngIf="player.vote">✅</h5>
+      </div>
       <div class="words">
         <div class="word" *ngFor="let word of player.words; let i2 = index">
-          {{ word }}
+          {{ player.words[player.words.length - i2 - 1] }}
         </div>
       </div>
-      <form (ngSubmit)="onSubmitWord(f)" #f="ngForm" *ngIf="player.isOwner">
-        <div class="mb-3 word-submit">
-          <input
-            type="text"
-            name="word"
-            id="word"
-            [ngClass]="{
-              'form-control': true,
-              'is-invalid': errorMessage.word != ''
-            }"
-            placeholder="Entrez un mot ici"
-            ngModel
-            required
-          />
-          <div class="invalid-feedback">
-            {{ errorMessage.word }}
-          </div>
-          <div
-            class="spinner-border text-primary"
-            role="status"
-            style="margin-top: 5%"
-            *ngIf="Loading"
-          ></div>
-        </div>
-      </form>
     </div>
   </div>
-  <button class="btn btn-outline-success vote-btn">
-    <h5 style="margin: 5px">Voter</h5>
-  </button>
+  <div class="buttons">
+    <form (ngSubmit)="onSubmitWord(f)" #f="ngForm">
+      <div class="mb-3 word-submit">
+        <input
+          type="text"
+          name="word"
+          id="word"
+          [ngClass]="{
+            'form-control': true,
+            'is-invalid': errorMessage.word != ''
+          }"
+          placeholder="Entrez un mot ici"
+          ngModel
+          required
+        />
+        <div class="invalid-feedback">
+          {{ errorMessage.word }}
+        </div>
+        <div
+          class="spinner-border text-primary"
+          role="status"
+          style="margin-top: 5%"
+          *ngIf="WordLoading"
+        ></div>
+      </div>
+    </form>
+    <button
+      [ngClass]="{
+        'vote-btn': true,
+        'btn-outline-success':
+          ownerIndex == -1 || !Room.players[ownerIndex].vote,
+        'btn-outline-danger': ownerIndex != -1 && Room.players[ownerIndex].vote,
+        btn: true
+      }"
+      (click)="onPlayerVote()"
+    >
+      <h5 style="margin: 5px">Voter</h5>
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        *ngIf="VoteLoading"
+      ></div>
+    </button>
+  </div>
 </div>

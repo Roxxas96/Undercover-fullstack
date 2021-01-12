@@ -131,4 +131,18 @@ export class GameService {
         );
     });
   }
+
+  playerVote(roomId: number) {
+    return new Promise((resolve, reject) => {
+      this.http.get('http://localhost:3000/api/room/vote/' + roomId).subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          console.log(error);
+          reject(error);
+        }
+      );
+    });
+  }
 }

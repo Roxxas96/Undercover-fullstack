@@ -40,6 +40,10 @@ exports.getSingleRoom = (req, res, next) => {
     { _id: false, password: false, email: false }
   )
     .then((users) => {
+      if (!users)
+        return res
+          .status(404)
+          .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
       return res.status(200).json({
         result: {
           name: Rooms[req.params.roomId].name,
@@ -51,6 +55,7 @@ exports.getSingleRoom = (req, res, next) => {
               isOwner:
                 Rooms[req.params.roomId].players[index].userId ==
                 getUserId(req),
+              vote: Player.vote,
             };
           }),
         },
@@ -95,7 +100,11 @@ exports.joinRoom = (req, res, next) => {
     Rooms[req.params.roomId].max_players
   )
     return res.status(401).json({ error: "La salle est pleine !" });
-  Rooms[req.params.roomId].players.push({ userId: getUserId(req), words: [] });
+  Rooms[req.params.roomId].players.push({
+    userId: getUserId(req),
+    words: [],
+    vote: false,
+  });
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -126,6 +135,26 @@ exports.pushWord = (req, res, next) => {
       return user.userId;
     })
     .indexOf(getUserId(req));
+  if (index == -1)
+    return res.status(404).json({ error: "Utilisateur non trouvé !" });
   Rooms[req.params.roomId].players[index].words.push(req.body.word);
   return res.status(200).json({ message: "Le mot a été entré !" });
+};
+
+exports.playerVote = (req, res, next) => {
+  const index = Rooms[req.params.roomId].players
+    .map((user) => {
+      return user.userId;
+    })
+    .indexOf(getUserId(req));
+  if (index == -1)
+    return res.status(404).json({ error: "Utilisateur non trouvé !" });
+  Rooms[req.params.roomId].players[index].vote = !Rooms[req.params.roomId]
+    .players[index].vote;
+  return res.status(200).json({
+    message:
+      "Le vote a été changé en " +
+      Rooms[req.params.roomId].players[index].vote +
+      " !",
+  });
 };
