@@ -10,8 +10,8 @@
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
       <div style="display: flex; justify-content: center">
-        <h5 style="margin-right: 2%">{{ player.userInfo.username }}</h5>
-        <h5 *ngIf="player.vote">✅</h5>
+        <h5>{{ player.userInfo.username }}</h5>
+        <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
       </div>
       <div class="words">
         <div class="word" *ngFor="let word of player.words; let i2 = index">
