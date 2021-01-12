@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
 import { Room } from '../../models/Room.model';
@@ -10,14 +11,19 @@ import { GameService } from '../../services/game.service';
   styleUrls: ['./room.component.scss'],
 })
 export class RoomComponent implements OnInit {
-  errorMessage = '';
+  errorMessage = {
+    global: '',
+    word: '',
+  };
+
+  Loading = false;
 
   roomId = -1;
 
   Room: Room = {
     name: '',
     max_players: 0,
-    players: [{ userInfo: { username: '' }, words: [] }],
+    players: [{ userInfo: { username: '' }, words: [], isOwner: false }],
   };
 
   refresh = interval(1000);
@@ -56,6 +62,35 @@ export class RoomComponent implements OnInit {
       })
       .catch((error) => {
         this.errorMessage = error.message;
+      });
+  }
+
+  onSubmitWord(form: NgForm) {
+    this.errorMessage.word = '';
+    this.Loading = true;
+
+    const word = form.value['word'];
+
+    if (word == '') {
+      this.Loading = false;
+      this.errorMessage.word = 'Veuillez entrer un mot valide';
+      return;
+    }
+
+    const ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
+
+    this.Room.players[ownerIndex].words.push(word);
+
+    this.gameService
+      .pushWord(this.roomId, word)
+      .then(() => {
+        this.Loading = false;
+        form.reset();
+      })
+      .catch((error) => {
+        this.errorMessage.global = error.message;
+        this.Loading = false;
+        form.reset();
       });
   }
 }

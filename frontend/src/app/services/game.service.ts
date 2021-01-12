@@ -48,7 +48,6 @@ export class GameService {
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
-            console.log(res.result);
             resolve(res.result);
           },
           //Throw errors
@@ -107,7 +106,6 @@ export class GameService {
     return new Promise((resolve, reject) => {
       this.http.get('http://localhost:3000/api/room/quit/' + roomId).subscribe(
         (res) => {
-          console.log(res);
           resolve(null);
         },
         (error) => {
@@ -115,6 +113,22 @@ export class GameService {
           reject(error);
         }
       );
+    });
+  }
+
+  pushWord(roomId: number, word: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('http://localhost:3000/api/room/word/' + roomId, { word: word })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
     });
   }
 }

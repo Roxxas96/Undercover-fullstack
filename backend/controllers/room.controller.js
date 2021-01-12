@@ -48,6 +48,9 @@ exports.getSingleRoom = (req, res, next) => {
             return {
               userInfo: users[index],
               words: Player.words,
+              isOwner:
+                Rooms[req.params.roomId].players[index].userId ==
+                getUserId(req),
             };
           }),
         },
@@ -111,4 +114,16 @@ exports.quitRoom = (req, res, next) => {
     });
   Rooms[req.params.roomId].players.splice(index, 1);
   return res.status(200).json({ message: "Salle quitée !" });
+};
+
+exports.pushWord = (req, res, next) => {
+  if (req.body.word == "")
+    return res.status(400).json({ error: "Le mot entré est vide !" });
+  const index = Rooms[req.params.roomId].players
+    .map((user) => {
+      return user.userId;
+    })
+    .indexOf(getUserId(req));
+  Rooms[req.params.roomId].players[index].words.push(req.body.word);
+  return res.status(200).json({ message: "Le mot a été entré !" });
 };

@@ -1,11 +1,11 @@
 <div class="content">
   <div
     class="alert alert-danger"
-    *ngIf="errorMessage != ''"
-    (click)="errorMessage = ''"
+    *ngIf="errorMessage.global != ''"
+    (click)="errorMessage.global = ''"
     style="cursor: pointer; width: fit-content; margin: auto"
   >
-    {{ errorMessage }}
+    {{ errorMessage.global }}
   </div>
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
@@ -15,6 +15,31 @@
           {{ word }}
         </div>
       </div>
+      <form (ngSubmit)="onSubmitWord(f)" #f="ngForm" *ngIf="player.isOwner">
+        <div class="mb-3 word-submit">
+          <input
+            type="text"
+            name="word"
+            id="word"
+            [ngClass]="{
+              'form-control': true,
+              'is-invalid': errorMessage.word != ''
+            }"
+            placeholder="Entrez un mot ici"
+            ngModel
+            required
+          />
+          <div class="invalid-feedback">
+            {{ errorMessage.word }}
+          </div>
+          <div
+            class="spinner-border text-primary"
+            role="status"
+            style="margin-top: 5%"
+            *ngIf="Loading"
+          ></div>
+        </div>
+      </form>
     </div>
   </div>
   <button class="btn btn-outline-success vote-btn">
