@@ -38,6 +38,10 @@
 .word-submit input {
   text-align: center;
 }
+.WordLoading {
+  margin-top: 3%;
+  margin-left: 45%;
+}
 
 @media all and (max-width: 992px) {
   .vote-btn {
@@ -48,5 +52,9 @@
     width: 60%;
     margin: auto;
     text-align: center;
+  }
+  .WordLoading {
+    margin-top: 3%;
+    margin-left: 0;
   }
 }

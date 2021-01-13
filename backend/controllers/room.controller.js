@@ -68,7 +68,7 @@ exports.getSingleRoom = (req, res, next) => {
 
 //Create room, create a room and push it to Rooms array
 exports.createRoom = (req, res, next) => {
-  if (req.body.roomName <= 0)
+  if (req.body.roomName.length <= 0)
     return res.status(400).json({ error: "Nom de la salle vide !" });
   //Name must be unique
   if (Rooms.find((val) => val.name === req.body.roomName))
