@@ -102,13 +102,16 @@ export class GameService {
     });
   }
 
+  //Quit room : call back to kick player from room
   quitRoom(roomId: number) {
     return new Promise((resolve, reject) => {
+      //GET Request
       this.http.get('http://localhost:3000/api/room/quit/' + roomId).subscribe(
         (res) => {
           resolve(null);
         },
         (error) => {
+          //Throw
           console.log(error);
           reject(error);
         }
@@ -116,8 +119,10 @@ export class GameService {
     });
   }
 
+  //Push word : push word to player's word list
   pushWord(roomId: number, word: string) {
     return new Promise((resolve, reject) => {
+      //POST Request
       this.http
         .post('http://localhost:3000/api/room/word/' + roomId, { word: word })
         .subscribe(
@@ -125,6 +130,7 @@ export class GameService {
             resolve(null);
           },
           (error) => {
+            //Throw
             console.log(error);
             reject(error);
           }
@@ -132,13 +138,16 @@ export class GameService {
     });
   }
 
+  //Player vote : call back that the player wants to vote
   playerVote(roomId: number) {
     return new Promise((resolve, reject) => {
+      //GET Request
       this.http.get('http://localhost:3000/api/room/vote/' + roomId).subscribe(
         (res) => {
           resolve(null);
         },
         (error) => {
+          //Throw
           console.log(error);
           reject(error);
         }

@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class SignupComponent implements OnInit {
   loading = false;
+
   errorMessage = {
     username: '',
     email: '',
@@ -52,8 +53,8 @@ export class SignupComponent implements OnInit {
         this.router.navigate(['lobby']);
       })
       .catch((error) => {
-        //If user alrdy exists catch it
         if (error.status == 400) {
+          //Draw classic errors
           if (error.error.error == 'Pseudo vide !') {
             this.errorMessage.username = 'Veuillez saisir un pseudo valide';
           }
@@ -64,6 +65,7 @@ export class SignupComponent implements OnInit {
             this.errorMessage.password =
               'Veuillez saisir un mot de pass valide (8 caractères minimum)';
           }
+          //If user alrdy exists catch it
           if (
             error.error.error.message &&
             error.error.error.message.includes('username')

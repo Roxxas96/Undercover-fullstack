@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
       })
       //If bad login info, catch it
       .catch((error) => {
-        //Error messages are stored in ObjectName.error.error
+        //Draw classic errors
         if (
           error.error.error == 'Utilisateur non trouvé !' ||
           error.error.error == 'Mot de passe incorrect !'

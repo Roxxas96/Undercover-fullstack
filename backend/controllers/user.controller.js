@@ -21,6 +21,7 @@ const getUserId = (req) => {
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
+  //Handle classic errors
   if (req.body.username.length <= 0)
     return res.status(400).json({ error: "Pseudo vide !" });
   if (!req.body.email.includes("@"))
@@ -155,7 +156,7 @@ exports.auth = (req, res, next) => {
   }
 };
 
-//Get connected players : return an array of all connected players (return their id + username)
+//Get connected players : return an array of all connected players
 exports.getConnectedPlayers = (req, res, next) => {
   User.find(
     { _id: { $in: connectedPlayers } },

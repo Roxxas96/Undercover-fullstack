@@ -6,7 +6,6 @@ import { interval, Observable, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 
-import { Room } from '../../models/Room.model';
 import { User } from '../../models/User.model';
 
 @Component({
@@ -65,7 +64,7 @@ export class LobbyComponent implements OnInit {
     this.authService
       .getConnectedPlayers()
       .then((users: Array<User>) => {
-        //Update players array
+        //Update players array only if different from local
         if (JSON.stringify(users) != JSON.stringify(this.players))
           this.players = users;
       })
@@ -83,7 +82,7 @@ export class LobbyComponent implements OnInit {
         (
           rooms: Array<{ name: string; max_players: number; players: number }>
         ) => {
-          //Update rooms array
+          //Update rooms array only if different from local
           if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
             this.rooms = rooms;
           }
@@ -123,6 +122,7 @@ export class LobbyComponent implements OnInit {
       })
       .catch((error) => {
         if (error.status == 400) {
+          //Catch invalid name (empty name) error
           if (error.error.error == 'Nom de la salle vide !') {
             this.errorMessageCreateRoom.name =
               'Veuillez saisir un nom de salle valide';
