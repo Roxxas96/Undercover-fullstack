@@ -60,6 +60,8 @@ exports.getRooms = (req, res, next) => {
 
 //Get single room, return a single room info (in details)
 exports.getSingleRoom = (req, res, next) => {
+  if (!Rooms[req.params.roomId])
+    return res.status(404).json({ error: "La salle n'xiste pas !" });
   //Get Room.players info in order to extract userId
   User.find(
     {
@@ -185,6 +187,9 @@ exports.quitRoom = (req, res, next) => {
   //If room is empty delete it
   if (Rooms[req.params.roomId].players.length <= 0)
     Rooms.splice(req.params.roomId, 1);
+  //If player was host change host
+  if (Rooms[req.params.roomId].host == userId)
+    Rooms[req.params.roomId].host = Rooms[req.params.roomId].players[0].userId;
   return res.status(200).json({ message: "Salle quitée !" });
 };
 

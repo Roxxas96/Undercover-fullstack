@@ -7,6 +7,14 @@
   >
     {{ errorMessage.global }}
   </div>
+  <div class="gameInfo">
+    <h3 *ngIf="Room.gameTimeout == -1">
+      En attente de joueurs ({{ Room.players.length }} / 2)
+    </h3>
+    <h3 *ngIf="Room.gameTimeout > 0">
+      Début de la partie dans {{ Room.gameTimeout }}
+    </h3>
+  </div>
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
       <div style="display: flex; justify-content: center">

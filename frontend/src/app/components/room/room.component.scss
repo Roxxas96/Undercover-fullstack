@@ -2,10 +2,14 @@
   width: 100%;
   height: calc(100vh - 100px);
 }
+.gameInfo {
+  height: 10%;
+  text-align: center;
+}
 .players {
   overflow-y: auto;
   width: 100%;
-  height: 75%;
+  height: 65%;
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
