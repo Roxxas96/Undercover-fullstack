@@ -54,9 +54,10 @@ export class RoomComponent implements OnInit {
 
   //Get room info : get the room informations from back and store in Room array
   getRoomInfo() {
+    console.log(this.Room);
     this.gameService
       .getSingleRoom(this.roomId)
-      .then((res) => {
+      .then((res: Room) => {
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
           this.Room = res;

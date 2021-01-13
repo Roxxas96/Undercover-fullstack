@@ -97,7 +97,10 @@
         class="room list-group-item"
         *ngFor="let room of rooms; let i = index"
       >
-        <h5>{{ room.name }}</h5>
+        <div>
+          <h5>{{ room.name }}</h5>
+          <h6 style="text-align: left">hôte : {{ room.host.username }}</h6>
+        </div>
         <div class="room-left">
           <h5>{{ room.players }}/{{ room.max_players }}</h5>
           <button

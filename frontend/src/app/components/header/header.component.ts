@@ -68,7 +68,8 @@ export class HeaderComponent implements OnInit {
             error.error.error.message &&
             error.error.error.message.includes('unique')
           ) {
-            this.errorMessage.word1 = 'Ce couple est déjà utilisé';
+            this.errorMessage.word1 =
+              'Ce couple est déjà dans la base de données';
             this.errorMessage.word2 = ' ';
           }
           this.Loading = false;

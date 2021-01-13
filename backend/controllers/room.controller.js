@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user.model");
+const Room = require("../models/room.model");
+const Player = require("../models/player.model");
 
 let Rooms = [];
 
@@ -16,28 +18,15 @@ const getUserId = (req) => {
   return userId;
 };
 
+const startGame = (roomId) => {};
+
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
-  return res.status(200).json({
-    result: Rooms.map((e) => {
-      return {
-        name: e.name,
-        max_players: e.max_players,
-        //Only return length
-        players: e.players.length,
-      };
-    }),
-  });
-};
-
-//Get single room, return a single room info (in details)
-exports.getSingleRoom = (req, res, next) => {
-  //Get Room.players info in order to extract userId
   User.find(
     {
       _id: {
-        $in: Rooms[req.params.roomId].players.map((Player) => {
-          return Player.userId;
+        $in: Rooms.map((room) => {
+          return room.host;
         }),
       },
     },
@@ -50,23 +39,80 @@ exports.getSingleRoom = (req, res, next) => {
           .status(404)
           .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
       return res.status(200).json({
-        //Return remaped Room info
-        result: {
-          name: Rooms[req.params.roomId].name,
-          max_players: Rooms[req.params.roomId].max_players,
-          //in players array, don't return userId + return isOwner that tell front if this user = client (front doesn't have access to userIds)
-          players: Rooms[req.params.roomId].players.map((Player, index) => {
-            return {
-              userInfo: users[index],
-              words: Player.words,
-              isOwner:
-                Rooms[req.params.roomId].players[index].userId ==
-                getUserId(req),
-              vote: Player.vote,
-            };
-          }),
-        },
+        result: Rooms.map((room, index) => {
+          return {
+            //!!! Change if model changes
+            name: room.name,
+            max_players: room.max_players,
+            //Only return length
+            players: room.players.length,
+            gameTimeout: room.gameTimeout,
+            host: users[index],
+          };
+        }),
       });
+    })
+    //Throw
+    .catch((error) => {
+      return res.status(500).json({ error: error });
+    });
+};
+
+//Get single room, return a single room info (in details)
+exports.getSingleRoom = (req, res, next) => {
+  //Get Room.players info in order to extract userId
+  User.find(
+    {
+      _id: {
+        $in: Rooms[req.params.roomId].players.map((player) => {
+          return player.userId;
+        }),
+      },
+    },
+    { _id: false, password: false, email: false }
+  )
+    .then((users) => {
+      //None user found
+      if (!users)
+        return res
+          .status(404)
+          .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
+      const userId = getUserId(req);
+      User.findOne(
+        { _id: Rooms[req.params.roomId].host },
+        { _id: false, password: false, email: false }
+      )
+        .then((hostInfo) => {
+          if (!hostInfo) {
+            return res
+              .status(404)
+              .json({ error: "L'hôte de la salle n'as pas été trouvé !" });
+          }
+          return res.status(200).json({
+            //Return remaped Room info
+            //!!! Change if model changes
+            result: {
+              name: Rooms[req.params.roomId].name,
+              max_players: Rooms[req.params.roomId].max_players,
+              //in players array, don't return userId but return isOwner that tell front if this user = client (front doesn't have access to userIds)
+              players: Rooms[req.params.roomId].players.map((player, index) => {
+                return {
+                  userInfo: users[index],
+                  words: player.words,
+                  isOwner:
+                    Rooms[req.params.roomId].players[index].userId == userId,
+                  vote: player.vote,
+                };
+              }),
+              gameTimeout: Rooms[req.params.roomId].gameTimeout,
+              host: hostInfo,
+            },
+          });
+        })
+        //Throw
+        .catch((error) => {
+          return res.status(500).json({ error: error });
+        });
     })
     //Throw
     .catch((error) => {
@@ -84,13 +130,11 @@ exports.createRoom = (req, res, next) => {
   //Not needed in theory
   if (req.body.maxPlayers > 10 || req.body.maxPlayers < 2)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
-  let index = Rooms.length;
+  const index = Rooms.length;
+  const userId = getUserId(req);
   //Push array
-  Rooms.push({
-    name: req.body.roomName,
-    max_players: req.body.maxPlayers,
-    players: [],
-  });
+  //!!! Change Room here if model changes
+  Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], -1, userId));
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !", result: index });
 };
@@ -101,9 +145,8 @@ exports.joinRoom = (req, res, next) => {
   if (Rooms[req.params.roomId] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //User already in the room
-  if (
-    Rooms[req.params.roomId].players.find((val) => val.userId == getUserId(req))
-  )
+  const userId = getUserId(req);
+  if (Rooms[req.params.roomId].players.find((val) => val.userId == userId))
     return res
       .status(400)
       .json({ error: "Cet user est déjà dans la parite !" });
@@ -114,11 +157,8 @@ exports.joinRoom = (req, res, next) => {
   )
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
-  Rooms[req.params.roomId].players.push({
-    userId: getUserId(req),
-    words: [],
-    vote: false,
-  });
+  //!!! Change player here if model changes
+  Rooms[req.params.roomId].players.push(new Player(userId, [], false));
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -128,11 +168,12 @@ exports.quitRoom = (req, res, next) => {
   if (Rooms[req.params.roomId] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //Get the index of the player in the room.players array
+  const userId = getUserId(req);
   const index = Rooms[req.params.roomId].players
     .map((user) => {
       return user.userId;
     })
-    .indexOf(getUserId(req));
+    .indexOf(userId);
   //User not in the room
   if (index == -1)
     return res.status(400).json({
@@ -153,11 +194,12 @@ exports.pushWord = (req, res, next) => {
   if (req.body.word == "")
     return res.status(400).json({ error: "Le mot entré est vide !" });
   //Get the index of the player in the room.players array
+  const userId = getUserId(req);
   const index = Rooms[req.params.roomId].players
     .map((user) => {
       return user.userId;
     })
-    .indexOf(getUserId(req));
+    .indexOf(userId);
   //User not found
   if (index == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
@@ -168,11 +210,12 @@ exports.pushWord = (req, res, next) => {
 //Player vote : switch on/off room.players[player].vote
 exports.playerVote = (req, res, next) => {
   //Get the index of the player in the room.players array
+  const userId = getUserId(req);
   const index = Rooms[req.params.roomId].players
     .map((user) => {
       return user.userId;
     })
-    .indexOf(getUserId(req));
+    .indexOf(userId);
   //User not found
   if (index == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });

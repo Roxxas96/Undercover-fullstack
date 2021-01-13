@@ -8,5 +8,7 @@ export class Room {
     words: Array<string>;
     isOwner: boolean;
     vote: boolean;
-  }> = [{ userInfo: { username: '' }, words: [], isOwner: false, vote: false }];
+  }> = [{ userInfo: new User(), words: [], isOwner: false, vote: false }];
+  gameTimeout: Number = -1;
+  host: User = new User();
 }

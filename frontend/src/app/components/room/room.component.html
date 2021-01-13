@@ -10,6 +10,12 @@
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
       <div style="display: flex; justify-content: center">
+        <h5
+          style="margin-right: 2%"
+          *ngIf="player.userInfo.username == Room.host.username"
+        >
+          👑
+        </h5>
         <h5>{{ player.userInfo.username }}</h5>
         <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
       </div>

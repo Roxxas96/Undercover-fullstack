@@ -7,6 +7,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 
 import { User } from '../../models/User.model';
+import { RoomSimple } from '../../models/RoomSimple.model';
 
 @Component({
   selector: 'app-lobby',
@@ -30,7 +31,7 @@ export class LobbyComponent implements OnInit {
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 2;
 
-  rooms: Array<{ name: string; max_players: number; players: number }> = [];
+  rooms: Array<RoomSimple> = [];
 
   players: Array<User> = [];
 
@@ -78,16 +79,12 @@ export class LobbyComponent implements OnInit {
   getRooms() {
     this.gameService
       .getRooms()
-      .then(
-        (
-          rooms: Array<{ name: string; max_players: number; players: number }>
-        ) => {
-          //Update rooms array only if different from local
-          if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
-            this.rooms = rooms;
-          }
+      .then((rooms: Array<RoomSimple>) => {
+        //Update rooms array only if different from local
+        if (JSON.stringify(rooms) != JSON.stringify(this.rooms)) {
+          this.rooms = rooms;
         }
-      )
+      })
       //Catch any errors
       .catch((error) => {
         this.errorMessageMain.rooms = error.message;

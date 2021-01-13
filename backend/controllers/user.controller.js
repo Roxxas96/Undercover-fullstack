@@ -128,7 +128,8 @@ exports.login = (req, res, next) => {
 
 //Logout : remove player from Connected Players array
 exports.logout = (req, res, next) => {
-  const index = connectedPlayers.indexOf(getUserId(req));
+  const userId = getUserId(req);
+  const index = connectedPlayers.indexOf(userId);
   if (index >= 0) {
     connectedPlayers.splice(index, 1);
     return res.status(200).json({ message: "Utilisateur déconnecté !" });
@@ -141,12 +142,13 @@ exports.logout = (req, res, next) => {
 
 //Auth : check validity of user's token + register if connected or not
 exports.auth = (req, res, next) => {
-  const index = connectedPlayers.indexOf(getUserId(req));
+  const userId = getUserId(req);
+  const index = connectedPlayers.indexOf(userId);
   //Call auth to check token and return succession
   const authResult = Auth(req, res, next);
   if (authResult) {
     //Add user only if not in connectedPlayers
-    if (index == -1) connectedPlayers.push(getUserId(req));
+    if (index == -1) connectedPlayers.push(userId);
     return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {

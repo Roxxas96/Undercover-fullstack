@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Room } from '../models/Room.model';
+import { RoomSimple } from '../models/RoomSimple.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,23 +12,15 @@ export class GameService {
 
   //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)
   getRooms() {
-    return new Promise<
-      Array<{ name: string; max_players: number; players: number }>
-    >((resolve, reject) => {
+    return new Promise<Array<RoomSimple>>((resolve, reject) => {
       //HTTP request : GET
       this.http
         .get<{
-          result: Array<{ name: string; max_players: number; players: number }>;
+          result: Array<RoomSimple>;
         }>('http://localhost:3000/api/room')
         .subscribe(
           //Returned array is stored in result key
-          (res: {
-            result: Array<{
-              name: string;
-              max_players: number;
-              players: number;
-            }>;
-          }) => {
+          (res: { result: Array<RoomSimple> }) => {
             resolve(res.result);
           },
           //Throw errors
