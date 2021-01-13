@@ -8,8 +8,9 @@ const Auth = require("../middleware/Auth");
 let connectedPlayers = [];
 
 //Get userId from headers
-getUserId = (req) => {
+const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
+  if (!token || token == "") return "";
   const decodedToken = jwt.verify(
     token,
     "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
