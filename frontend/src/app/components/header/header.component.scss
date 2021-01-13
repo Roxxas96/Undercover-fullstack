@@ -42,3 +42,23 @@
 .right a:hover {
   background-color: white;
 }
+.middle a {
+  text-decoration: none;
+  color: rgb(33, 37, 41);
+}
+.middle a h4 {
+  margin: 0;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.middle a h4:hover {
+  transform: translateY(-10%);
+}
+.inputs {
+  display: flex;
+  justify-content: space-between;
+}
+.spacer {
+  margin-bottom: 5%;
+  align-self: flex-end;
+}

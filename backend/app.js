@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const UserRoutes = require("./routes/user.route");
 const RoomRoutes = require("./routes/room.route");
+const WordRoutes = require("./routes/word.route");
 
 const app = express();
 
@@ -36,5 +37,6 @@ app.use(bodyParser.json());
 //Routes
 app.use("/api/auth", UserRoutes);
 app.use("/api/room", RoomRoutes);
+app.use("/api/words", WordRoutes);
 
 module.exports = app;

@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/services/auth.service';
+import { GameService } from 'src/app/services/game.service';
 
 @Component({
   selector: 'app-header',
@@ -7,9 +10,21 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
+  errorMessage = {
+    word1: '',
+    word2: '',
+    global: '',
+  };
+
+  Loading = false;
+
   isAuth = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private modalService: NgbModal,
+    private gameService: GameService
+  ) {}
 
   ngOnInit(): void {
     this.authService.isAuth$.subscribe((auth) => (this.isAuth = auth));
@@ -17,5 +32,50 @@ export class HeaderComponent implements OnInit {
 
   onLogout() {
     this.authService.logout(false);
+  }
+
+  //Open Propose word popup
+  openModal(modal: any) {
+    this.modalService.open(modal);
+  }
+
+  onProposeWord(form: NgForm, modal: NgbActiveModal) {
+    this.Loading = true;
+    this.errorMessage = {
+      word1: '',
+      word2: '',
+      global: '',
+    };
+
+    const word1 = form.value['word1'];
+    const word2 = form.value['word2'];
+
+    this.gameService
+      .proposeWord(word1, word2)
+      .then(() => {
+        this.Loading = false;
+        modal.dismiss();
+      })
+      .catch((error) => {
+        if (error.status == 400) {
+          if (error.error.error == 'Mot 1 invalide !') {
+            this.errorMessage.word1 = 'Veuillez entrer un mot valide';
+          }
+          if (error.error.error == 'Mot 2 invalide !') {
+            this.errorMessage.word2 = 'Veuillez entrer un mot valide';
+          }
+          if (
+            error.error.error.message &&
+            error.error.error.message.includes('unique')
+          ) {
+            this.errorMessage.word1 = 'Ce couple est déjà utilisé';
+            this.errorMessage.word2 = ' ';
+          }
+          this.Loading = false;
+          return;
+        }
+        this.errorMessage.global = error.message;
+        this.Loading = false;
+      });
   }
 }

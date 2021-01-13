@@ -25,7 +25,7 @@ export class LobbyComponent implements OnInit {
   };
 
   createRoomLoading = false;
-  joinRoomLoading = false;
+  joinRoomLoading = -1;
 
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 2;
@@ -148,7 +148,7 @@ export class LobbyComponent implements OnInit {
 
   //Join room : make the player join a room
   onJoinRoom(roomId: number) {
-    this.joinRoomLoading = true;
+    this.joinRoomLoading = roomId;
     this.gameService
       .joinRoom(roomId)
       .then(() => {
@@ -159,25 +159,25 @@ export class LobbyComponent implements OnInit {
         if (error.error.error == 'Cet user est déjà dans la parite !') {
           this.errorMessageMain.rooms =
             'Une érreur est survenue ! Vous semblez déjà être dans la partie';
-          this.joinRoomLoading = false;
+          this.joinRoomLoading = -1;
           return;
         }
         //Error unknown room (useless in theory)
         if (error.error.error == "Cette salle n'existe pas !") {
           this.errorMessageMain.rooms =
             "Il semblerait que cette salle n'existe pas, veuillez réssayer";
-          this.joinRoomLoading = false;
+          this.joinRoomLoading = -1;
           return;
         }
         //Error : room full
         if (error.error.error == 'La salle est pleine !') {
           this.errorMessageMain.rooms = 'Cette salle est pleine';
-          this.joinRoomLoading = false;
+          this.joinRoomLoading = -1;
           return;
         }
         //Other errors
         this.errorMessageMain.rooms = error.message;
-        this.joinRoomLoading = false;
+        this.joinRoomLoading = -1;
       });
   }
 }

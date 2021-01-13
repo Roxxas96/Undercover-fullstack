@@ -154,4 +154,21 @@ export class GameService {
       );
     });
   }
+
+  proposeWord(word1: string, word2: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('http://localhost:3000/api/words', { word1: word1, word2: word2 })
+        .subscribe(
+          (res) => {
+            console.log(res);
+            resolve(null);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
 }
