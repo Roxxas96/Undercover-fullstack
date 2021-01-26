@@ -9,6 +9,6 @@ export class Room {
     isOwner: boolean;
     vote: boolean;
   }> = [{ userInfo: new User(), words: [], isOwner: false, vote: false }];
-  gameTimeout: Number = -1;
+  gameInProgress: Boolean = false;
   host: User = new User();
 }

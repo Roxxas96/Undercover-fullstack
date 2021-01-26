@@ -37,10 +37,13 @@ export class GameService {
     return new Promise<Room>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Room }>('http://localhost:3000/api/room/get/' + roomId)
+        .get<{ result: Room }>(
+          'http://localhost:3000/api/room/' + roomId + '/get'
+        )
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
+            console.log(res.result);
             resolve(res.result);
           },
           //Throw errors
@@ -82,16 +85,18 @@ export class GameService {
   joinRoom(roomId: number) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get('http://localhost:3000/api/room/join/' + roomId).subscribe(
-        (res) => {
-          resolve(null);
-        },
-        (error) => {
-          //Throw
-          console.log(error);
-          reject(error);
-        }
-      );
+      this.http
+        .get('http://localhost:3000/api/room/' + roomId + '/join')
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            //Throw
+            console.log(error);
+            reject(error);
+          }
+        );
     });
   }
 
@@ -99,16 +104,18 @@ export class GameService {
   quitRoom(roomId: number) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get('http://localhost:3000/api/room/quit/' + roomId).subscribe(
-        (res) => {
-          resolve(null);
-        },
-        (error) => {
-          //Throw
-          console.log(error);
-          reject(error);
-        }
-      );
+      this.http
+        .get('http://localhost:3000/api/room/' + roomId + '/quit')
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            //Throw
+            console.log(error);
+            reject(error);
+          }
+        );
     });
   }
 
@@ -117,7 +124,9 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST Request
       this.http
-        .post('http://localhost:3000/api/room/word/' + roomId, { word: word })
+        .post('http://localhost:3000/api/room/' + roomId + '/word', {
+          word: word,
+        })
         .subscribe(
           (res) => {
             resolve(null);
@@ -135,16 +144,18 @@ export class GameService {
   playerVote(roomId: number) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get('http://localhost:3000/api/room/vote/' + roomId).subscribe(
-        (res) => {
-          resolve(null);
-        },
-        (error) => {
-          //Throw
-          console.log(error);
-          reject(error);
-        }
-      );
+      this.http
+        .get('http://localhost:3000/api/room/' + roomId + '/vote')
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            //Throw
+            console.log(error);
+            reject(error);
+          }
+        );
     });
   }
 
@@ -154,8 +165,39 @@ export class GameService {
         .post('http://localhost:3000/api/words', { word1: word1, word2: word2 })
         .subscribe(
           (res) => {
-            console.log(res);
             resolve(null);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
+  startGame(roomId: number) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get('http://localhost:3000/api/room/' + roomId + '/start')
+        .subscribe(
+          (res) => {
+            resolve(res);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
+  abortGame(roomId: number) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get('http://localhost:3000/api/room/' + roomId + '/abort')
+        .subscribe(
+          (res) => {
+            resolve(res);
           },
           (error) => {
             console.log(error);

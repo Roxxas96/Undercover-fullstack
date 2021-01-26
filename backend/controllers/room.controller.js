@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 
+const Word = require("../models/word.model");
 const User = require("../models/user.model");
 const Room = require("../models/room.model");
 const Player = require("../models/player.model");
@@ -18,7 +19,7 @@ const getUserId = (req) => {
   return userId;
 };
 
-const startGame = (roomId) => {};
+//*-----------------------------------------------------------------------------------------------Room control part----------------------------------------------------------------------------------------------------------
 
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
@@ -26,7 +27,7 @@ exports.getRooms = (req, res, next) => {
     {
       _id: {
         $in: Rooms.map((room) => {
-          return room.host;
+          if (room) return room.host;
         }),
       },
     },
@@ -46,7 +47,7 @@ exports.getRooms = (req, res, next) => {
             max_players: room.max_players,
             //Only return length
             players: room.players.length,
-            gameTimeout: room.gameTimeout,
+            gameInProgress: room.gameInProgress,
             host: users[index],
           };
         }),
@@ -106,7 +107,7 @@ exports.getSingleRoom = (req, res, next) => {
                   vote: player.vote,
                 };
               }),
-              gameTimeout: Rooms[req.params.roomId].gameTimeout,
+              gameInProgress: Rooms[req.params.roomId].gameInProgress,
               host: hostInfo,
             },
           });
@@ -130,13 +131,15 @@ exports.createRoom = (req, res, next) => {
   if (Rooms.find((val) => val.name === req.body.roomName))
     return res.status(400).json({ error: "Nom de salle déjà pris !" });
   //Not needed in theory
-  if (req.body.maxPlayers > 10 || req.body.maxPlayers < 2)
+  if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
   const index = Rooms.length;
   const userId = getUserId(req);
   //Push array
   //!!! Change Room here if model changes
-  Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], -1, userId));
+  Rooms.push(
+    new Room(req.body.roomName, req.body.maxPlayers, [], false, userId)
+  );
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !", result: index });
 };
@@ -188,10 +191,12 @@ exports.quitRoom = (req, res, next) => {
   if (Rooms[req.params.roomId].players.length <= 0)
     Rooms.splice(req.params.roomId, 1);
   //If player was host change host
-  if (Rooms[req.params.roomId].host == userId)
+  else if (Rooms[req.params.roomId] && Rooms[req.params.roomId].host == userId)
     Rooms[req.params.roomId].host = Rooms[req.params.roomId].players[0].userId;
   return res.status(200).json({ message: "Salle quitée !" });
 };
+
+//*-----------------------------------------------------------------------------------------------Game Part-------------------------------------------------------------------------------------------------------------------
 
 //Push word : push a specified word in the room.players[player].words array
 exports.pushWord = (req, res, next) => {
@@ -232,4 +237,18 @@ exports.playerVote = (req, res, next) => {
       Rooms[req.params.roomId].players[index].vote +
       " !",
   });
+};
+
+exports.startGame = (req, res, next) => {
+  if (Rooms[req.params.roomId].players.length < 3)
+    return res
+      .status(400)
+      .json({ error: "Pass assez de joueurs pour commencer la partie !" });
+  Rooms[req.params.roomId].gameInProgress = true;
+  return res.status(200).json({ message: "Partie lancée !" });
+};
+
+exports.abortGame = (req, res, next) => {
+  Rooms[req.params.roomId].gameInProgress = false;
+  return res.status(200).json({ message: "Partie stopée !" });
 };

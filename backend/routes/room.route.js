@@ -4,12 +4,17 @@ const Auth = require("../middleware/Auth");
 
 const router = express.Router();
 
+//*-----------------------------------Room Control routes------------------------------
 router.get("", Auth, RoomController.getRooms);
-router.get("/get/:roomId", Auth, RoomController.getSingleRoom);
 router.post("/create", Auth, RoomController.createRoom);
-router.get("/join/:roomId", Auth, RoomController.joinRoom);
-router.get("/quit/:roomId", Auth, RoomController.quitRoom);
-router.post("/word/:roomId", Auth, RoomController.pushWord);
-router.get("/vote/:roomId", Auth, RoomController.playerVote);
+router.get("/:roomId/join", Auth, RoomController.joinRoom);
+router.get("/:roomId/quit", Auth, RoomController.quitRoom);
+router.get("/:roomId/get", Auth, RoomController.getSingleRoom);
+
+//*-----------------------------------Game Routes--------------------------------------
+router.post("/:roomId/word", Auth, RoomController.pushWord);
+router.get("/:roomId/vote", Auth, RoomController.playerVote);
+router.get("/:roomId/start", Auth, RoomController.startGame);
+router.get("/:roomId/abort", Auth, RoomController.abortGame);
 
 module.exports = router;

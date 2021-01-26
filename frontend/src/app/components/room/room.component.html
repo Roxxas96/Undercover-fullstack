@@ -8,12 +8,38 @@
     {{ errorMessage.global }}
   </div>
   <div class="gameInfo">
-    <h3 *ngIf="Room.gameTimeout == -1">
-      En attente de joueurs ({{ Room.players.length }} / 2)
-    </h3>
-    <h3 *ngIf="Room.gameTimeout > 0">
-      Début de la partie dans {{ Room.gameTimeout }}
-    </h3>
+    <div class="GameInPlay" *ngIf="pregameLockout == -2">
+      <h3>Une partie est déjà en cour, veuillez attendre la fin</h3>
+    </div>
+    <div class="Pregame" *ngIf="pregameLockout == -1">
+      <h3>
+        En du lancement de la partie, il y a {{ Room.players.length }} joueurs
+        dans la partie (3 minimum pour commencer)
+      </h3>
+      <button
+        class="btn btn-primary"
+        (click)="onBeginGame()"
+        *ngIf="
+          Room.players.length >= 3 &&
+          Room.host.username == Room.players[ownerIndex].userInfo.username
+        "
+      >
+        Lancer la partie
+      </button>
+    </div>
+    <div class="Pregame-lockout" *ngIf="pregameLockout > 0">
+      <h3>Début de la partie dans {{ pregameLockout }}</h3>
+      <button
+        class="btn btn-danger"
+        (click)="onAbortGame()"
+        *ngIf="Room.host.username == Room.players[ownerIndex].userInfo.username"
+      >
+        Anuler
+      </button>
+    </div>
+    <div class="GameMain" *ngIf="pregameLockout == 0">
+      <h3>Votre mot est :</h3>
+    </div>
   </div>
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">

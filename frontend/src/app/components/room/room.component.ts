@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 import { Room } from '../../models/Room.model';
 import { GameService } from '../../services/game.service';
 
@@ -24,6 +25,8 @@ export class RoomComponent implements OnInit {
 
   Room: Room = new Room();
 
+  pregameLockout = -1;
+
   refresh = interval(1000);
   refreshSub: Subscription = new Observable().subscribe();
   //Used when pushing word or voting to prevent server to tell local that variables are wrong (ppl with more than 1s ping can still have this issue)
@@ -31,17 +34,18 @@ export class RoomComponent implements OnInit {
 
   constructor(
     private gameService: GameService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     //Store roomId from route params
     this.roomId = this.route.snapshot.params['roomId'];
-    this.getRoomInfo();
+    this.getRoomInfo(true);
     //Refres every sec
     this.refreshSub = this.refresh.subscribe(() => {
       //Don't update if local info prevent
-      if (!this.skipRefresh) this.getRoomInfo();
+      if (!this.skipRefresh) this.getRoomInfo(false);
       this.skipRefresh = false;
     });
   }
@@ -53,16 +57,27 @@ export class RoomComponent implements OnInit {
   }
 
   //Get room info : get the room informations from back and store in Room array
-  getRoomInfo() {
-    console.log(this.Room);
+  getRoomInfo(firstTime: Boolean) {
     this.gameService
       .getSingleRoom(this.roomId)
       .then((res: Room) => {
+        console.log(res);
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
+          if (res.gameInProgress != this.Room.gameInProgress) {
+            switch (res.gameInProgress) {
+              case true:
+                if (!firstTime) this.beginCountdown();
+                else this.pregameLockout == -2;
+                break;
+              case false:
+                console.log('coucou');
+            }
+          }
           this.Room = res;
           //Update owner index too, just in case he mooved
           this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
+          console.log(this.ownerIndex);
         }
       })
       //Throw
@@ -127,5 +142,33 @@ export class RoomComponent implements OnInit {
       this.ownerIndex
     ].vote;
     this.skipRefresh = true;
+  }
+
+  onBeginGame() {
+    this.gameService
+      .startGame(this.roomId)
+      .then(() => {})
+      .catch((error) => {
+        this.errorMessage.global = error.message;
+      });
+  }
+
+  onAbortGame() {
+    this.gameService
+      .abortGame(this.roomId)
+      .then(() => {})
+      .catch((error) => {
+        this.errorMessage.global = error.message;
+      });
+  }
+
+  beginCountdown() {
+    this.pregameLockout = 5;
+    let countdown = setInterval(() => {
+      this.pregameLockout -= 1;
+      if (this.pregameLockout <= 0) {
+        clearInterval(countdown);
+      }
+    }, 1000);
   }
 }

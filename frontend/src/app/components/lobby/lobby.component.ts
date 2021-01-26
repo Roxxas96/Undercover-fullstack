@@ -29,7 +29,7 @@ export class LobbyComponent implements OnInit {
   joinRoomLoading = -1;
 
   //Var used to update h5 on top of range bar in create room modal
-  rangeBarVal = 2;
+  rangeBarVal = 3;
 
   rooms: Array<RoomSimple> = [];
 
