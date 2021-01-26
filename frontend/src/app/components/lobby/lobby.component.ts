@@ -26,7 +26,7 @@ export class LobbyComponent implements OnInit {
   };
 
   createRoomLoading = false;
-  joinRoomLoading = -1;
+  joinRoomLoading: String = '';
 
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal = 3;
@@ -111,11 +111,11 @@ export class LobbyComponent implements OnInit {
     //Call gameService createRoom func
     this.gameService
       .createRoom(roomName, maxPlayers)
-      .then((res) => {
+      .then(() => {
         //If creation succeded hide loading hint
         this.createRoomLoading = false;
         modal.dismiss();
-        this.onJoinRoom(res);
+        this.onJoinRoom(roomName);
       })
       .catch((error) => {
         if (error.status == 400) {
@@ -144,37 +144,37 @@ export class LobbyComponent implements OnInit {
   }
 
   //Join room : make the player join a room
-  onJoinRoom(roomId: number) {
-    this.joinRoomLoading = roomId;
+  onJoinRoom(roomName: String) {
+    this.joinRoomLoading = roomName;
     this.gameService
-      .joinRoom(roomId)
+      .joinRoom(roomName)
       .then(() => {
-        this.router.navigate(['room/' + roomId]);
+        this.router.navigate(['room/' + roomName]);
       })
       .catch((error) => {
         //Error : User already in the game
         if (error.error.error == 'Cet user est déjà dans la parite !') {
           this.errorMessageMain.rooms =
             'Une érreur est survenue ! Vous semblez déjà être dans la partie';
-          this.joinRoomLoading = -1;
+          this.joinRoomLoading = '';
           return;
         }
         //Error unknown room (useless in theory)
         if (error.error.error == "Cette salle n'existe pas !") {
           this.errorMessageMain.rooms =
             "Il semblerait que cette salle n'existe pas, veuillez réssayer";
-          this.joinRoomLoading = -1;
+          this.joinRoomLoading = '';
           return;
         }
         //Error : room full
         if (error.error.error == 'La salle est pleine !') {
           this.errorMessageMain.rooms = 'Cette salle est pleine';
-          this.joinRoomLoading = -1;
+          this.joinRoomLoading = '';
           return;
         }
         //Other errors
         this.errorMessageMain.rooms = error.message;
-        this.joinRoomLoading = -1;
+        this.joinRoomLoading = '';
       });
   }
 }

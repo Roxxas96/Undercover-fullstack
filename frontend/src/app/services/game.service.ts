@@ -57,20 +57,17 @@ export class GameService {
 
   //Create room : call backend to create a room, return the index of created room
   createRoom(roomName: string, maxPlayers: number) {
-    return new Promise<number>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post<{ message: string; result: number }>(
-          'http://localhost:3000/api/room/create',
-          {
-            roomName: roomName,
-            maxPlayers: maxPlayers,
-          }
-        )
+        .post('http://localhost:3000/api/room/create', {
+          roomName: roomName,
+          maxPlayers: maxPlayers,
+        })
         .subscribe(
           //Stored in result
-          (res: { message: string; result: number }) => {
-            resolve(res.result);
+          (res) => {
+            resolve(null);
           },
           //Throw errors
           (error) => {
@@ -82,11 +79,11 @@ export class GameService {
   }
 
   //Join room : call backend to make the player join a room and catch the result
-  joinRoom(roomId: number) {
+  joinRoom(roomName: String) {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
-        .get('http://localhost:3000/api/room/' + roomId + '/join')
+        .get('http://localhost:3000/api/room/' + roomName + '/join')
         .subscribe(
           (res) => {
             resolve(null);

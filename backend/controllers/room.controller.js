@@ -61,13 +61,14 @@ exports.getRooms = (req, res, next) => {
 
 //Get single room, return a single room info (in details)
 exports.getSingleRoom = (req, res, next) => {
-  if (!Rooms[req.params.roomId])
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  if (!Rooms[roomIndex])
     return res.status(404).json({ error: "La salle n'xiste pas !" });
   //Get Room.players info in order to extract userId
   User.find(
     {
       _id: {
-        $in: Rooms[req.params.roomId].players.map((player) => {
+        $in: Rooms[roomIndex].players.map((player) => {
           return player.userId;
         }),
       },
@@ -82,7 +83,7 @@ exports.getSingleRoom = (req, res, next) => {
           .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
       const userId = getUserId(req);
       User.findOne(
-        { _id: Rooms[req.params.roomId].host },
+        { _id: Rooms[roomIndex].host },
         { _id: false, password: false, email: false }
       )
         .then((hostInfo) => {
@@ -95,19 +96,18 @@ exports.getSingleRoom = (req, res, next) => {
             //Return remaped Room info
             //!!! Change if model changes
             result: {
-              name: Rooms[req.params.roomId].name,
-              max_players: Rooms[req.params.roomId].max_players,
+              name: Rooms[roomIndex].name,
+              max_players: Rooms[roomIndex].max_players,
               //in players array, don't return userId but return isOwner that tell front if this user = client (front doesn't have access to userIds)
-              players: Rooms[req.params.roomId].players.map((player, index) => {
+              players: Rooms[roomIndex].players.map((player, index) => {
                 return {
                   userInfo: users[index],
                   words: player.words,
-                  isOwner:
-                    Rooms[req.params.roomId].players[index].userId == userId,
+                  isOwner: Rooms[roomIndex].players[index].userId == userId,
                   vote: player.vote,
                 };
               }),
-              gameInProgress: Rooms[req.params.roomId].gameInProgress,
+              gameInProgress: Rooms[roomIndex].gameInProgress,
               host: hostInfo,
             },
           });
@@ -141,40 +141,39 @@ exports.createRoom = (req, res, next) => {
     new Room(req.body.roomName, req.body.maxPlayers, [], false, userId)
   );
   //Return index of created room
-  return res.status(201).json({ message: "Salle créée !", result: index });
+  return res.status(201).json({ message: "Salle créée !" });
 };
 
 //Join room : make a player join a specified room
 exports.joinRoom = (req, res, next) => {
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
-  if (Rooms[req.params.roomId] == null)
+  if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //User already in the room
   const userId = getUserId(req);
-  if (Rooms[req.params.roomId].players.find((val) => val.userId == userId))
+  if (Rooms[roomIndex].players.find((val) => val.userId == userId))
     return res
       .status(400)
       .json({ error: "Cet user est déjà dans la parite !" });
   //Room is full
-  if (
-    Rooms[req.params.roomId].players.length >=
-    Rooms[req.params.roomId].max_players
-  )
+  if (Rooms[roomIndex].players.length >= Rooms[roomIndex].max_players)
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
-  Rooms[req.params.roomId].players.push(new Player(userId, [], false));
+  Rooms[roomIndex].players.push(new Player(userId, [], false));
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
 //Quit room : make a player leave a specified room
 exports.quitRoom = (req, res, next) => {
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
-  if (Rooms[req.params.roomId] == null)
+  if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
-  const index = Rooms[req.params.roomId].players
+  const index = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
@@ -183,16 +182,15 @@ exports.quitRoom = (req, res, next) => {
   if (index == -1)
     return res.status(400).json({
       error: "Cet user n'est pas dans la parite !",
-      test: Rooms[req.params.roomId].players,
+      test: Rooms[roomIndex].players,
     });
   //Remove player from Rooms
-  Rooms[req.params.roomId].players.splice(index, 1);
+  Rooms[roomIndex].players.splice(index, 1);
   //If room is empty delete it
-  if (Rooms[req.params.roomId].players.length <= 0)
-    Rooms.splice(req.params.roomId, 1);
+  if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
   //If player was host change host
-  else if (Rooms[req.params.roomId] && Rooms[req.params.roomId].host == userId)
-    Rooms[req.params.roomId].host = Rooms[req.params.roomId].players[0].userId;
+  else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
+    Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -200,12 +198,13 @@ exports.quitRoom = (req, res, next) => {
 
 //Push word : push a specified word in the room.players[player].words array
 exports.pushWord = (req, res, next) => {
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Empty word
   if (req.body.word == "")
     return res.status(400).json({ error: "Le mot entré est vide !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
-  const index = Rooms[req.params.roomId].players
+  const index = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
@@ -213,7 +212,7 @@ exports.pushWord = (req, res, next) => {
   //User not found
   if (index == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
-  Rooms[req.params.roomId].players[index].words.push(req.body.word);
+  Rooms[roomIndex].players[index].words.push(req.body.word);
   return res.status(200).json({ message: "Le mot a été entré !" });
 };
 
@@ -221,7 +220,8 @@ exports.pushWord = (req, res, next) => {
 exports.playerVote = (req, res, next) => {
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
-  const index = Rooms[req.params.roomId].players
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
@@ -229,26 +229,28 @@ exports.playerVote = (req, res, next) => {
   //User not found
   if (index == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
-  Rooms[req.params.roomId].players[index].vote = !Rooms[req.params.roomId]
-    .players[index].vote;
+  Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[index]
+    .vote;
   return res.status(200).json({
     message:
       "Le vote a été changé en " +
-      Rooms[req.params.roomId].players[index].vote +
+      Rooms[roomIndex].players[playerIndex].vote +
       " !",
   });
 };
 
 exports.startGame = (req, res, next) => {
-  if (Rooms[req.params.roomId].players.length < 3)
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  if (Rooms[roomIndex].players.length < 3)
     return res
       .status(400)
       .json({ error: "Pass assez de joueurs pour commencer la partie !" });
-  Rooms[req.params.roomId].gameInProgress = true;
+  Rooms[roomIndex].gameInProgress = true;
   return res.status(200).json({ message: "Partie lancée !" });
 };
 
 exports.abortGame = (req, res, next) => {
-  Rooms[req.params.roomId].gameInProgress = false;
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  Rooms[roomIndex].gameInProgress = false;
   return res.status(200).json({ message: "Partie stopée !" });
 };

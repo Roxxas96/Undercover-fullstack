@@ -105,7 +105,7 @@
           <h5>{{ room.players }}/{{ room.max_players }}</h5>
           <button
             class="btn btn-outline-success"
-            (click)="onJoinRoom(i)"
+            (click)="onJoinRoom(room.name)"
             [disabled]="room.players >= room.max_players"
           >
             Rejoindre

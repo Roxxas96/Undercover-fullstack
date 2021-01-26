@@ -85,6 +85,7 @@ exports.login = (req, res, next) => {
                   expiresIn: "72h",
                 }
               ),
+              username: user.username,
             });
           })
           //Bcrypt compare errors
@@ -118,6 +119,7 @@ exports.login = (req, res, next) => {
                   expiresIn: "72h",
                 }
               ),
+              username: user.username,
             });
           })
           .catch((error) => res.status(500).json({ error }));
