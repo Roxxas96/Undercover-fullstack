@@ -43,7 +43,7 @@ export class GameService {
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
-            console.log(res.result);
+            console.log(res);
             resolve(res.result);
           },
           //Throw errors

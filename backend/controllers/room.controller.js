@@ -68,12 +68,12 @@ exports.getSingleRoom = (req, res, next) => {
   User.find(
     {
       _id: {
-        $in: Rooms[roomIndex].players.map((player) => {
+        $in: Rooms[roomIndex].players.map((player, index) => {
           return player.userId;
         }),
       },
     },
-    { _id: false, password: false, email: false }
+    { password: false, email: false }
   )
     .then((users) => {
       //None user found
@@ -100,8 +100,15 @@ exports.getSingleRoom = (req, res, next) => {
               max_players: Rooms[roomIndex].max_players,
               //in players array, don't return userId but return isOwner that tell front if this user = client (front doesn't have access to userIds)
               players: Rooms[roomIndex].players.map((player, index) => {
+                const user = users.find((val) => {
+                  return val._id == player.userId;
+                });
+                //Pas ouf comme méthode
+                let playerInfo = {
+                  username: user.username,
+                };
                 return {
-                  userInfo: users[index],
+                  userInfo: playerInfo,
                   words: player.words,
                   isOwner: Rooms[roomIndex].players[index].userId == userId,
                   vote: player.vote,
@@ -110,6 +117,9 @@ exports.getSingleRoom = (req, res, next) => {
               gameInProgress: Rooms[roomIndex].gameInProgress,
               host: hostInfo,
             },
+            test: Rooms,
+            test2: users,
+            test3: Rooms[roomIndex].players,
           });
         })
         //Throw
@@ -173,19 +183,19 @@ exports.quitRoom = (req, res, next) => {
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
-  const index = Rooms[roomIndex].players
+  const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
     .indexOf(userId);
   //User not in the room
-  if (index == -1)
+  if (playerIndex == -1)
     return res.status(400).json({
       error: "Cet user n'est pas dans la parite !",
       test: Rooms[roomIndex].players,
     });
   //Remove player from Rooms
-  Rooms[roomIndex].players.splice(index, 1);
+  Rooms[roomIndex].players.splice(playerIndex, 1);
   //If room is empty delete it
   if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
   //If player was host change host
