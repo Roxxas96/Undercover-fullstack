@@ -25,6 +25,7 @@ export class RoomComponent implements OnInit {
 
   Room: Room = new Room();
 
+  countdown = setInterval(() => {}, 1000);
   pregameLockout = -1;
 
   refresh = interval(1000);
@@ -61,17 +62,18 @@ export class RoomComponent implements OnInit {
     this.gameService
       .getSingleRoom(this.roomId)
       .then((res: Room) => {
-        console.log(res);
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
           if (res.gameInProgress != this.Room.gameInProgress) {
             switch (res.gameInProgress) {
               case true:
                 if (!firstTime) this.beginCountdown();
-                else this.pregameLockout == -2;
+                else this.pregameLockout = -2;
                 break;
               case false:
-                console.log('coucou');
+                clearInterval(this.countdown);
+                this.pregameLockout = -1;
+              //TODO Reset les info de la partie
             }
           }
           this.Room = res;
@@ -164,10 +166,11 @@ export class RoomComponent implements OnInit {
 
   beginCountdown() {
     this.pregameLockout = 5;
-    let countdown = setInterval(() => {
+    this.countdown = setInterval(() => {
       this.pregameLockout -= 1;
       if (this.pregameLockout <= 0) {
-        clearInterval(countdown);
+        clearInterval(this.countdown);
+        //TODO Démarer la game
       }
     }, 1000);
   }

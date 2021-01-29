@@ -171,7 +171,7 @@ exports.joinRoom = (req, res, next) => {
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
-  Rooms[roomIndex].players.push(new Player(userId, [], false));
+  Rooms[roomIndex].players.push(new Player(userId, [], false, ""));
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -256,7 +256,37 @@ exports.startGame = (req, res, next) => {
       .status(400)
       .json({ error: "Pass assez de joueurs pour commencer la partie !" });
   Rooms[roomIndex].gameInProgress = true;
-  return res.status(200).json({ message: "Partie lancée !" });
+  Word.aggregate([{ $sample: { size: 1 } }])
+    .then((words) => {
+      const undercoverWord = "";
+      const civilianWord = "";
+      if (Math.random() >= 0.5) {
+        undercoverWord = words.split("/")[0];
+        civilianWord = words.split("/")[1];
+      } else {
+        undercoverWord = words.split("/")[1];
+        civilianWord = words.split("/")[0];
+      }
+      Rooms[roomIndex].players.foreach((val, key) => {
+        val.word = civilianWord;
+      });
+      let previousRandInt = -1;
+      let i = 0;
+      while (i < Math.round(Rooms[roomIndex].players.length / 3)) {
+        const randInt = Math.floor(
+          Math.random() * Math.floor(Rooms[roomIndex].players.length)
+        );
+        if (randInt != previousRandInt) {
+          Rooms[roomIndex].players[randInt].word = undercoverWord;
+          i += 1;
+        }
+      }
+      console.log(Rooms[roomIndex]);
+      return res.status(200).json({ message: "Partie lancée !" });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error });
+    });
 };
 
 exports.abortGame = (req, res, next) => {
