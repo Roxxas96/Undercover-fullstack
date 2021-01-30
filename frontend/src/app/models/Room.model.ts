@@ -8,7 +8,10 @@ export class Room {
     words: Array<string>;
     isOwner: boolean;
     vote: boolean;
-  }> = [{ userInfo: new User(), words: [], isOwner: false, vote: false }];
-  gameInProgress: Boolean = false;
+    word: string;
+  }> = [
+    { userInfo: new User(), words: [], isOwner: false, vote: false, word: '' },
+  ];
+  gameState: Number = 0;
   host: User = new User();
 }

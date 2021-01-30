@@ -47,7 +47,7 @@ exports.getRooms = (req, res, next) => {
             max_players: room.max_players,
             //Only return length
             players: room.players.length,
-            gameInProgress: room.gameInProgress,
+            gameState: room.gameState,
             host: users[index],
           };
         }),
@@ -112,14 +112,12 @@ exports.getSingleRoom = (req, res, next) => {
                   words: player.words,
                   isOwner: Rooms[roomIndex].players[index].userId == userId,
                   vote: player.vote,
+                  word: player.word,
                 };
               }),
-              gameInProgress: Rooms[roomIndex].gameInProgress,
+              gameState: Rooms[roomIndex].gameState,
               host: hostInfo,
             },
-            test: Rooms,
-            test2: users,
-            test3: Rooms[roomIndex].players,
           });
         })
         //Throw
@@ -147,9 +145,7 @@ exports.createRoom = (req, res, next) => {
   const userId = getUserId(req);
   //Push array
   //!!! Change Room here if model changes
-  Rooms.push(
-    new Room(req.body.roomName, req.body.maxPlayers, [], false, userId)
-  );
+  Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], 0, userId));
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !" });
 };
@@ -202,8 +198,7 @@ exports.quitRoom = (req, res, next) => {
   else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
     Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
   //Stop game if players < 3
-  else if (Rooms[roomIndex].players.length < 3)
-    Rooms[roomIndex].gameInProgress = false;
+  else if (Rooms[roomIndex].players.length < 3) Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -245,6 +240,11 @@ exports.playerVote = (req, res, next) => {
   Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[
     playerIndex
   ].vote;
+  if (
+    Rooms[roomIndex].players.filter((val) => val.vote == true).length >
+    Rooms[roomIndex].players.length / 2
+  )
+    Rooms[roomIndex].gameState = 2;
   return res.status(200).json({
     message:
       "Le vote a été changé en " +
@@ -259,7 +259,7 @@ exports.startGame = (req, res, next) => {
     return res
       .status(400)
       .json({ error: "Pass assez de joueurs pour commencer la partie !" });
-  Rooms[roomIndex].gameInProgress = true;
+  Rooms[roomIndex].gameState = 1;
   Rooms[roomIndex].players.forEach((val) => {
     val.words = [];
     val.vote = false;
@@ -268,7 +268,7 @@ exports.startGame = (req, res, next) => {
     .then((words) => {
       const undercoverIndex = Math.floor(Math.random() * 2);
       Rooms[roomIndex].players.forEach((val) => {
-        val.word = words.split("/")[Math.abs(1 - undercoverIndex)];
+        val.word = words[0].words.split("/")[Math.abs(1 - undercoverIndex)];
       });
       let previousRandInt = -1;
       let i = 0;
@@ -277,21 +277,21 @@ exports.startGame = (req, res, next) => {
           Math.random() * (Rooms[roomIndex].players.length - 1)
         );
         if (index != previousRandInt) {
-          Rooms[roomIndex].players[index].word = words.split("/")[
+          Rooms[roomIndex].players[index].word = words[0].words.split("/")[
             undercoverIndex
           ];
           i = i + 1;
         }
       }
-      return res.status(200).json({ message: "Partie lancée !" });
+      res.status(200).json({ message: "Partie lancée !" });
     })
     .catch((error) => {
-      return res.status(500).json({ error: error });
+      res.status(500).json({ error: error });
     });
 };
 
 exports.abortGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
-  Rooms[roomIndex].gameInProgress = false;
+  Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Partie stopée !" });
 };

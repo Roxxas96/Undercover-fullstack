@@ -38,7 +38,7 @@
       </button>
     </div>
     <div class="GameMain" *ngIf="pregameLockout == 0">
-      <h3>Votre mot est :</h3>
+      <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
     </div>
   </div>
   <div class="players">

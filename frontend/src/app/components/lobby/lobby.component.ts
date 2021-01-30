@@ -58,6 +58,7 @@ export class LobbyComponent implements OnInit {
   //On lobby quit stop refreshing
   ngOnDestroy() {
     this.refreshSub.unsubscribe();
+    this.modalService.dismissAll();
   }
 
   //Get an array of connected players from backend

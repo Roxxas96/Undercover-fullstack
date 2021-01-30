@@ -1,9 +1,9 @@
 class Room {
-  constructor(name, max_players, players, gameInProgress, host) {
+  constructor(name, max_players, players, gameState, host) {
     this.name = name;
     this.max_players = max_players;
     this.players = players;
-    this.gameInProgress = gameInProgress;
+    this.gameState = gameState;
     this.host = host;
   }
 }

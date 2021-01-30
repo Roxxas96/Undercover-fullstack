@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h5 class="modal-title" id="modal-basic-title">Voter</h5>
+</div>
+<div class="modal-body">
+  <div class="players">
+    <div class="player" *ngFor="let player of Room.players; let i1 = index">
+      <h6>{{ player.userInfo.username }}</h6>
+      <button
+        style="margin-bottom: 5%"
+        class="btn btn-primary"
+        *ngIf="!player.isOwner"
+      >
+        Voter
+      </button>
+    </div>
+  </div>
+</div>

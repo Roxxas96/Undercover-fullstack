@@ -1,10 +1,16 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, NgModule } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
+import {
+  NgbActiveModal,
+  NgbModal,
+  NgbModalConfig,
+} from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/services/auth.service';
 import { Room } from '../../models/Room.model';
 import { GameService } from '../../services/game.service';
+import { RoomModalComponent } from './room-modal/room-modal.component';
 
 @Component({
   selector: 'app-room',
@@ -33,7 +39,9 @@ export class RoomComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalService: NgbModal,
+    private modalConfig: NgbModalConfig
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +60,7 @@ export class RoomComponent implements OnInit {
     //On destroy : make the player leave and unsub refresh
     this.gameService.quitRoom(this.roomId);
     this.refreshSub.unsubscribe();
+    this.modalService.dismissAll();
   }
 
   //Get room info : get the room informations from back and store in Room array
@@ -61,13 +70,20 @@ export class RoomComponent implements OnInit {
       .then((res: Room) => {
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
-          if (res.gameInProgress != this.Room.gameInProgress) {
-            switch (res.gameInProgress) {
-              case true:
+          console.log(res);
+          if (res.gameState != this.Room.gameState) {
+            switch (res.gameState) {
+              case 2:
+                this.modalConfig.backdrop = 'static';
+                this.modalConfig.keyboard = false;
+                const modalRef = this.modalService.open(RoomModalComponent);
+                modalRef.componentInstance.Room = this.Room;
+                break;
+              case 1:
                 if (!firstTime) this.beginCountdown();
                 else this.pregameLockout = -2;
                 break;
-              case false:
+              case 0:
                 clearInterval(this.countdown);
                 this.pregameLockout = -1;
               //TODO Reset les info de la partie
