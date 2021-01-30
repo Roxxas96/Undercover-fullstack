@@ -201,6 +201,9 @@ exports.quitRoom = (req, res, next) => {
   //If player was host change host
   else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
     Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
+  //Stop game if players < 3
+  else if (Rooms[roomIndex].players.length < 3)
+    Rooms[roomIndex].gameInProgress = false;
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -237,10 +240,11 @@ exports.playerVote = (req, res, next) => {
     })
     .indexOf(userId);
   //User not found
-  if (index == -1)
+  if (playerIndex == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
-  Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[index]
-    .vote;
+  Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[
+    playerIndex
+  ].vote;
   return res.status(200).json({
     message:
       "Le vote a été changé en " +
@@ -256,32 +260,29 @@ exports.startGame = (req, res, next) => {
       .status(400)
       .json({ error: "Pass assez de joueurs pour commencer la partie !" });
   Rooms[roomIndex].gameInProgress = true;
+  Rooms[roomIndex].players.forEach((val) => {
+    val.words = [];
+    val.vote = false;
+  });
   Word.aggregate([{ $sample: { size: 1 } }])
     .then((words) => {
-      const undercoverWord = "";
-      const civilianWord = "";
-      if (Math.random() >= 0.5) {
-        undercoverWord = words.split("/")[0];
-        civilianWord = words.split("/")[1];
-      } else {
-        undercoverWord = words.split("/")[1];
-        civilianWord = words.split("/")[0];
-      }
-      Rooms[roomIndex].players.foreach((val, key) => {
-        val.word = civilianWord;
+      const undercoverIndex = Math.floor(Math.random() * 2);
+      Rooms[roomIndex].players.forEach((val) => {
+        val.word = words.split("/")[Math.abs(1 - undercoverIndex)];
       });
       let previousRandInt = -1;
       let i = 0;
       while (i < Math.round(Rooms[roomIndex].players.length / 3)) {
-        const randInt = Math.floor(
-          Math.random() * Math.floor(Rooms[roomIndex].players.length)
+        let index = Math.floor(
+          Math.random() * (Rooms[roomIndex].players.length - 1)
         );
-        if (randInt != previousRandInt) {
-          Rooms[roomIndex].players[randInt].word = undercoverWord;
-          i += 1;
+        if (index != previousRandInt) {
+          Rooms[roomIndex].players[index].word = words.split("/")[
+            undercoverIndex
+          ];
+          i = i + 1;
         }
       }
-      console.log(Rooms[roomIndex]);
       return res.status(200).json({ message: "Partie lancée !" });
     })
     .catch((error) => {

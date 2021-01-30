@@ -60,7 +60,7 @@
       </div>
     </div>
   </div>
-  <div class="buttons">
+  <div class="buttons" *ngIf="pregameLockout == 0">
     <form (ngSubmit)="onSubmitWord(f)" #f="ngForm">
       <div class="mb-3 word-submit">
         <input
@@ -78,11 +78,6 @@
         <div class="invalid-feedback">
           {{ errorMessage.word }}
         </div>
-        <div
-          class="spinner-border text-primary WordLoading"
-          role="status"
-          *ngIf="WordLoading"
-        ></div>
       </div>
     </form>
     <button
@@ -96,11 +91,6 @@
       (click)="onPlayerVote()"
     >
       <h5 style="margin: 5px">Voter</h5>
-      <div
-        class="spinner-border text-primary"
-        role="status"
-        *ngIf="VoteLoading"
-      ></div>
     </button>
   </div>
 </div>

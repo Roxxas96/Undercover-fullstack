@@ -17,9 +17,6 @@ export class RoomComponent implements OnInit {
     word: '',
   };
 
-  WordLoading = false;
-  VoteLoading = false;
-
   roomId = -1;
   ownerIndex = -1;
 
@@ -79,7 +76,6 @@ export class RoomComponent implements OnInit {
           this.Room = res;
           //Update owner index too, just in case he mooved
           this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
-          console.log(this.ownerIndex);
         }
       })
       //Throw
@@ -92,14 +88,12 @@ export class RoomComponent implements OnInit {
   onSubmitWord(form: NgForm) {
     //Reset vars
     this.errorMessage.word = '';
-    this.WordLoading = true;
 
     //Store Data
     const word = form.value['word'];
 
     //Word empty error
     if (word == '') {
-      this.WordLoading = false;
       this.errorMessage.word = 'Veuillez entrer un mot valide';
       return;
     }
@@ -112,31 +106,24 @@ export class RoomComponent implements OnInit {
     this.gameService
       .pushWord(this.roomId, word)
       .then(() => {
-        this.WordLoading = false;
         form.reset();
       })
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
-        this.WordLoading = false;
         form.reset();
       });
   }
 
   //On player vote : tell back player wants to vote
   onPlayerVote() {
-    this.VoteLoading = true;
-
     //Tell back to update server info
     this.gameService
       .playerVote(this.roomId)
-      .then(() => {
-        this.VoteLoading = false;
-      })
+      .then(() => {})
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
-        this.VoteLoading = false;
       });
 
     //Update local info
