@@ -72,26 +72,36 @@ export class RoomComponent implements OnInit {
       .then((res: Room) => {
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
+          //Depending on game state do something
           if (res.gameState != this.Room.gameState) {
             switch (res.gameState) {
+              //Vote phase
               case 2:
+                //Show vote modal
                 this.modalConfig.backdrop = 'static';
                 this.modalConfig.keyboard = false;
                 this.modalRef = this.modalService.open(RoomModalComponent);
+                //Throw variables to modal
                 this.modalRef.componentInstance.roomId = this.roomId;
                 this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
                 break;
+              //Game phase
               case 1:
+                //Begin countdown only if player was here during game launch
                 if (!firstTime) this.beginCountdown();
                 else this.pregameLockout = -2;
                 break;
+              //Pregame phase
               case 0:
+                //Clear timer and reset game
                 clearInterval(this.countdown);
                 this.pregameLockout = -1;
               //TODO Reset les info de la partie
             }
           }
+          //Update Room
           this.Room = res;
+          //Update modal info
           if (this.modalRef.componentInstance) {
             this.modalRef.componentInstance.Room = this.Room;
             this.modalRef.componentInstance.numSpectators = this.Room.players.filter(
@@ -157,28 +167,34 @@ export class RoomComponent implements OnInit {
     this.skipRefresh = true;
   }
 
+  //Begin game : tell back to begin the game
   onBeginGame() {
     this.gameService
       .startGame(this.roomId)
       .then(() => {})
+      //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
       });
   }
 
+  //Abort game : tell back to abort
   onAbortGame() {
     this.gameService
       .abortGame(this.roomId)
       .then(() => {})
+      //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
       });
   }
 
+  //Begin countdow : begin the countdown locally
   beginCountdown() {
     this.pregameLockout = 5;
     this.countdown = setInterval(() => {
       this.pregameLockout -= 1;
+      //When countdown end, begin game
       if (this.pregameLockout <= 0) {
         clearInterval(this.countdown);
         //TODO Démarer la game

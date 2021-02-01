@@ -155,14 +155,17 @@ export class GameService {
     });
   }
 
+  //Propose word : send a couple of word to back
   proposeWord(word1: string, word2: string) {
     return new Promise((resolve, reject) => {
+      //POST
       this.http
         .post('http://localhost:3000/api/words', { word1: word1, word2: word2 })
         .subscribe(
           (res) => {
             resolve(null);
           },
+          //Throw
           (error) => {
             console.log(error);
             reject(error);
@@ -171,14 +174,17 @@ export class GameService {
     });
   }
 
+  //Start game : tell back to start the game in a certain room
   startGame(roomId: string) {
     return new Promise((resolve, reject) => {
+      //GET
       this.http
         .get('http://localhost:3000/api/room/' + roomId + '/start')
         .subscribe(
           (res) => {
             resolve(res);
           },
+          //Throw
           (error) => {
             console.log(error);
             reject(error);
@@ -187,14 +193,17 @@ export class GameService {
     });
   }
 
+  //Abort game : tell back to abord the game
   abortGame(roomId: string) {
     return new Promise((resolve, reject) => {
+      //GET
       this.http
         .get('http://localhost:3000/api/room/' + roomId + '/abort')
         .subscribe(
           (res) => {
             resolve(res);
           },
+          //Throw
           (error) => {
             console.log(error);
             reject(error);
@@ -203,8 +212,10 @@ export class GameService {
     });
   }
 
+  //Vote for : tell back that client wants to vote for a specified target
   voteFor(roomId: string, playerIndex: number) {
     return new Promise((resolve, reject) => {
+      //POST
       this.http
         .post('http://localhost:3000/api/room/' + roomId + '/vote', {
           target: playerIndex.toString(),
@@ -212,8 +223,8 @@ export class GameService {
         .subscribe(
           (res) => {
             resolve(null);
-            console.log(res);
           },
+          //Throw
           (error) => {
             console.log(error);
             reject(error);

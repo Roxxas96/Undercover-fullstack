@@ -208,6 +208,9 @@ exports.quitRoom = (req, res, next) => {
 //Push word : push a specified word in the room.players[player].words array
 exports.pushWord = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
   //Empty word
   if (req.body.word == "")
     return res.status(400).json({ error: "Le mot entré est vide !" });
@@ -221,6 +224,7 @@ exports.pushWord = (req, res, next) => {
   //User not found
   if (index == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
+  //Push word
   Rooms[roomIndex].players[index].words.push(req.body.word);
   return res.status(200).json({ message: "Le mot a été entré !" });
 };
@@ -230,6 +234,9 @@ exports.playerVote = (req, res, next) => {
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
   const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
@@ -238,45 +245,56 @@ exports.playerVote = (req, res, next) => {
   //User not found
   if (playerIndex == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
+  //Change vote
   Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[
     playerIndex
   ].vote;
+  //Handle spectators (they need to be ignored when dealing with game functions)
   const numSpectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
   ).length;
+  //If enought votes begin vote phase
   if (
     Rooms[roomIndex].players.filter((val) => val.vote == true).length >
     (Rooms[roomIndex].players.length - numSpectators) / 2
   )
     Rooms[roomIndex].gameState = 2;
   return res.status(200).json({
-    message:
-      "Le vote a été changé en " +
-      Rooms[roomIndex].players[playerIndex].vote +
-      " !",
+    message: "Le vote a été changé !",
   });
 };
 
+//Start game : initialize the game
 exports.startGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Not enought players to start
   if (Rooms[roomIndex].players.length < 3)
     return res
       .status(400)
       .json({ error: "Pass assez de joueurs pour commencer la partie !" });
+  //Change game state (begin game)
   Rooms[roomIndex].gameState = 1;
+  //Reset players info
   Rooms[roomIndex].players.forEach((val) => {
     val.words = [];
     val.vote = false;
     val.voteFor = [];
   });
+  //Pick a couple of words from DB
   Word.aggregate([{ $sample: { size: 1 } }])
     .then((words) => {
+      //Random number in [0,1] (index of the undercover word)
       const undercoverIndex = Math.floor(Math.random() * 2);
+      //First asign civilian word to all players
       Rooms[roomIndex].players.forEach((val) => {
         val.word = words[0].words.split("/")[Math.abs(1 - undercoverIndex)];
       });
       let previousRandInt = -1;
       let i = 0;
+      //Then asign undercover word to random unique players
       while (i < Math.round(Rooms[roomIndex].players.length / 3)) {
         let index = Math.floor(
           Math.random() * (Rooms[roomIndex].players.length - 1)
@@ -290,28 +308,45 @@ exports.startGame = (req, res, next) => {
       }
       res.status(200).json({ message: "Partie lancée !" });
     })
+    //DB errors
     .catch((error) => {
       res.status(500).json({ error: error });
     });
 };
 
+//Abort game : stop the current game
 exports.abortGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Change game state
   Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Partie stopée !" });
 };
 
+//Vote for : vote gestion store all votes of a player in an array
 exports.voteFor = (req, res, next) => {
   const userId = getUserId(req);
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(400).json({ error: "Cette salle n'existe pas !" });
   const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
     .indexOf(userId);
+  //User not found
+  if (playerIndex == -1)
+    return res.status(404).json({ error: "Utilisateur non trouvé !" });
   const targetIndex = Rooms[roomIndex].players[playerIndex].voteFor.findIndex(
     (val) => val == req.body.target
   );
+  //Invalid target
+  if (!Rooms[roomIndex].players[playerIndex])
+    return res.status(404).json({ error: "Cible invalide !" });
+  //If target is not in array push it
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
     return res.status(200).json({ message: "Cible déVoté !" });
@@ -319,15 +354,19 @@ exports.voteFor = (req, res, next) => {
   const numSpectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
   ).length;
+  //If target can't be targeted because max target reached (multiple targets allowed)
   if (
     Rooms[roomIndex].players[playerIndex].voteFor.length >=
     Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
   ) {
+    //Replace oldest target by new one
     Rooms[roomIndex].players[playerIndex].voteFor[
       Rooms[roomIndex].players[playerIndex].voteFor.length - 1
     ] = req.body.target;
     return res.status(200).json({ message: "Changement de cible !" });
+    //Else if taget can be targeted
   } else {
+    //Push target
     Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
     return res.status(200).json({ message: "Cible Voté !" });
   }

@@ -1,5 +1,6 @@
 const Word = require("../models/word.model");
 
+//Propose word : push a couple of words in DB
 exports.proposeWord = (req, res, next) => {
   const word1 = req.body.word1;
   const word2 = req.body.word2;
@@ -13,6 +14,7 @@ exports.proposeWord = (req, res, next) => {
     .then(() => {
       return res.status(201).json({ message: "Couple créé !" });
     })
+    //DB errors
     .catch((error) => {
       return res.status(400).json({ error });
     });
