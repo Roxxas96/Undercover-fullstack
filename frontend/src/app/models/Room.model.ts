@@ -9,8 +9,16 @@ export class Room {
     isOwner: boolean;
     vote: boolean;
     word: string;
+    voteFor: Array<Number>;
   }> = [
-    { userInfo: new User(), words: [], isOwner: false, vote: false, word: '' },
+    {
+      userInfo: new User(),
+      words: [],
+      isOwner: false,
+      vote: false,
+      word: '',
+      voteFor: [],
+    },
   ];
   gameState: Number = 0;
   host: User = new User();

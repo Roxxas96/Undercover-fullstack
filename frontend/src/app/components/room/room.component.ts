@@ -23,13 +23,15 @@ export class RoomComponent implements OnInit {
     word: '',
   };
 
-  roomId = -1;
+  roomId = '';
   ownerIndex = -1;
 
   Room: Room = new Room();
 
   countdown = setInterval(() => {}, 1000);
   pregameLockout = -1;
+
+  modalRef: any = '';
 
   refresh = interval(1000);
   refreshSub: Subscription = new Observable().subscribe();
@@ -70,14 +72,14 @@ export class RoomComponent implements OnInit {
       .then((res: Room) => {
         //Update rooms array only if different from local
         if (JSON.stringify(res) != JSON.stringify(this.Room)) {
-          console.log(res);
           if (res.gameState != this.Room.gameState) {
             switch (res.gameState) {
               case 2:
                 this.modalConfig.backdrop = 'static';
                 this.modalConfig.keyboard = false;
-                const modalRef = this.modalService.open(RoomModalComponent);
-                modalRef.componentInstance.Room = this.Room;
+                this.modalRef = this.modalService.open(RoomModalComponent);
+                this.modalRef.componentInstance.roomId = this.roomId;
+                this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
                 break;
               case 1:
                 if (!firstTime) this.beginCountdown();
@@ -90,6 +92,12 @@ export class RoomComponent implements OnInit {
             }
           }
           this.Room = res;
+          if (this.modalRef.componentInstance) {
+            this.modalRef.componentInstance.Room = this.Room;
+            this.modalRef.componentInstance.numSpectators = this.Room.players.filter(
+              (player) => player.word == ''
+            ).length;
+          }
           //Update owner index too, just in case he mooved
           this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
         }

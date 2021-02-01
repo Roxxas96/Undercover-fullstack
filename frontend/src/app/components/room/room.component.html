@@ -57,6 +57,7 @@
         <div class="word" *ngFor="let word of player.words; let i2 = index">
           {{ player.words[player.words.length - i2 - 1] }}
         </div>
+        <h5 *ngIf="player.word == ''">(Spectateur)</h5>
       </div>
     </div>
   </div>

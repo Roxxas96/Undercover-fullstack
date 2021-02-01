@@ -113,6 +113,7 @@ exports.getSingleRoom = (req, res, next) => {
                   isOwner: Rooms[roomIndex].players[index].userId == userId,
                   vote: player.vote,
                   word: player.word,
+                  voteFor: player.voteFor,
                 };
               }),
               gameState: Rooms[roomIndex].gameState,
@@ -167,7 +168,7 @@ exports.joinRoom = (req, res, next) => {
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
-  Rooms[roomIndex].players.push(new Player(userId, [], false, ""));
+  Rooms[roomIndex].players.push(new Player(userId, [], false, "", []));
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -240,9 +241,12 @@ exports.playerVote = (req, res, next) => {
   Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[
     playerIndex
   ].vote;
+  const numSpectators = Rooms[roomIndex].players.filter(
+    (player) => player.word == ""
+  ).length;
   if (
     Rooms[roomIndex].players.filter((val) => val.vote == true).length >
-    Rooms[roomIndex].players.length / 2
+    (Rooms[roomIndex].players.length - numSpectators) / 2
   )
     Rooms[roomIndex].gameState = 2;
   return res.status(200).json({
@@ -263,6 +267,7 @@ exports.startGame = (req, res, next) => {
   Rooms[roomIndex].players.forEach((val) => {
     val.words = [];
     val.vote = false;
+    val.voteFor = [];
   });
   Word.aggregate([{ $sample: { size: 1 } }])
     .then((words) => {
@@ -294,4 +299,36 @@ exports.abortGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Partie stopée !" });
+};
+
+exports.voteFor = (req, res, next) => {
+  const userId = getUserId(req);
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  const playerIndex = Rooms[roomIndex].players
+    .map((user) => {
+      return user.userId;
+    })
+    .indexOf(userId);
+  const targetIndex = Rooms[roomIndex].players[playerIndex].voteFor.findIndex(
+    (val) => val == req.body.target
+  );
+  if (targetIndex != -1) {
+    Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
+    return res.status(200).json({ message: "Cible déVoté !" });
+  }
+  const numSpectators = Rooms[roomIndex].players.filter(
+    (player) => player.word == ""
+  ).length;
+  if (
+    Rooms[roomIndex].players[playerIndex].voteFor.length >=
+    Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
+  ) {
+    Rooms[roomIndex].players[playerIndex].voteFor[
+      Rooms[roomIndex].players[playerIndex].voteFor.length - 1
+    ] = req.body.target;
+    return res.status(200).json({ message: "Changement de cible !" });
+  } else {
+    Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
+    return res.status(200).json({ message: "Cible Voté !" });
+  }
 };

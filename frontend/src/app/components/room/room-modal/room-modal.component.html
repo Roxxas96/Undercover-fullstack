@@ -4,14 +4,29 @@
 <div class="modal-body">
   <div class="players">
     <div class="player" *ngFor="let player of Room.players; let i1 = index">
-      <h6>{{ player.userInfo.username }}</h6>
-      <button
-        style="margin-bottom: 5%"
-        class="btn btn-primary"
-        *ngIf="!player.isOwner"
-      >
-        Voter
-      </button>
+      <div style="display: flex; justify-content: center">
+        <h6>{{ player.userInfo.username }}</h6>
+        <h6 style="margin-left: 2%" *ngIf="voteDone(i1)">✅</h6>
+      </div>
+      <div *ngIf="Room.players[ownerIndex].word != ''">
+        <button
+          style="margin-bottom: 5%"
+          class="btn btn-primary"
+          *ngIf="!player.isOwner && player.word != '' && !isVoted(i1)"
+          (click)="onVote(i1)"
+        >
+          Voter
+        </button>
+        <button
+          style="margin-bottom: 5%"
+          class="btn btn-danger"
+          *ngIf="!player.isOwner && player.word != '' && isVoted(i1)"
+          (click)="onVote(i1)"
+        >
+          Anuler
+        </button>
+      </div>
+      <h6 *ngIf="player.word == ''">(Spectateur)</h6>
     </div>
   </div>
 </div>

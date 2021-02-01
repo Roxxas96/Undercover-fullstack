@@ -33,7 +33,7 @@ export class GameService {
   }
 
   //Get single room, return type : Room
-  getSingleRoom(roomId: number) {
+  getSingleRoom(roomId: string) {
     return new Promise<Room>((resolve, reject) => {
       //HTTP request : GET
       this.http
@@ -97,7 +97,7 @@ export class GameService {
   }
 
   //Quit room : call back to kick player from room
-  quitRoom(roomId: number) {
+  quitRoom(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
@@ -116,7 +116,7 @@ export class GameService {
   }
 
   //Push word : push word to player's word list
-  pushWord(roomId: number, word: string) {
+  pushWord(roomId: string, word: string) {
     return new Promise((resolve, reject) => {
       //POST Request
       this.http
@@ -137,7 +137,7 @@ export class GameService {
   }
 
   //Player vote : call back that the player wants to vote
-  playerVote(roomId: number) {
+  playerVote(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
@@ -171,7 +171,7 @@ export class GameService {
     });
   }
 
-  startGame(roomId: number) {
+  startGame(roomId: string) {
     return new Promise((resolve, reject) => {
       this.http
         .get('http://localhost:3000/api/room/' + roomId + '/start')
@@ -187,13 +187,32 @@ export class GameService {
     });
   }
 
-  abortGame(roomId: number) {
+  abortGame(roomId: string) {
     return new Promise((resolve, reject) => {
       this.http
         .get('http://localhost:3000/api/room/' + roomId + '/abort')
         .subscribe(
           (res) => {
             resolve(res);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
+  voteFor(roomId: string, playerIndex: number) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('http://localhost:3000/api/room/' + roomId + '/vote', {
+          target: playerIndex.toString(),
+        })
+        .subscribe(
+          (res) => {
+            resolve(null);
+            console.log(res);
           },
           (error) => {
             console.log(error);
