@@ -75,6 +75,7 @@ export class RoomComponent implements OnInit {
             switch (res.gameState) {
               //Results phase
               case 3:
+                this.modalService.dismissAll();
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
                 this.modalRef.componentInstance.results = true;
@@ -86,6 +87,7 @@ export class RoomComponent implements OnInit {
                 //Show vote modal
                 this.modalConfig.backdrop = 'static';
                 this.modalConfig.keyboard = false;
+                this.modalService.dismissAll();
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
                 this.modalRef.componentInstance.results = false;
@@ -197,6 +199,7 @@ export class RoomComponent implements OnInit {
 
   //Begin countdow : begin the countdown locally
   beginCountdown() {
+    this.modalService.dismissAll();
     this.pregameLockout = 5;
     this.countdown = setInterval(() => {
       this.pregameLockout -= 1;
