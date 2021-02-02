@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, NgModule } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
@@ -7,7 +7,6 @@ import {
   NgbModal,
   NgbModalConfig,
 } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/services/auth.service';
 import { Room } from '../../models/Room.model';
 import { GameService } from '../../services/game.service';
 import { RoomModalComponent } from './room-modal/room-modal.component';
@@ -41,7 +40,6 @@ export class RoomComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private route: ActivatedRoute,
-    private authService: AuthService,
     private modalService: NgbModal,
     private modalConfig: NgbModalConfig
   ) {}
@@ -75,6 +73,14 @@ export class RoomComponent implements OnInit {
           //Depending on game state do something
           if (res.gameState != this.Room.gameState) {
             switch (res.gameState) {
+              //Results phase
+              case 3:
+                this.modalRef = this.modalService.open(RoomModalComponent);
+                //Throw variables to modal
+                this.modalRef.componentInstance.results = true;
+                this.modalRef.componentInstance.roomId = this.roomId;
+                this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
+                break;
               //Vote phase
               case 2:
                 //Show vote modal
@@ -82,6 +88,7 @@ export class RoomComponent implements OnInit {
                 this.modalConfig.keyboard = false;
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
+                this.modalRef.componentInstance.results = false;
                 this.modalRef.componentInstance.roomId = this.roomId;
                 this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
                 break;
@@ -96,7 +103,6 @@ export class RoomComponent implements OnInit {
                 //Clear timer and reset game
                 clearInterval(this.countdown);
                 this.pregameLockout = -1;
-              //TODO Reset les info de la partie
             }
           }
           //Update Room

@@ -7,6 +7,8 @@ const Player = require("../models/player.model");
 
 let Rooms = [];
 
+let voteTimeout = setTimeout(() => {}, 10);
+
 //Get userId from headers
 const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
@@ -63,7 +65,17 @@ exports.getRooms = (req, res, next) => {
 exports.getSingleRoom = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   if (!Rooms[roomIndex])
-    return res.status(404).json({ error: "La salle n'xiste pas !" });
+    return res.status(404).json({ error: "La salle n'existe pas !" });
+  //Get the index of the player in the room.players array
+  const userId = getUserId(req);
+  const playerIndex = Rooms[roomIndex].players
+    .map((user) => {
+      return user.userId;
+    })
+    .indexOf(userId);
+  //Players not in the game are not alowed to get info
+  if (playerIndex == -1)
+    res.status(403).json({ error: "Le joueur n'est pas dans la salle !" });
   //Get Room.players info in order to extract userId
   User.find(
     {
@@ -112,8 +124,20 @@ exports.getSingleRoom = (req, res, next) => {
                   words: player.words,
                   isOwner: Rooms[roomIndex].players[index].userId == userId,
                   vote: player.vote,
-                  word: player.word,
-                  voteFor: player.voteFor,
+                  word:
+                    Rooms[roomIndex].players[index].userId == userId ||
+                    player.word == "" ||
+                    Rooms[roomIndex].gameState == 3
+                      ? player.word
+                      : "woof",
+                  voteFor:
+                    Rooms[roomIndex].players[index].userId == userId ||
+                    Rooms[roomIndex].gameState == 3
+                      ? player.voteFor
+                      : player.voteFor.map((val) => {
+                          return -42;
+                        }),
+                  score: player.score,
                 };
               }),
               gameState: Rooms[roomIndex].gameState,
@@ -168,7 +192,7 @@ exports.joinRoom = (req, res, next) => {
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
-  Rooms[roomIndex].players.push(new Player(userId, [], false, "", []));
+  Rooms[roomIndex].players.push(new Player(userId, [], false, "", [], 0));
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -214,6 +238,9 @@ exports.pushWord = (req, res, next) => {
   //Empty word
   if (req.body.word == "")
     return res.status(400).json({ error: "Le mot entré est vide !" });
+  //Verify game phase
+  if (Rooms[roomIndex].gameState != 1)
+    return res.status(400).json({ error: "Mauvaise phase !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
   const index = Rooms[roomIndex].players
@@ -237,6 +264,9 @@ exports.playerVote = (req, res, next) => {
   //Room not found
   if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Verify game phase
+  if (Rooms[roomIndex].gameState != 1)
+    return res.status(400).json({ error: "Mauvaise phase !" });
   const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
@@ -257,8 +287,46 @@ exports.playerVote = (req, res, next) => {
   if (
     Rooms[roomIndex].players.filter((val) => val.vote == true).length >
     (Rooms[roomIndex].players.length - numSpectators) / 2
-  )
+  ) {
     Rooms[roomIndex].gameState = 2;
+    voteTimeout = setTimeout(() => {
+      if (Rooms[roomIndex].gameState == 2) {
+        Rooms[roomIndex].gameState = 3;
+        let civilians = [];
+        let undercovers = [];
+        civilians.push(Rooms[roomIndex].players[0]);
+        Rooms[roomIndex].players.forEach((val, key) => {
+          if (key == 0) return;
+          if (val.word != civilians[0].word) undercovers.push(val);
+          else civilians.push(val);
+        });
+        if (undercovers.length > civilians.length) {
+          let temp = civilians;
+          civilians = undercovers;
+          undercovers = temp;
+        }
+        Rooms[roomIndex].players.forEach((player, key) => {
+          if (civilians.find((civ) => civ.userId == player.userId)) {
+            player.voteFor.forEach((vote) => {
+              if (
+                undercovers.find(
+                  (undercover) =>
+                    undercover.userId == Rooms[roomIndex].players[vote].userId
+                )
+              ) {
+                player.score = player.score + 50;
+                Rooms[roomIndex].players[vote].score =
+                  Rooms[roomIndex].players[vote].score - 50;
+              }
+            });
+          } else {
+            player.score = player.score + 50 * civilians.length;
+          }
+        });
+        Rooms[roomIndex].gameState = 0;
+      }
+    }, Math.round(Rooms[roomIndex].players.length / 3) * 10000 + 5000);
+  }
   return res.status(200).json({
     message: "Le vote a été changé !",
   });
@@ -270,6 +338,15 @@ exports.startGame = (req, res, next) => {
   //Room not found
   if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Verify game phase
+  if (Rooms[roomIndex].gameState != 0)
+    return res.status(400).json({ error: "Mauvaise phase !" });
+  const userId = getUserId(req);
+  //Only host can start game
+  if (Rooms[roomIndex].host != userId)
+    return res
+      .status(400)
+      .json({ error: "Seul l'hote peut commencer une partie !" });
   //Not enought players to start
   if (Rooms[roomIndex].players.length < 3)
     return res
@@ -320,6 +397,15 @@ exports.abortGame = (req, res, next) => {
   //Room not found
   if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Verify game phase
+  if (Rooms[roomIndex].gameState != 1)
+    return res.status(400).json({ error: "Mauvaise phase !" });
+  const userId = getUserId(req);
+  //Only host can stop game
+  if (Rooms[roomIndex].host != userId)
+    return res
+      .status(400)
+      .json({ error: "Seul l'hote peut commencer une partie !" });
   //Change game state
   Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Partie stopée !" });
@@ -332,6 +418,9 @@ exports.voteFor = (req, res, next) => {
   //Room not found
   if (Rooms[roomIndex] == null)
     return res.status(400).json({ error: "Cette salle n'existe pas !" });
+  //Verify game phase
+  if (Rooms[roomIndex].gameState != 2)
+    return res.status(400).json({ error: "Mauvaise phase !" });
   const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;

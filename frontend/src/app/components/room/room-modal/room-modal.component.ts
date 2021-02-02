@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
+import { Player } from 'src/app/models/Player.model';
 import { GameService } from 'src/app/services/game.service';
 import { Room } from '../../../models/Room.model';
 
@@ -11,20 +12,39 @@ import { Room } from '../../../models/Room.model';
 export class RoomModalComponent implements OnInit {
   constructor(
     private activeModal: NgbActiveModal,
-    private gameService: GameService
+    private gameService: GameService,
+    private modalConfig: NgbModalConfig
   ) {}
 
   @Input() Room: Room = new Room();
   @Input() numSpectators = 0;
   @Input() roomId = '';
   @Input() ownerIndex = -1;
+  @Input() results = false;
 
-  voteLockout = -1;
+  timeOut = -1;
   countdown = setInterval(() => {}, 1000);
+
+  undercovers: Array<Player> = [];
+  civilians: Array<Player> = [];
 
   //Players have 20 sec to vote
   ngOnInit(): void {
-    this.beginCountdown();
+    if (this.results) {
+      this.civilians.push(this.Room.players[0]);
+      this.Room.players.forEach((val, key) => {
+        if (key == 0) return;
+        if (val.word != this.civilians[0].word) this.undercovers.push(val);
+        else this.civilians.push(val);
+      });
+      if (this.undercovers.length > this.civilians.length) {
+        let temp = this.civilians;
+        this.civilians = this.undercovers;
+        this.undercovers = temp;
+      }
+    } else {
+      this.beginCountdown();
+    }
   }
 
   //onVote : tell back that the player want to vote for a target
@@ -49,14 +69,20 @@ export class RoomModalComponent implements OnInit {
 
   //Begin vote countdown
   beginCountdown() {
-    this.voteLockout = Math.round(this.Room.players.length / 3) * 10;
+    this.timeOut = Math.round(this.Room.players.length / 3) * 10;
     this.countdown = setInterval(() => {
-      this.voteLockout -= 1;
+      this.timeOut -= 1;
       //On countdown end dismiss modal
-      if (this.voteLockout <= 0) {
+      if (this.timeOut <= 0) {
         clearInterval(this.countdown);
+        this.modalConfig.backdrop = true;
+        this.modalConfig.keyboard = true;
         this.activeModal.dismiss();
       }
     }, 1000);
+  }
+
+  dismissModal() {
+    this.activeModal.dismiss();
   }
 }

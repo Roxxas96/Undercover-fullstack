@@ -1,34 +1,74 @@
-<div class="modal-header">
-  <h5 class="modal-title" id="modal-basic-title" style="margin: auto">
-    Voter {{ voteLockout }}
-  </h5>
-</div>
-<div class="modal-body">
-  <div class="players">
-    <div class="player" *ngFor="let player of Room.players; let i1 = index">
-      <div style="display: flex; justify-content: center">
-        <h6>{{ player.userInfo.username }}</h6>
-        <h6 style="margin-left: 2%" *ngIf="voteDone(i1)">✅</h6>
+<div *ngIf="!results">
+  <div class="modal-header" *ngIf="!results">
+    <h5 class="modal-title" id="modal-basic-title" style="margin: auto">
+      Voter {{ timeOut }}
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div class="players">
+      <div class="player" *ngFor="let player of Room.players; let i1 = index">
+        <div style="display: flex; justify-content: center">
+          <h6>{{ player.userInfo.username }}</h6>
+          <h6 style="margin-left: 2%" *ngIf="voteDone(i1)">✅</h6>
+        </div>
+        <div *ngIf="Room.players[ownerIndex].word != ''">
+          <button
+            style="margin-bottom: 5%"
+            class="btn btn-primary"
+            *ngIf="!player.isOwner && player.word != '' && !isVoted(i1)"
+            (click)="onVote(i1)"
+          >
+            Voter
+          </button>
+          <button
+            style="margin-bottom: 5%"
+            class="btn btn-danger"
+            *ngIf="!player.isOwner && player.word != '' && isVoted(i1)"
+            (click)="onVote(i1)"
+          >
+            Anuler
+          </button>
+        </div>
+        <h6 *ngIf="player.word == ''">(Spectateur)</h6>
       </div>
-      <div *ngIf="Room.players[ownerIndex].word != ''">
-        <button
-          style="margin-bottom: 5%"
-          class="btn btn-primary"
-          *ngIf="!player.isOwner && player.word != '' && !isVoted(i1)"
-          (click)="onVote(i1)"
-        >
-          Voter
-        </button>
-        <button
-          style="margin-bottom: 5%"
-          class="btn btn-danger"
-          *ngIf="!player.isOwner && player.word != '' && isVoted(i1)"
-          (click)="onVote(i1)"
-        >
-          Anuler
-        </button>
-      </div>
-      <h6 *ngIf="player.word == ''">(Spectateur)</h6>
     </div>
+  </div>
+</div>
+<div *ngIf="results">
+  <div class="modal-header">
+    <h5 class="modal-title" id="modal-basic-title">Résultats</h5>
+    <button
+      type="button"
+      class="close"
+      (click)="dismissModal()"
+      aria-label="Close"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <h6 style="margin: auto">Undercovers : {{ undercovers[0].word }}</h6>
+    <div class="players">
+      <div class="player" *ngFor="let undercover of undercovers; let i = index">
+        <p>{{ undercover.userInfo.username }}</p>
+      </div>
+    </div>
+    <h6 style="margin: auto">Civilians : {{ civilians[0].word }}</h6>
+    <div class="players">
+      <div class="player" *ngFor="let civilian of civilians; let i = index">
+        <p>{{ civilian.userInfo.username }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="dismissModal()"
+      data-bs-dismiss="modal"
+      ngbAutofocus
+    >
+      Fermer
+    </button>
   </div>
 </div>
