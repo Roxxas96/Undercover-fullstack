@@ -323,9 +323,9 @@ exports.playerVote = (req, res, next) => {
             player.score = player.score + 50 * civilians.length;
           }
         });
-        Rooms[roomIndex].gameState = 0;
+        setTimeout(() => (Rooms[roomIndex].gameState = 0), 5000);
       }
-    }, Math.round(Rooms[roomIndex].players.length / 3) * 10000 + 5000);
+    }, Math.round(Rooms[roomIndex].players.length / 3) * 10000 + 2000);
   }
   return res.status(200).json({
     message: "Le vote a été changé !",
