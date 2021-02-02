@@ -7,4 +7,5 @@ export class Player {
   vote: boolean = true;
   word: string = '';
   voteFor: Array<Number> = [];
+  score: Number = 0;
 }

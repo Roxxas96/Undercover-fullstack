@@ -53,6 +53,9 @@
         <h5>{{ player.userInfo.username }}</h5>
         <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
       </div>
+      <div class="score">
+        <h6>Score : {{ player.score }}</h6>
+      </div>
       <div class="words">
         <div class="word" *ngFor="let word of player.words; let i2 = index">
           {{ player.words[player.words.length - i2 - 1] }}

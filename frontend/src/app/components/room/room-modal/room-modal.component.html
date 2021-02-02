@@ -47,13 +47,19 @@
     </button>
   </div>
   <div class="modal-body">
-    <h6 style="margin: auto">Undercovers : {{ undercovers[0].word }}</h6>
+    <div>
+      <h5 style="text-align: center">
+        Undercovers : {{ undercovers[0].word }}
+      </h5>
+    </div>
     <div class="players">
       <div class="player" *ngFor="let undercover of undercovers; let i = index">
         <p>{{ undercover.userInfo.username }}</p>
       </div>
     </div>
-    <h6 style="margin: auto">Civilians : {{ civilians[0].word }}</h6>
+    <div>
+      <h5 style="text-align: center">Civilians : {{ civilians[0].word }}</h5>
+    </div>
     <div class="players">
       <div class="player" *ngFor="let civilian of civilians; let i = index">
         <p>{{ civilian.userInfo.username }}</p>

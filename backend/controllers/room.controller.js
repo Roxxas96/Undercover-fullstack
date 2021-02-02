@@ -229,6 +229,16 @@ exports.quitRoom = (req, res, next) => {
 
 //*-----------------------------------------------------------------------------------------------Game Part-------------------------------------------------------------------------------------------------------------------
 
+//Reset game, reset all game variables
+const resetGame = (index) => {
+  Rooms[index].players.forEach((val) => {
+    val.words = [];
+    val.vote = false;
+    val.voteFor = [];
+    val.word = "";
+  });
+};
+
 //Push word : push a specified word in the room.players[player].words array
 exports.pushWord = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
@@ -323,7 +333,10 @@ exports.playerVote = (req, res, next) => {
             player.score = player.score + 50 * civilians.length;
           }
         });
-        setTimeout(() => (Rooms[roomIndex].gameState = 0), 5000);
+        setTimeout(() => {
+          Rooms[roomIndex].gameState = 0;
+          resetGame(roomIndex);
+        }, 5000);
       }
     }, Math.round(Rooms[roomIndex].players.length / 3) * 10000 + 2000);
   }
@@ -355,11 +368,7 @@ exports.startGame = (req, res, next) => {
   //Change game state (begin game)
   Rooms[roomIndex].gameState = 1;
   //Reset players info
-  Rooms[roomIndex].players.forEach((val) => {
-    val.words = [];
-    val.vote = false;
-    val.voteFor = [];
-  });
+  resetGame(roomIndex);
   //Pick a couple of words from DB
   Word.aggregate([{ $sample: { size: 1 } }])
     .then((words) => {
@@ -408,6 +417,7 @@ exports.abortGame = (req, res, next) => {
       .json({ error: "Seul l'hote peut commencer une partie !" });
   //Change game state
   Rooms[roomIndex].gameState = 0;
+  resetGame(roomIndex);
   return res.status(200).json({ message: "Partie stopée !" });
 };
 
