@@ -7,60 +7,64 @@
   >
     {{ errorMessage.global }}
   </div>
-  <div class="gameInfo">
-    <div class="GameInPlay" *ngIf="pregameLockout == -2">
-      <h3>Une partie est déjà en cour, veuillez attendre la fin</h3>
-    </div>
-    <div class="Pregame" *ngIf="pregameLockout == -1">
-      <h3>
-        En du lancement de la partie, il y a {{ Room.players.length }} joueurs
-        dans la partie (3 minimum pour commencer)
-      </h3>
-      <button
-        class="btn btn-primary"
-        (click)="onBeginGame()"
-        *ngIf="
-          Room.players.length >= 3 &&
-          Room.host.username == Room.players[ownerIndex].userInfo.username
-        "
-      >
-        Lancer la partie
-      </button>
-    </div>
-    <div class="Pregame-lockout" *ngIf="pregameLockout > 0">
-      <h3>Début de la partie dans {{ pregameLockout }}</h3>
-      <button
-        class="btn btn-danger"
-        (click)="onAbortGame()"
-        *ngIf="Room.host.username == Room.players[ownerIndex].userInfo.username"
-      >
-        Anuler
-      </button>
-    </div>
-    <div class="GameMain" *ngIf="pregameLockout == 0">
-      <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
-    </div>
-  </div>
-  <div class="players">
-    <div class="player" *ngFor="let player of Room.players; let i1 = index">
-      <div style="display: flex; justify-content: center">
-        <h5
-          style="margin-right: 2%"
-          *ngIf="player.userInfo.username == Room.host.username"
+  <div class="game">
+    <div class="gameInfo">
+      <div class="GameInPlay" *ngIf="pregameLockout == -2">
+        <h3>Une partie est déjà en cour, veuillez attendre la fin</h3>
+      </div>
+      <div class="Pregame" *ngIf="pregameLockout == -1">
+        <h3>
+          En du lancement de la partie, il y a {{ Room.players.length }} joueurs
+          dans la partie (3 minimum pour commencer)
+        </h3>
+        <button
+          class="btn btn-primary"
+          (click)="onBeginGame()"
+          *ngIf="
+            Room.players.length >= 3 &&
+            Room.host.username == Room.players[ownerIndex].userInfo.username
+          "
         >
-          👑
-        </h5>
-        <h5>{{ player.userInfo.username }}</h5>
-        <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
+          Lancer la partie
+        </button>
       </div>
-      <div class="score">
-        <h6>Score : {{ player.score }}</h6>
+      <div class="Pregame-lockout" *ngIf="pregameLockout > 0">
+        <h3>Début de la partie dans {{ pregameLockout }}</h3>
+        <button
+          class="btn btn-danger"
+          (click)="onAbortGame()"
+          *ngIf="
+            Room.host.username == Room.players[ownerIndex].userInfo.username
+          "
+        >
+          Anuler
+        </button>
       </div>
-      <div class="words">
-        <div class="word" *ngFor="let word of player.words; let i2 = index">
-          {{ player.words[player.words.length - i2 - 1] }}
+      <div class="GameMain" *ngIf="pregameLockout == 0">
+        <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
+      </div>
+    </div>
+    <div class="players">
+      <div class="player" *ngFor="let player of Room.players; let i1 = index">
+        <div style="display: flex; justify-content: center">
+          <h5
+            style="margin-right: 2%"
+            *ngIf="player.userInfo.username == Room.host.username"
+          >
+            👑
+          </h5>
+          <h5>{{ player.userInfo.username }}</h5>
+          <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
         </div>
-        <h5 *ngIf="player.word == ''">(Spectateur)</h5>
+        <div class="score">
+          <h6>Score : {{ player.score }}</h6>
+        </div>
+        <div class="words">
+          <div class="word" *ngFor="let word of player.words; let i2 = index">
+            {{ player.words[player.words.length - i2 - 1] }}
+          </div>
+          <h5 *ngIf="player.word == ''">(Spectateur)</h5>
+        </div>
       </div>
     </div>
   </div>
@@ -97,4 +101,7 @@
       <h5 style="margin: 5px">Voter</h5>
     </button>
   </div>
+  <button class="btn btn-primary quitButton" routerLink="lobby">
+    Quitter la salle
+  </button>
 </div>

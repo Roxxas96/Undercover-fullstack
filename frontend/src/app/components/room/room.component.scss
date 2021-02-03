@@ -2,14 +2,15 @@
   width: 100%;
   height: calc(100vh - 100px);
 }
+.game {
+  overflow-y: auto;
+  height: 75%;
+}
 .gameInfo {
-  height: 10%;
   text-align: center;
 }
 .players {
-  overflow-y: auto;
   width: 100%;
-  height: 65%;
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
@@ -32,6 +33,9 @@
 .player div {
   overflow-x: hidden;
 }
+.buttons {
+  height: 15%;
+}
 .vote-btn {
   margin-left: 35%;
   width: 30%;
@@ -47,6 +51,11 @@
   margin-top: 3%;
   margin-left: 45%;
 }
+.quitButton {
+  position: absolute;
+  right: 5%;
+  bottom: 3%;
+}
 
 @media all and (max-width: 992px) {
   .vote-btn {
@@ -61,5 +70,8 @@
   .WordLoading {
     margin-top: 3%;
     margin-left: 0;
+  }
+  .quitButton {
+    display: none;
   }
 }

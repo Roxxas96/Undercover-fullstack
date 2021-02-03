@@ -39,7 +39,10 @@
   padding: 5px 5px 6px 5px;
   cursor: pointer;
 }
-.right a:hover {
+.logout {
+  margin: auto;
+}
+.logout a:hover {
   background-color: white;
 }
 .middle a {
@@ -61,4 +64,70 @@
 .spacer {
   margin-bottom: 5%;
   align-self: flex-end;
+}
+.mobile-menu {
+  width: 35px;
+  display: none;
+  margin: 1em 0 0 1em;
+}
+.mobile-menu div {
+  height: 4px;
+  margin: 5px 0;
+  border-radius: 25px;
+  background-color: white;
+}
+.slide-menu {
+  width: 80vw;
+  height: 100vh;
+  background-color: white;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  text-align: center;
+  padding-top: 2%;
+  transition: 0.3s;
+  transform: translateX(100%);
+}
+.slide-menu h4 {
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+.slide-background {
+  background-color: rgba(0, 0, 0, 0.65);
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  transition: 0.3s;
+  display: none;
+}
+.active {
+  transform: translate(0);
+  display: inline;
+}
+.slide-close {
+  text-align: right;
+  width: 35px;
+  height: auto;
+  text-decoration: none;
+  color: black;
+}
+.slide-close h2 {
+  margin-right: 5%;
+}
+
+@media all and (max-width: 992px) {
+  .left h5 {
+    display: none;
+  }
+  .mobile-menu {
+    display: block;
+  }
+  .middle {
+    display: none;
+  }
+  .logout {
+    display: none;
+  }
 }

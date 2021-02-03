@@ -87,6 +87,23 @@
     <a (click)="openModal(content)"><h4>Proposez vos mots !</h4></a>
   </div>
   <div class="right" *ngIf="isAuth">
-    <a (click)="onLogout()">Deconnexion</a>
+    <div class="logout">
+      <a (click)="onLogout()">Deconnexion</a>
+    </div>
+    <a class="mobile-menu" (click)="slideMenu = true">
+      <div></div>
+      <div></div>
+      <div></div>
+    </a>
   </div>
 </div>
+<div [ngClass]="{ 'slide-menu': true, active: slideMenu }">
+  <a (click)="slideMenu = false" class="slide-close"><h2>×</h2></a>
+  <a (click)="openModal(content)"><h4>Proposez vos mots !</h4></a>
+  <a routerLink="lobby" *ngIf="isInRoom()"><h4>Quitter la salle</h4></a>
+  <a (click)="onLogout()"><h4>Deconnexion</h4></a>
+</div>
+<div
+  [ngClass]="{ 'slide-background': true, active: slideMenu }"
+  (click)="slideMenu = false"
+></div>

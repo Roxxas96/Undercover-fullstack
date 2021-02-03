@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
@@ -20,10 +21,13 @@ export class HeaderComponent implements OnInit {
 
   isAuth = false;
 
+  slideMenu = false;
+
   constructor(
     private authService: AuthService,
     private modalService: NgbModal,
-    private gameService: GameService
+    private gameService: GameService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -31,12 +35,18 @@ export class HeaderComponent implements OnInit {
   }
 
   onLogout() {
+    this.slideMenu = false;
     this.authService.logout(false);
   }
 
   //Open Propose word popup
   openModal(modal: any) {
+    this.slideMenu = false;
     this.modalService.open(modal);
+  }
+
+  isInRoom() {
+    return new RegExp('[/room]').test(this.router.url);
   }
 
   onProposeWord(form: NgForm, modal: NgbActiveModal) {
