@@ -125,7 +125,7 @@ export class RoomComponent implements OnInit {
       .catch((error) => {
         if (error.error.error == "La salle n'existe pas !")
           return this.router.navigate(['lobby']);
-        return (this.errorMessage = error.message);
+        return (this.errorMessage.global = error.message);
       });
   }
 

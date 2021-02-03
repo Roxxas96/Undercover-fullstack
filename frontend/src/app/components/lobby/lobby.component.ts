@@ -156,7 +156,7 @@ export class LobbyComponent implements OnInit {
         //Error : User already in the game
         if (error.error.error == 'Cet user est déjà dans la parite !') {
           this.errorMessageMain.rooms =
-            'Une érreur est survenue ! Vous semblez déjà être dans la partie';
+            'Une érreur est survenue ! Vous semblez déjà être dans la partie. Si vous avez eu un problème de connexion, attendez quelques seccondes (10 max)';
           this.joinRoomLoading = '';
           return;
         }
