@@ -4,6 +4,7 @@ const Word = require("../models/word.model");
 const User = require("../models/user.model");
 const Room = require("../models/room.model");
 const Player = require("../models/player.model");
+const connectedPlayers = require("./connectedPlayers");
 
 let Rooms = [];
 
@@ -18,13 +19,32 @@ const getUserId = (req) => {
     "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
   );
   const userId = decodedToken.userId;
+  const index = connectedPlayers.findIndex((val) => val.userId == userId);
+  if (index != -1)
+    connectedPlayers[index].activity = connectedPlayers[index].activity + 1;
   return userId;
 };
+
+const antiAFK = setTimeout(() => {
+  setInterval(() => {
+    Rooms.forEach((room) => {
+      room.players.forEach((player, key) => {
+        if (
+          !connectedPlayers.find(
+            (connectedPlayer) => connectedPlayer.userId == player.userId
+          )
+        )
+          room.players.splice(key, 1);
+      });
+    });
+  }, 60000);
+}, 1000);
 
 //*-----------------------------------------------------------------------------------------------Room control part----------------------------------------------------------------------------------------------------------
 
 //Get rooms, return Rooms
 exports.getRooms = (req, res, next) => {
+  const userId = getUserId(req);
   User.find(
     {
       _id: {
@@ -193,6 +213,11 @@ exports.joinRoom = (req, res, next) => {
   //Push player to Rooms array
   //!!! Change player here if model changes
   Rooms[roomIndex].players.push(new Player(userId, [], false, "", [], 0));
+  //Notify in connectedPlayers array
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  connectedPlayers[connectedPlayerIndex].room = req.params.roomName;
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -217,6 +242,11 @@ exports.quitRoom = (req, res, next) => {
     });
   //Remove player from Rooms
   Rooms[roomIndex].players.splice(playerIndex, 1);
+  //Notify in connectedPlayers array
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  connectedPlayers[connectedPlayerIndex].room = "";
   //If room is empty delete it
   if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
   //If player was host change host

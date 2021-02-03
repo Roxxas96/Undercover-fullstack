@@ -5,7 +5,7 @@ const User = require("../models/user.model");
 
 const Auth = require("../middleware/Auth");
 
-let connectedPlayers = [];
+const connectedPlayers = require("./connectedPlayers");
 
 //Get userId from headers
 const getUserId = (req) => {
@@ -16,8 +16,20 @@ const getUserId = (req) => {
     "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
   );
   const userId = decodedToken.userId;
+  const index = connectedPlayers.findIndex((val) => val.userId == userId);
+  if (index != -1)
+    connectedPlayers[index].activity = connectedPlayers[index].activity + 1;
   return userId;
 };
+
+const antiAFK = setInterval(() => {
+  connectedPlayers.forEach((val, key) => {
+    if (val.activity == 0) {
+      connectedPlayers.splice(key, 1);
+    }
+    val.activity = 0;
+  });
+}, 60000);
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
@@ -71,7 +83,7 @@ exports.login = (req, res, next) => {
                 .status(401)
                 .json({ error: "Mot de passe incorrect !" });
             //User already connected (prevent 2 users to be on the same account)
-            if (connectedPlayers.find((val) => val == user._id) != null)
+            if (connectedPlayers.find((val) => val.userId == user._id) != null)
               return res.status(401).json({
                 error: "Quelqu'un est déjà connecté à ce compte !",
               });
@@ -106,7 +118,7 @@ exports.login = (req, res, next) => {
               return res
                 .status(401)
                 .json({ error: "Mot de passe incorrect !" });
-            if (connectedPlayers.find((val) => val == user._id) != null)
+            if (connectedPlayers.find((val) => val.userId == user._id) != null)
               return res.status(401).json({
                 error: "Quelqu'un est déjà connecté à ce compte !",
               });
@@ -131,7 +143,7 @@ exports.login = (req, res, next) => {
 //Logout : remove player from Connected Players array
 exports.logout = (req, res, next) => {
   const userId = getUserId(req);
-  const index = connectedPlayers.indexOf(userId);
+  const index = connectedPlayers.findIndex((val) => val.userId == userId);
   if (index >= 0) {
     connectedPlayers.splice(index, 1);
     return res.status(200).json({ message: "Utilisateur déconnecté !" });
@@ -145,12 +157,13 @@ exports.logout = (req, res, next) => {
 //Auth : check validity of user's token + register if connected or not
 exports.auth = (req, res, next) => {
   const userId = getUserId(req);
-  const index = connectedPlayers.indexOf(userId);
+  const index = connectedPlayers.findIndex((val) => val.userId == userId);
   //Call auth to check token and return succession
   const authResult = Auth(req, res, next);
   if (authResult) {
     //Add user only if not in connectedPlayers
-    if (index == -1) connectedPlayers.push(userId);
+    if (index == -1)
+      connectedPlayers.push({ userId: userId, activity: 0, room: "" });
     return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {
@@ -162,8 +175,15 @@ exports.auth = (req, res, next) => {
 
 //Get connected players : return an array of all connected players
 exports.getConnectedPlayers = (req, res, next) => {
+  const userId = getUserId(req);
   User.find(
-    { _id: { $in: connectedPlayers } },
+    {
+      _id: {
+        $in: connectedPlayers.map((val) => {
+          return val.userId;
+        }),
+      },
+    },
     { _id: false, password: false, email: false }
   )
     .then((users) => {
