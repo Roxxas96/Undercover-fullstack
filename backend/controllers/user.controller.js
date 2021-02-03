@@ -5,7 +5,7 @@ const User = require("../models/user.model");
 
 const Auth = require("../middleware/Auth");
 
-const connectedPlayers = require("./connectedPlayers");
+let connectedPlayers = require("./connectedPlayers");
 
 //Get userId from headers
 const getUserId = (req) => {
@@ -29,7 +29,7 @@ const antiAFK = setInterval(() => {
     }
     val.activity = 0;
   });
-}, 60000);
+}, 10000);
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
