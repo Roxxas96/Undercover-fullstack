@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
 import {
   NgbActiveModal,
@@ -41,7 +41,8 @@ export class RoomComponent implements OnInit {
     private gameService: GameService,
     private route: ActivatedRoute,
     private modalService: NgbModal,
-    private modalConfig: NgbModalConfig
+    private modalConfig: NgbModalConfig,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -122,7 +123,9 @@ export class RoomComponent implements OnInit {
       })
       //Throw
       .catch((error) => {
-        this.errorMessage = error.message;
+        if (error.error.error == "La salle n'existe pas !")
+          return this.router.navigate(['lobby']);
+        return (this.errorMessage = error.message);
       });
   }
 

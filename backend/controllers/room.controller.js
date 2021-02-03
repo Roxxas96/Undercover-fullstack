@@ -34,9 +34,19 @@ const getUserId = (req) => {
 };
 
 const antiAFK = setInterval(() => {
-  Rooms.forEach((room) => {
-    room.players.forEach((player, key) => {
-      if (player.activity == 0) room.players.splice(key, 1);
+  Rooms.forEach((room, roomIndex) => {
+    room.players.forEach((player, playerIndex) => {
+      if (player.activity == 0) {
+        //Remove player from Rooms
+        room.players.splice(playerIndex, 1);
+        //If room is empty delete it
+        if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
+        //If player was host change host
+        else if (room && room.host == player.userId)
+          room.host = room.players[0].userId;
+        //Stop game if players < 3
+        else if (room.players.length < 3) room.gameState = 0;
+      }
       player.activity = 0;
     });
   });
@@ -201,7 +211,7 @@ exports.joinRoom = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //User already in the room
   const userId = getUserId(req);
   if (Rooms[roomIndex].players.find((val) => val.userId == userId))
@@ -222,7 +232,7 @@ exports.quitRoom = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
   const playerIndex = Rooms[roomIndex].players
@@ -265,7 +275,7 @@ exports.pushWord = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Empty word
   if (req.body.word == "")
     return res.status(400).json({ error: "Le mot entré est vide !" });
@@ -294,7 +304,7 @@ exports.playerVote = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Verify game phase
   if (Rooms[roomIndex].gameState != 1)
     return res.status(400).json({ error: "Mauvaise phase !" });
@@ -371,7 +381,7 @@ exports.startGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Verify game phase
   if (Rooms[roomIndex].gameState != 0)
     return res.status(400).json({ error: "Mauvaise phase !" });
@@ -426,7 +436,7 @@ exports.abortGame = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Verify game phase
   if (Rooms[roomIndex].gameState != 1)
     return res.status(400).json({ error: "Mauvaise phase !" });
@@ -448,7 +458,7 @@ exports.voteFor = (req, res, next) => {
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   //Room not found
   if (Rooms[roomIndex] == null)
-    return res.status(400).json({ error: "Cette salle n'existe pas !" });
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
   //Verify game phase
   if (Rooms[roomIndex].gameState != 2)
     return res.status(400).json({ error: "Mauvaise phase !" });

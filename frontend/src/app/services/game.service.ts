@@ -26,6 +26,10 @@ export class GameService {
           //Throw errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -48,6 +52,10 @@ export class GameService {
           //Throw errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -71,6 +79,10 @@ export class GameService {
           //Throw errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -90,6 +102,10 @@ export class GameService {
           (error) => {
             //Throw
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -109,6 +125,10 @@ export class GameService {
           (error) => {
             //Throw
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -130,6 +150,10 @@ export class GameService {
           (error) => {
             //Throw
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -149,6 +173,10 @@ export class GameService {
           (error) => {
             //Throw
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -168,6 +196,10 @@ export class GameService {
           //Throw
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -187,6 +219,10 @@ export class GameService {
           //Throw
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -206,6 +242,10 @@ export class GameService {
           //Throw
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -227,6 +267,10 @@ export class GameService {
           //Throw
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );

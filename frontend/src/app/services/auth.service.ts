@@ -36,12 +36,20 @@ export class AuthService {
               //Throw login errors
               .catch((error) => {
                 console.log(error);
+                if (error.status == 0) {
+                  error = { message: 'Serveur introuvable !' };
+                  location.reload();
+                }
                 reject(error);
               });
           },
           //Throw backend errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -87,6 +95,10 @@ export class AuthService {
           //Throw errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -113,6 +125,10 @@ export class AuthService {
       },
       (error) => {
         console.log(error);
+        if (error.status == 0) {
+          error = { message: 'Serveur introuvable !' };
+          location.reload();
+        }
         this.token = '';
       }
     );
@@ -132,6 +148,10 @@ export class AuthService {
           //Catch errors (could be wrong token or other)
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
@@ -152,6 +172,10 @@ export class AuthService {
           //Catch errors
           (error) => {
             console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              location.reload();
+            }
             reject(error);
           }
         );
