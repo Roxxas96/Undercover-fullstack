@@ -10,6 +10,8 @@ import { RoomSimple } from '../models/RoomSimple.model';
 export class GameService {
   constructor(private http: HttpClient) {}
 
+  serverUnvailable = false;
+
   //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)
   getRooms() {
     return new Promise<Array<RoomSimple>>((resolve, reject) => {
@@ -21,6 +23,7 @@ export class GameService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<RoomSimple> }) => {
+            if (this.serverUnvailable) location.reload();
             resolve(res.result);
           },
           //Throw errors
@@ -28,7 +31,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -47,6 +50,7 @@ export class GameService {
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
+            if (this.serverUnvailable) location.reload();
             resolve(res.result);
           },
           //Throw errors
@@ -54,7 +58,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -74,6 +78,7 @@ export class GameService {
         .subscribe(
           //Stored in result
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Throw errors
@@ -81,7 +86,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -97,6 +102,7 @@ export class GameService {
         .get('http://localhost:5000/api/room/' + roomName + '/join')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           (error) => {
@@ -104,7 +110,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -120,6 +126,7 @@ export class GameService {
         .get('http://localhost:5000/api/room/' + roomId + '/quit')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           (error) => {
@@ -127,7 +134,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -145,6 +152,7 @@ export class GameService {
         })
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           (error) => {
@@ -152,7 +160,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -168,6 +176,7 @@ export class GameService {
         .get('http://localhost:5000/api/room/' + roomId + '/vote')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           (error) => {
@@ -175,7 +184,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -191,6 +200,7 @@ export class GameService {
         .post('http://localhost:5000/api/words', { word1: word1, word2: word2 })
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Throw
@@ -198,7 +208,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -214,6 +224,7 @@ export class GameService {
         .get('http://localhost:5000/api/room/' + roomId + '/start')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(res);
           },
           //Throw
@@ -221,7 +232,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -237,6 +248,7 @@ export class GameService {
         .get('http://localhost:5000/api/room/' + roomId + '/abort')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(res);
           },
           //Throw
@@ -244,7 +256,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -262,6 +274,7 @@ export class GameService {
         })
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Throw
@@ -269,7 +282,7 @@ export class GameService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }

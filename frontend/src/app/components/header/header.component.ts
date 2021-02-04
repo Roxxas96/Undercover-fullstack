@@ -46,7 +46,7 @@ export class HeaderComponent implements OnInit {
   }
 
   isInRoom() {
-    return new RegExp('[/room]').test(this.router.url);
+    return new RegExp('/room').test(this.router.url);
   }
 
   onProposeWord(form: NgForm, modal: NgbActiveModal) {

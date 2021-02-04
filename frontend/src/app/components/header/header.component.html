@@ -97,13 +97,13 @@
     </a>
   </div>
 </div>
-<div [ngClass]="{ 'slide-menu': true, active: slideMenu }">
+<div [ngClass]="{ 'slide-menu': true, 'slide-active': slideMenu }">
   <a (click)="slideMenu = false" class="slide-close"><h2>×</h2></a>
   <a (click)="openModal(content)"><h4>Proposez vos mots !</h4></a>
   <a routerLink="lobby" *ngIf="isInRoom()"><h4>Quitter la salle</h4></a>
   <a (click)="onLogout()"><h4>Deconnexion</h4></a>
 </div>
 <div
-  [ngClass]="{ 'slide-background': true, active: slideMenu }"
+  [ngClass]="{ 'slide-background': true, 'back-active': slideMenu }"
   (click)="slideMenu = false"
 ></div>

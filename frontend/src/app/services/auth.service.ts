@@ -13,6 +13,8 @@ export class AuthService {
   token: string = '';
   userId: string = '';
 
+  serverUnvailable = false;
+
   constructor(private http: HttpClient) {}
 
   //CreateUser : call backend to create new user and return success/failures
@@ -31,6 +33,7 @@ export class AuthService {
             //And login
             this.login(email, password, false)
               .then(() => {
+                if (this.serverUnvailable) location.reload();
                 resolve(null);
               })
               //Throw login errors
@@ -38,7 +41,7 @@ export class AuthService {
                 console.log(error);
                 if (error.status == 0) {
                   error = { message: 'Serveur introuvable !' };
-                  location.reload();
+                  this.serverUnvailable = true;
                 }
                 reject(error);
               });
@@ -48,7 +51,7 @@ export class AuthService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -90,6 +93,7 @@ export class AuthService {
                 localStorage.removeItem('userId');
               }
             }
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Throw errors
@@ -97,7 +101,7 @@ export class AuthService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -121,13 +125,14 @@ export class AuthService {
     //Tell backen we disconnected
     this.http.get('http://localhost:5000/api/auth/logout').subscribe(
       () => {
+        if (this.serverUnvailable) location.reload();
         this.token = '';
       },
       (error) => {
         console.log(error);
         if (error.status == 0) {
           error = { message: 'Serveur introuvable !' };
-          location.reload();
+          this.serverUnvailable = true;
         }
         this.token = '';
       }
@@ -143,6 +148,7 @@ export class AuthService {
         .get('http://localhost:5000/api/auth')
         .subscribe(
           (res) => {
+            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Catch errors (could be wrong token or other)
@@ -150,7 +156,7 @@ export class AuthService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
@@ -167,6 +173,7 @@ export class AuthService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
+            if (this.serverUnvailable) location.reload();
             resolve(res.result);
           },
           //Catch errors
@@ -174,7 +181,7 @@ export class AuthService {
             console.log(error);
             if (error.status == 0) {
               error = { message: 'Serveur introuvable !' };
-              location.reload();
+              this.serverUnvailable = true;
             }
             reject(error);
           }
