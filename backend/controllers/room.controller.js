@@ -321,13 +321,13 @@ exports.playerVote = (req, res, next) => {
     playerIndex
   ].vote;
   //Handle spectators (they need to be ignored when dealing with game functions)
-  const numSpectators = Rooms[roomIndex].players.filter(
+  const spectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
-  ).length;
+  );
   //If enought votes begin vote phase
   if (
     Rooms[roomIndex].players.filter((val) => val.vote == true).length >
-    (Rooms[roomIndex].players.length - numSpectators) / 2
+    (Rooms[roomIndex].players.length - spectators.length) / 2
   ) {
     Rooms[roomIndex].gameState = 2;
     voteTimeout = setTimeout(() => {
@@ -338,6 +338,7 @@ exports.playerVote = (req, res, next) => {
         civilians.push(Rooms[roomIndex].players[0]);
         Rooms[roomIndex].players.forEach((val, key) => {
           if (key == 0) return;
+          if (spectators.find((spec) => spec.userId == val.userId)) return;
           if (val.word != civilians[0].word) undercovers.push(val);
           else civilians.push(val);
         });

@@ -14,8 +14,9 @@
       </div>
       <div class="Pregame" *ngIf="pregameLockout == -1">
         <h3>
-          En du lancement de la partie, il y a {{ Room.players.length }} joueurs
-          dans la partie (3 minimum pour commencer)
+          En du attente lancement de la partie, il y a
+          {{ Room.players.length }} joueurs dans la partie (3 minimum pour
+          commencer)
         </h3>
         <button
           class="btn btn-primary"
@@ -37,7 +38,7 @@
             Room.host.username == Room.players[ownerIndex].userInfo.username
           "
         >
-          Anuler
+          Annuler
         </button>
       </div>
       <div class="GameMain" *ngIf="pregameLockout == 0">

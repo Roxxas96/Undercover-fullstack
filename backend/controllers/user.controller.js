@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemail = require("nodemailer");
 
 const User = require("../models/user.model");
 
@@ -72,7 +73,7 @@ exports.login = (req, res, next) => {
       .then((user) => {
         //User not found
         if (!user)
-          return res.status(401).json({ error: "Utilisateur non trouvé !" });
+          return res.status(404).json({ error: "Utilisateur non trouvé !" });
         //User found, fetch password with DB info
         bcrypt
           .compare(req.body.password, user.password)
@@ -110,7 +111,7 @@ exports.login = (req, res, next) => {
     User.findOne({ username: req.body.login })
       .then((user) => {
         if (!user)
-          return res.status(401).json({ error: "Utilisateur non trouvé !" });
+          return res.status(404).json({ error: "Utilisateur non trouvé !" });
         bcrypt
           .compare(req.body.password, user.password)
           .then((valid) => {
@@ -192,4 +193,32 @@ exports.getConnectedPlayers = (req, res, next) => {
     .catch((error) => {
       return res.status(500).json({ error: error });
     });
+};
+
+exports.recoverPassword = (req, res, next) => {
+  User.findOne({ email: req.body.email }).then((user) => {
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé !" });
+    }
+    const transport = nodemail.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "noreply.play.undercover@gmail.com",
+        pass: "druY,k}#3b7G*sY!W+W>~EexGnBQ4T/4m8Db@",
+      },
+    });
+    const mailOptions = {
+      from: `"noreply.play.undercover", "noreply.play.undercover@gmail.com"`,
+      to: req.body.email,
+      subject: "Undercover, Récupération de mot de passe",
+      html: "<h1>And here is the place for HTML</h1>",
+    };
+
+    transport.sendMail(mailOptions, (error, info) => {
+      if (error) return res.status(500).json({ error: error });
+      return res.status(200).json({ message: "Mail envoyé !" });
+    });
+  });
 };

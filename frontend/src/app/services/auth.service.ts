@@ -192,4 +192,23 @@ export class AuthService {
         );
     });
   }
+
+  recoverPassword(email: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('https://play-undercover.herokuapp.com/api/auth/recover', {
+          email: email,
+        })
+        .subscribe(
+          (res) => {
+            console.log(res);
+            resolve(null);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
 }

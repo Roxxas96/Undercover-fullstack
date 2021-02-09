@@ -5,12 +5,14 @@ import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { RoomComponent } from './components/room/room.component';
 import { AuthGuard } from './services/auth.guard';
+import { RecoverComponent } from './components/recover/recover.component';
 
 const routes: Routes = [
   { path: 'lobby', canActivate: [AuthGuard], component: LobbyComponent },
   { path: 'room/:roomId', canActivate: [AuthGuard], component: RoomComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'recover', component: RecoverComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login', pathMatch: 'full' },
 ];

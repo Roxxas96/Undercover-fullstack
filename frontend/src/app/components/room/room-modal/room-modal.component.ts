@@ -31,9 +31,19 @@ export class RoomModalComponent implements OnInit {
   //Players have 20 sec to vote
   ngOnInit(): void {
     if (this.results) {
+      //Handle spectators (they need to be ignored when dealing with game functions)
+      const spectators = this.Room.players.filter(
+        (player) => player.word == ''
+      );
       this.civilians.push(this.Room.players[0]);
       this.Room.players.forEach((val, key) => {
         if (key == 0) return;
+        if (
+          spectators.find(
+            (spec) => spec.userInfo.username == val.userInfo.username
+          )
+        )
+          return;
         if (val.word != this.civilians[0].word) this.undercovers.push(val);
         else this.civilians.push(val);
       });

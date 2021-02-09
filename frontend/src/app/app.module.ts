@@ -17,6 +17,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RoomComponent } from './components/room/room.component';
 import { CommonModule } from '@angular/common';
 import { RoomModalComponent } from './components/room/room-modal/room-modal.component';
+import { RecoverComponent } from './components/recover/recover.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { RoomModalComponent } from './components/room/room-modal/room-modal.comp
     HeaderComponent,
     RoomComponent,
     RoomModalComponent,
+    RecoverComponent,
   ],
   imports: [
     BrowserModule,

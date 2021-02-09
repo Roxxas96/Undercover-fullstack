@@ -1,0 +1,37 @@
+<div class="container">
+  <div class="box">
+    <h3>Récupération de mot de passe</h3>
+    <form (ngSubmit)="onRecover(f)" #f="ngForm">
+      <div class="form-group mb-3">
+        <label for="email" class="form-label">Entrez votre e-mail</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          [ngClass]="{
+            'form-control': true,
+            'is-invalid': errorMessage.email != ''
+          }"
+          ngModel
+          required
+          email
+        />
+        <div class="invalid-feedback">{{ errorMessage.email }}</div>
+      </div>
+      <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
+        {{ errorMessage.other }}
+      </div>
+      <div>
+        <button class="btn btn-primary" type="submit" [disabled]="f.invalid">
+          Envoyez moi un mail
+        </button>
+      </div>
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="margin-top: 5%"
+        *ngIf="loading"
+      ></div>
+    </form>
+  </div>
+</div>
