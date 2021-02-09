@@ -22,7 +22,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       //Send HTTP request POST
       this.http
-        .post('http://localhost:5000/api/auth/signup', {
+        .post('https://play-undercover.herokuapp.com:3000/api/auth/signup', {
           username: username,
           email: email,
           password: password,
@@ -65,7 +65,7 @@ export class AuthService {
       //Send HTTP request POST
       this.http
         .post<{ userId: string; token: string }>(
-          'http://localhost:5000/api/auth/login',
+          'https://play-undercover.herokuapp.com:3000/api/auth/login',
           {
             login: login,
             password: password,
@@ -123,20 +123,22 @@ export class AuthService {
       localStorage.removeItem('userId');
     }
     //Tell backen we disconnected
-    this.http.get('http://localhost:5000/api/auth/logout').subscribe(
-      () => {
-        if (this.serverUnvailable) location.reload();
-        this.token = '';
-      },
-      (error) => {
-        console.log(error);
-        if (error.status == 0) {
-          error = { message: 'Serveur introuvable !' };
-          this.serverUnvailable = true;
+    this.http
+      .get('https://play-undercover.herokuapp.com:3000/api/auth/logout')
+      .subscribe(
+        () => {
+          if (this.serverUnvailable) location.reload();
+          this.token = '';
+        },
+        (error) => {
+          console.log(error);
+          if (error.status == 0) {
+            error = { message: 'Serveur introuvable !' };
+            this.serverUnvailable = true;
+          }
+          this.token = '';
         }
-        this.token = '';
-      }
-    );
+      );
   }
 
   //AuthRequest : fetch session info with backend to ensure that token hasn't expired
@@ -145,7 +147,7 @@ export class AuthService {
       //HTTP request GET
       this.http
         //Provide userId (token is in header)
-        .get('http://localhost:5000/api/auth')
+        .get('https://play-undercover.herokuapp.com:3000/api/auth')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -169,7 +171,9 @@ export class AuthService {
     return new Promise<Array<User>>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Array<User> }>('http://localhost:5000/api/auth/players')
+        .get<{ result: Array<User> }>(
+          'https://play-undercover.herokuapp.com:3000/api/auth/players'
+        )
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
