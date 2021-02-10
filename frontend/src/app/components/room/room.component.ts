@@ -29,6 +29,7 @@ export class RoomComponent implements OnInit {
 
   countdown = setInterval(() => {}, 1000);
   pregameLockout = -1;
+  numUndercovers = 0;
 
   modalRef: any = '';
 
@@ -98,8 +99,12 @@ export class RoomComponent implements OnInit {
               //Game phase
               case 1:
                 //Begin countdown only if player was here during game launch
-                if (!firstTime) this.beginCountdown();
-                else this.pregameLockout = -2;
+                if (!firstTime) {
+                  this.beginCountdown();
+                  this.numUndercovers = Math.round(
+                    this.Room.players.length / 3
+                  );
+                } else this.pregameLockout = -2;
                 break;
               //Pregame phase
               case 0:

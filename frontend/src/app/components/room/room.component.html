@@ -42,6 +42,13 @@
         </button>
       </div>
       <div class="GameMain" *ngIf="pregameLockout == 0">
+        <h4>
+          Il y a {{ numUndercovers }} Undercover{{
+            numUndercovers > 1 ? "s" : ""
+          }}
+          dans la partie, trouvez {{ numUndercovers > 1 ? "les" : "le" }} ou ne
+          vous faîtes pas prendre
+        </h4>
         <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
       </div>
     </div>

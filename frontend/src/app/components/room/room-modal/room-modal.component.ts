@@ -24,22 +24,22 @@ export class RoomModalComponent implements OnInit {
 
   timeOut = -1;
   countdown = setInterval(() => {}, 1000);
+  numVotes = 0;
 
   undercovers: Array<Player> = [];
   civilians: Array<Player> = [];
+  spectators: Array<Player> = [];
 
   //Players have 20 sec to vote
   ngOnInit(): void {
+    //Handle spectators (they need to be ignored when dealing with game functions)
+    this.spectators = this.Room.players.filter((player) => player.word == '');
     if (this.results) {
-      //Handle spectators (they need to be ignored when dealing with game functions)
-      const spectators = this.Room.players.filter(
-        (player) => player.word == ''
-      );
       this.civilians.push(this.Room.players[0]);
       this.Room.players.forEach((val, key) => {
         if (key == 0) return;
         if (
-          spectators.find(
+          this.spectators.find(
             (spec) => spec.userInfo.username == val.userInfo.username
           )
         )
@@ -53,12 +53,21 @@ export class RoomModalComponent implements OnInit {
         this.undercovers = temp;
       }
     } else {
+      this.numVotes = Math.round(
+        (this.Room.players.length - this.spectators.length) / 3
+      );
       this.beginCountdown();
     }
   }
 
   //onVote : tell back that the player want to vote for a target
-  onVote(playerIndex: number) {
+  onVote(playerIndex: number, cancelVote: boolean) {
+    this.numVotes = cancelVote
+      ? Math.min(
+          Math.round((this.Room.players.length - this.spectators.length) / 3),
+          this.numVotes + 1
+        )
+      : Math.max(0, this.numVotes - 1);
     this.gameService.voteFor(this.roomId, playerIndex);
   }
 

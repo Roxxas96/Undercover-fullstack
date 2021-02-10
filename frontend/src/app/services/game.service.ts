@@ -19,7 +19,7 @@ export class GameService {
       this.http
         .get<{
           result: Array<RoomSimple>;
-        }>('https://play-undercover.herokuapp.com/api/room')
+        }>('http://localhost:3000/api/room')
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<RoomSimple> }) => {
@@ -36,6 +36,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -45,7 +47,7 @@ export class GameService {
       //HTTP request : GET
       this.http
         .get<{ result: Room }>(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/get'
+          'http://localhost:3000/api/room/' + roomId + '/get'
         )
         .subscribe(
           //Returned object is stored in result key
@@ -63,6 +65,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -71,7 +75,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post('https://play-undercover.herokuapp.com/api/room/create', {
+        .post('http://localhost:3000/api/room/create', {
           roomName: roomName,
           maxPlayers: maxPlayers,
         })
@@ -91,6 +95,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -99,9 +105,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
-        .get(
-          'https://play-undercover.herokuapp.com/api/room/' + roomName + '/join'
-        )
+        .get('http://localhost:3000/api/room/' + roomName + '/join')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -117,6 +121,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -125,9 +131,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
-        .get(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/quit'
-        )
+        .get('http://localhost:3000/api/room/' + roomId + '/quit')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -143,6 +147,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -151,12 +157,9 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST Request
       this.http
-        .post(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/word',
-          {
-            word: word,
-          }
-        )
+        .post('http://localhost:3000/api/room/' + roomId + '/word', {
+          word: word,
+        })
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -172,6 +175,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -180,9 +185,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //GET Request
       this.http
-        .get(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/vote'
-        )
+        .get('http://localhost:3000/api/room/' + roomId + '/vote')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -198,6 +201,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -206,7 +211,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post('https://play-undercover.herokuapp.com/api/words', {
+        .post('http://localhost:3000/api/words', {
           word1: word1,
           word2: word2,
         })
@@ -225,6 +230,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -233,9 +240,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //GET
       this.http
-        .get(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/start'
-        )
+        .get('http://localhost:3000/api/room/' + roomId + '/start')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -251,6 +256,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -259,9 +266,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //GET
       this.http
-        .get(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/abort'
-        )
+        .get('http://localhost:3000/api/room/' + roomId + '/abort')
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -277,6 +282,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -285,12 +292,9 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post(
-          'https://play-undercover.herokuapp.com/api/room/' + roomId + '/vote',
-          {
-            target: playerIndex.toString(),
-          }
-        )
+        .post('http://localhost:3000/api/room/' + roomId + '/vote', {
+          target: playerIndex.toString(),
+        })
         .subscribe(
           (res) => {
             if (this.serverUnvailable) location.reload();
@@ -306,6 +310,8 @@ export class GameService {
             reject(error);
           }
         );
+    }).catch((error) => {
+      throw { message: 'Le serveur ne répond pas' };
     });
   }
 }
