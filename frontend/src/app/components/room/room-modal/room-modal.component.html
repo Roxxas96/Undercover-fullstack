@@ -3,7 +3,7 @@
     <h5 class="modal-title" id="modal-basic-title" style="margin: auto">
       Voter {{ timeOut }}
     </h5>
-    <h6>
+    <h6 style="float: right">
       Il vous reste
       {{ numVotes }} votes
     </h6>
@@ -53,23 +53,25 @@
   <div class="modal-body">
     <div>
       <h5 style="text-align: center">
-        Undercovers : {{ undercovers[0].word }}
+        Undercovers : {{ undercovers[0].userInfo.word }}
       </h5>
     </div>
     <div class="players">
       <div class="player" *ngFor="let undercover of undercovers">
-        <p>
-          {{ undercover.userInfo.username }}
+        <p [ngClass]="{ 'right-vote': undercover.voted }">
+          {{ undercover.userInfo.userInfo.username }}
         </p>
       </div>
     </div>
     <div>
-      <h5 style="text-align: center">Civilians : {{ civilians[0].word }}</h5>
+      <h5 style="text-align: center">
+        Civilians : {{ civilians[0].userInfo.word }}
+      </h5>
     </div>
     <div class="players">
       <div class="player" *ngFor="let civilian of civilians">
-        <p>
-          {{ civilian.userInfo.username }}
+        <p [ngClass]="{ 'wrong-vote': civilian.voted }">
+          {{ civilian.userInfo.userInfo.username }}
         </p>
       </div>
     </div>

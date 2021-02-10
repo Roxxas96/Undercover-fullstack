@@ -26,8 +26,8 @@ export class RoomModalComponent implements OnInit {
   countdown = setInterval(() => {}, 1000);
   numVotes = 0;
 
-  undercovers: Array<Player> = [];
-  civilians: Array<Player> = [];
+  undercovers: Array<{ userInfo: Player; voted: boolean }> = [];
+  civilians: Array<{ userInfo: Player; voted: boolean }> = [];
   spectators: Array<Player> = [];
 
   //Players have 20 sec to vote
@@ -35,17 +35,40 @@ export class RoomModalComponent implements OnInit {
     //Handle spectators (they need to be ignored when dealing with game functions)
     this.spectators = this.Room.players.filter((player) => player.word == '');
     if (this.results) {
-      this.civilians.push(this.Room.players[0]);
-      this.Room.players.forEach((val, key) => {
+      this.civilians.push({
+        userInfo: this.Room.players[0],
+        voted: this.Room.players[this.ownerIndex].voteFor.find(
+          (val) => val == 0
+        )
+          ? true
+          : false,
+      });
+      this.Room.players.forEach((player, key) => {
         if (key == 0) return;
         if (
           this.spectators.find(
-            (spec) => spec.userInfo.username == val.userInfo.username
+            (spec) => spec.userInfo.username == player.userInfo.username
           )
         )
           return;
-        if (val.word != this.civilians[0].word) this.undercovers.push(val);
-        else this.civilians.push(val);
+        if (player.word != this.civilians[0].userInfo.word)
+          this.undercovers.push({
+            userInfo: player,
+            voted: this.Room.players[this.ownerIndex].voteFor.find(
+              (val) => val == key
+            )
+              ? true
+              : false,
+          });
+        else
+          this.civilians.push({
+            userInfo: player,
+            voted: this.Room.players[this.ownerIndex].voteFor.find(
+              (val) => val == key
+            )
+              ? true
+              : false,
+          });
       });
       if (this.undercovers.length > this.civilians.length) {
         let temp = this.civilians;
