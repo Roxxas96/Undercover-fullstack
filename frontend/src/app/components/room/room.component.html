@@ -1,0 +1,129 @@
+<div class="content">
+  <div
+    class="alert alert-danger"
+    *ngIf="errorMessage.global != ''"
+    (click)="errorMessage.global = ''"
+    style="cursor: pointer; width: fit-content; margin: auto"
+  >
+    {{ errorMessage.global }}
+  </div>
+  <div class="game">
+    <div class="gameInfo">
+      <div class="GameInPlay" *ngIf="pregameLockout == -2">
+        <h3>Une partie est déjà en cour, veuillez attendre la fin</h3>
+      </div>
+      <div class="Pregame" *ngIf="pregameLockout == -1">
+        <h3>
+          En du attente lancement de la partie, il y a
+          {{ Room.players.length }} joueurs dans la partie (3 minimum pour
+          commencer)
+        </h3>
+        <button
+          class="btn btn-primary"
+          (click)="onBeginGame()"
+          *ngIf="
+            Room.players.length >= 3 &&
+            Room.host.username == Room.players[ownerIndex].userInfo.username
+          "
+        >
+          Lancer la partie
+        </button>
+      </div>
+      <div class="Pregame-lockout" *ngIf="pregameLockout > 0">
+        <h3>Début de la partie dans {{ pregameLockout }}</h3>
+        <button
+          class="btn btn-danger"
+          (click)="onAbortGame()"
+          *ngIf="
+            Room.host.username == Room.players[ownerIndex].userInfo.username
+          "
+        >
+          Annuler
+        </button>
+      </div>
+      <div class="GameMain" *ngIf="pregameLockout == 0">
+        <h4>
+          Il y a {{ numUndercovers }} Undercover{{
+            numUndercovers > 1 ? "s" : ""
+          }}
+          dans la partie, trouvez {{ numUndercovers > 1 ? "les" : "le" }} ou ne
+          vous faîtes pas prendre
+        </h4>
+        <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
+      </div>
+    </div>
+    <div class="players">
+      <div class="player" *ngFor="let player of Room.players; let i1 = index">
+        <div style="display: flex; justify-content: center">
+          <h5
+            style="margin-right: 2%"
+            *ngIf="player.userInfo.username == Room.host.username"
+          >
+            👑
+          </h5>
+          <h5>{{ player.userInfo.username }}</h5>
+          <h5 style="margin-left: 2%" *ngIf="player.vote">✅</h5>
+        </div>
+        <div class="score">
+          <h6>Score : {{ player.score }}</h6>
+        </div>
+        <div class="words">
+          <div class="word" *ngFor="let word of player.words; let i2 = index">
+            {{ player.words[player.words.length - i2 - 1] }}
+          </div>
+          <h5 *ngIf="player.word == ''">(Spectateur)</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="buttons" *ngIf="pregameLockout == 0">
+    <form (ngSubmit)="onSubmitWord(f)" #f="ngForm">
+      <div class="mb-3 word-submit">
+        <div style="width: 100%">
+          <input
+            type="text"
+            name="word"
+            id="word"
+            style="text-align: center"
+            [ngClass]="{
+              'form-control': true,
+              'is-invalid': errorMessage.word != ''
+            }"
+            placeholder="Entrez un mot ici"
+            ngModel
+            required
+          />
+          <div class="invalid-feedback">
+            {{ errorMessage.word }}
+          </div>
+        </div>
+        <button type="submit" class="send-button">
+          <img src="assets/Send-logo.svg" height="38px" />
+        </button>
+      </div>
+    </form>
+    <button
+      [ngClass]="{
+        'vote-btn': true,
+        'btn-outline-success':
+          ownerIndex == -1 || !Room.players[ownerIndex].vote,
+        'btn-outline-danger': ownerIndex != -1 && Room.players[ownerIndex].vote,
+        btn: true
+      }"
+      (click)="onPlayerVote()"
+    >
+      <h5 style="margin: 5px">Voter</h5>
+    </button>
+  </div>
+  <div class="bottom-right-buttons">
+    <button
+      class="btn btn-primary quitButton"
+      style="margin-right: 1vw"
+      (click)="onDrawSettings()"
+      *ngIf="Room.host.username == Room.players[ownerIndex].userInfo.username"
+    >
+      Paramètres de la salle
+    </button>
+    <button class="btn btn-primary" routerLink="lobby">Quitter la salle</button>
+  </div>
+</div>

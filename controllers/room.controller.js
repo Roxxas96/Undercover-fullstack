@@ -197,13 +197,28 @@ exports.createRoom = (req, res, next) => {
   //Not needed in theory
   if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
-  const index = Rooms.length;
   const userId = getUserId(req);
   //Push array
   //!!! Change Room here if model changes
   Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], 0, userId));
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !" });
+};
+
+//Create room, create a room and push it to Rooms array
+exports.modifyRoom = (req, res, next) => {
+  //Not needed in theory
+  if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
+    return res.status(400).json({ error: "Nombre de joueurs invalide !" });
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  if (req.body.maxPlayers < Rooms[roomIndex].players.length)
+    return res
+      .status(400)
+      .json({ error: "Nombre de joueurs au dessus de la limite !" });
+  //!!! Change Room here if model changes
+  Rooms[roomIndex].max_players = req.body.maxPlayers;
+  //Return index of created room
+  return res.status(201).json({ message: "Salle modifiée !" });
 };
 
 //Join room : make a player join a specified room
@@ -321,32 +336,49 @@ exports.playerVote = (req, res, next) => {
     playerIndex
   ].vote;
   //Handle spectators (they need to be ignored when dealing with game functions)
-  const numSpectators = Rooms[roomIndex].players.filter(
+  let spectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
-  ).length;
+  );
   //If enought votes begin vote phase
   if (
     Rooms[roomIndex].players.filter((val) => val.vote == true).length >
-    (Rooms[roomIndex].players.length - numSpectators) / 2
+    (Rooms[roomIndex].players.length - spectators.length) / 2
   ) {
     Rooms[roomIndex].gameState = 2;
+    //Timeout to draw and calculate results
     voteTimeout = setTimeout(() => {
+      //Verify that the game has not been cancelled
       if (Rooms[roomIndex].gameState == 2) {
         Rooms[roomIndex].gameState = 3;
+        //Initialize civilians and undercovers
         let civilians = [];
         let undercovers = [];
+        //Actualize spectators
+        spectators = Rooms[roomIndex].players.filter(
+          (player) => player.word == ""
+        );
+        //Push 1 player to be the reference
         civilians.push(Rooms[roomIndex].players[0]);
-        Rooms[roomIndex].players.forEach((val, key) => {
+        //Compare all other players words to this player's word and push them to the arrays
+        Rooms[roomIndex].players.forEach((player, key) => {
+          //Ignore ref
           if (key == 0) return;
-          if (val.word != civilians[0].word) undercovers.push(val);
-          else civilians.push(val);
+          //Ignore spec
+          if (spectators.find((spec) => spec.userId == player.userId)) return;
+          if (player.word != civilians[0].word) undercovers.push(player);
+          else civilians.push(player);
         });
+        //If arrays are twisted, invers them (undercovers length should be < civilians length)
         if (undercovers.length > civilians.length) {
           let temp = civilians;
           civilians = undercovers;
           undercovers = temp;
         }
+        //Calculate score
         Rooms[roomIndex].players.forEach((player, key) => {
+          //Ignore spec
+          if (spectators.find((spec) => spec.userId == player.userId)) return;
+          //Score of civilans will cout by 50 from 0 to max
           if (civilians.find((civ) => civ.userId == player.userId)) {
             player.voteFor.forEach((vote) => {
               if (
@@ -360,10 +392,12 @@ exports.playerVote = (req, res, next) => {
                   Rooms[roomIndex].players[vote].score - 50;
               }
             });
+            //Score of undercovers will cout by 50 from max to 0
           } else {
             player.score = player.score + 50 * civilians.length;
           }
         });
+        //Change to state 0 after 5 sec
         setTimeout(() => {
           Rooms[roomIndex].gameState = 0;
           resetGame(roomIndex);
