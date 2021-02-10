@@ -1,5 +1,5 @@
-<div *ngIf="!results">
-  <div class="modal-header" *ngIf="!results">
+<div *ngIf="modalState == 0">
+  <div class="modal-header">
     <h5 class="modal-title" id="modal-basic-title" style="margin: auto">
       Voter {{ timeOut }}
     </h5>
@@ -38,7 +38,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="results">
+<div *ngIf="modalState == 1">
   <div class="modal-header">
     <h5 class="modal-title" id="modal-basic-title">Résultats</h5>
     <button
@@ -87,4 +87,70 @@
       Fermer
     </button>
   </div>
+</div>
+<div *ngIf="modalState == 2">
+  <form (ngSubmit)="onModifyRoom(f)" #f="ngForm">
+    <div class="modal-header">
+      <h5 class="modal-title" id="modal-basic-title">Paramètres de la salle</h5>
+      <button
+        type="button"
+        class="close"
+        (click)="dismissModal()"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h5 style="text-align: center">{{ Room.name }}</h5>
+      <div class="form-group mb-3">
+        <label for="max-players" class="form-label">Nombre de joueurs</label>
+        <h5 style="text-align: center">{{ rangeBarVal }}</h5>
+        <input
+          type="range"
+          name="max-players"
+          id="max-players"
+          min="3"
+          max="10"
+          step="1"
+          value="3"
+          [ngClass]="{
+            'custom-range': true,
+            'is-invalid': errorMessage.maxPlayers != ''
+          }"
+          [(ngModel)]="rangeBarVal"
+        />
+        <div class="invalid-feedback">
+          {{ errorMessage.maxPlayers }}
+        </div>
+      </div>
+      <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
+        {{ errorMessage.other }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="margin-top: 5%"
+        *ngIf="loading"
+      ></div>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="dismissModal()"
+        data-bs-dismiss="modal"
+        ngbAutoFocus
+      >
+        Fermer
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="f.invalid || rangeBarVal == Room.max_players"
+      >
+        Modifier la salle
+      </button>
+    </div>
+  </form>
 </div>

@@ -36,8 +36,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -65,8 +63,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -95,8 +91,33 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
+    });
+  }
+
+  //Create room : call backend to create a room, return the index of created room
+  modifyRoom(maxPlayers: number, roomId: string) {
+    return new Promise((resolve, reject) => {
+      //POST request
+      this.http
+        .post('http://localhost:3000/api/room/' + roomId + '/modify', {
+          maxPlayers: maxPlayers,
+        })
+        .subscribe(
+          //Stored in result
+          (res) => {
+            if (this.serverUnvailable) location.reload();
+            resolve(null);
+          },
+          //Throw errors
+          (error) => {
+            console.log(error);
+            if (error.status == 0) {
+              error = { message: 'Serveur introuvable !' };
+              this.serverUnvailable = true;
+            }
+            reject(error);
+          }
+        );
     });
   }
 
@@ -121,8 +142,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -147,8 +166,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -175,8 +192,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -201,8 +216,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -230,8 +243,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -256,8 +267,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -282,8 +291,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -310,8 +317,6 @@ export class GameService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 }

@@ -56,8 +56,6 @@ export class AuthService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -108,8 +106,6 @@ export class AuthService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -165,8 +161,6 @@ export class AuthService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -192,8 +186,6 @@ export class AuthService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 
@@ -213,8 +205,6 @@ export class AuthService {
             reject(error);
           }
         );
-    }).catch((error) => {
-      throw { message: 'Le serveur ne répond pas' };
     });
   }
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { NgbActiveModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
 import { Player } from 'src/app/models/Player.model';
 import { GameService } from 'src/app/services/game.service';
@@ -17,10 +18,9 @@ export class RoomModalComponent implements OnInit {
   ) {}
 
   @Input() Room: Room = new Room();
-  @Input() numSpectators = 0;
   @Input() roomId = '';
   @Input() ownerIndex = -1;
-  @Input() results = false;
+  @Input() modalState = 0;
 
   timeOut = -1;
   countdown = setInterval(() => {}, 1000);
@@ -30,56 +30,72 @@ export class RoomModalComponent implements OnInit {
   civilians: Array<{ userInfo: Player; voted: boolean }> = [];
   spectators: Array<Player> = [];
 
+  errorMessage = {
+    name: '',
+    maxPlayers: '',
+    other: '',
+  };
+  loading = false;
+
+  //Var used to update h5 on top of range bar in create room modal
+  rangeBarVal = 3;
+
   //Players have 20 sec to vote
   ngOnInit(): void {
     //Handle spectators (they need to be ignored when dealing with game functions)
     this.spectators = this.Room.players.filter((player) => player.word == '');
-    if (this.results) {
-      this.civilians.push({
-        userInfo: this.Room.players[0],
-        voted: this.Room.players[this.ownerIndex].voteFor.find(
-          (val) => val == 0
-        )
-          ? true
-          : false,
-      });
-      this.Room.players.forEach((player, key) => {
-        if (key == 0) return;
-        if (
-          this.spectators.find(
-            (spec) => spec.userInfo.username == player.userInfo.username
+    switch (this.modalState) {
+      case 0:
+        this.numVotes = Math.round(
+          (this.Room.players.length - this.spectators.length) / 3
+        );
+        this.beginCountdown();
+        break;
+      case 1:
+        this.civilians.push({
+          userInfo: this.Room.players[0],
+          voted: this.Room.players[this.ownerIndex].voteFor.find(
+            (val) => val == 0
           )
-        )
-          return;
-        if (player.word != this.civilians[0].userInfo.word)
-          this.undercovers.push({
-            userInfo: player,
-            voted: this.Room.players[this.ownerIndex].voteFor.find(
-              (val) => val == key
+            ? true
+            : false,
+        });
+        this.Room.players.forEach((player, key) => {
+          if (key == 0) return;
+          if (
+            this.spectators.find(
+              (spec) => spec.userInfo.username == player.userInfo.username
             )
-              ? true
-              : false,
-          });
-        else
-          this.civilians.push({
-            userInfo: player,
-            voted: this.Room.players[this.ownerIndex].voteFor.find(
-              (val) => val == key
-            )
-              ? true
-              : false,
-          });
-      });
-      if (this.undercovers.length > this.civilians.length) {
-        let temp = this.civilians;
-        this.civilians = this.undercovers;
-        this.undercovers = temp;
-      }
-    } else {
-      this.numVotes = Math.round(
-        (this.Room.players.length - this.spectators.length) / 3
-      );
-      this.beginCountdown();
+          )
+            return;
+          if (player.word != this.civilians[0].userInfo.word)
+            this.undercovers.push({
+              userInfo: player,
+              voted: this.Room.players[this.ownerIndex].voteFor.find(
+                (val) => val == key
+              )
+                ? true
+                : false,
+            });
+          else
+            this.civilians.push({
+              userInfo: player,
+              voted: this.Room.players[this.ownerIndex].voteFor.find(
+                (val) => val == key
+              )
+                ? true
+                : false,
+            });
+        });
+        if (this.undercovers.length > this.civilians.length) {
+          let temp = this.civilians;
+          this.civilians = this.undercovers;
+          this.undercovers = temp;
+        }
+        break;
+      case 2:
+        this.rangeBarVal = Math.max(3, this.Room.players.length);
+        break;
     }
   }
 
@@ -98,7 +114,7 @@ export class RoomModalComponent implements OnInit {
   voteDone(index: number) {
     return (
       this.Room.players[index].voteFor.length >=
-      Math.round((this.Room.players.length - this.numSpectators) / 3)
+      Math.round((this.Room.players.length - this.spectators.length) / 3)
     );
   }
 
@@ -122,6 +138,56 @@ export class RoomModalComponent implements OnInit {
         this.activeModal.dismiss();
       }
     }, 1000);
+  }
+
+  onModifyRoom(form: NgForm) {
+    //Reset var & draw loading hint
+    this.loading = true;
+    this.errorMessage = {
+      name: '',
+      maxPlayers: '',
+      other: '',
+    };
+    //Retreive form data
+    const roomName = form.value['name'];
+    const maxPlayers = form.value['max-players'];
+    //Call gameService createRoom func
+    this.gameService
+      .modifyRoom(maxPlayers, this.roomId)
+      .then(() => {
+        //If creation succeded hide loading hint
+        this.loading = false;
+        this.dismissModal();
+      })
+      .catch((error) => {
+        if (error.status == 400) {
+          //Catch invalid name (empty name) error
+          if (error.error.error == 'Nom de la salle vide !') {
+            this.errorMessage.name = 'Veuillez saisir un nom de salle valide';
+          }
+          //Catch name unique error
+          if (error.error.error == 'Nom de salle déjà pris !') {
+            this.errorMessage.name = 'Ce nom est déjà pris';
+          }
+          //Catch invalid number error (useless in theory)
+          if (error.error.error == 'Nombre de joueurs invalide !') {
+            this.errorMessage.maxPlayers =
+              'Il y a eu un problème, veuillez réessayer';
+          }
+          if (
+            error.error.error == 'Nombre de joueurs au dessus de la limite !'
+          ) {
+            this.errorMessage.maxPlayers =
+              'Il y a trop de joueurs dans la salle pour cette limite';
+          }
+          this.loading = false;
+          return;
+        }
+
+        //Catch other errors
+        this.errorMessage.other = error.message;
+        this.loading = false;
+      });
   }
 
   dismissModal() {

@@ -58,10 +58,11 @@
 .send-button:focus-visible {
   transform: scale(1.2);
 }
-.quitButton {
+.bottom-right-buttons {
   position: absolute;
   right: 5%;
   bottom: 3%;
+  width: fit-content;
 }
 
 @media all and (max-width: 992px) {
@@ -78,7 +79,7 @@
     margin-top: 3%;
     margin-left: 0;
   }
-  .quitButton {
+  .bottom-right-buttons {
     display: none;
   }
 }

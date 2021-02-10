@@ -197,13 +197,28 @@ exports.createRoom = (req, res, next) => {
   //Not needed in theory
   if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
-  const index = Rooms.length;
   const userId = getUserId(req);
   //Push array
   //!!! Change Room here if model changes
   Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], 0, userId));
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !" });
+};
+
+//Create room, create a room and push it to Rooms array
+exports.modifyRoom = (req, res, next) => {
+  //Not needed in theory
+  if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
+    return res.status(400).json({ error: "Nombre de joueurs invalide !" });
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  if (req.body.maxPlayers < Rooms[roomIndex].players.length)
+    return res
+      .status(400)
+      .json({ error: "Nombre de joueurs au dessus de la limite !" });
+  //!!! Change Room here if model changes
+  Rooms[roomIndex].max_players = req.body.maxPlayers;
+  //Return index of created room
+  return res.status(201).json({ message: "Salle modifiée !" });
 };
 
 //Join room : make a player join a specified room

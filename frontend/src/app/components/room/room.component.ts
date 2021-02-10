@@ -80,7 +80,7 @@ export class RoomComponent implements OnInit {
                 this.modalService.dismissAll();
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
-                this.modalRef.componentInstance.results = true;
+                this.modalRef.componentInstance.modalState = 1;
                 this.modalRef.componentInstance.roomId = this.roomId;
                 this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
                 break;
@@ -92,7 +92,7 @@ export class RoomComponent implements OnInit {
                 this.modalService.dismissAll();
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
-                this.modalRef.componentInstance.results = false;
+                this.modalRef.componentInstance.modalState = 0;
                 this.modalRef.componentInstance.roomId = this.roomId;
                 this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
                 break;
@@ -118,9 +118,6 @@ export class RoomComponent implements OnInit {
           //Update modal info
           if (this.modalRef.componentInstance) {
             this.modalRef.componentInstance.Room = this.Room;
-            this.modalRef.componentInstance.numSpectators = this.Room.players.filter(
-              (player) => player.word == ''
-            ).length;
           }
           //Update owner index too, just in case he mooved
           this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
@@ -217,5 +214,15 @@ export class RoomComponent implements OnInit {
         //TODO Démarer la game
       }
     }, 1000);
+  }
+
+  onDrawSettings() {
+    this.modalService.dismissAll();
+    this.modalRef = this.modalService.open(RoomModalComponent);
+    //Throw variables to modal
+    this.modalRef.componentInstance.modalState = 2;
+    this.modalRef.componentInstance.roomId = this.roomId;
+    this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
+    this.modalRef.componentInstance.Room = this.Room;
   }
 }
