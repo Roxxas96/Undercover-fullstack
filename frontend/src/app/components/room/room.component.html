@@ -79,21 +79,27 @@
   <div class="buttons" *ngIf="pregameLockout == 0">
     <form (ngSubmit)="onSubmitWord(f)" #f="ngForm">
       <div class="mb-3 word-submit">
-        <input
-          type="text"
-          name="word"
-          id="word"
-          [ngClass]="{
-            'form-control': true,
-            'is-invalid': errorMessage.word != ''
-          }"
-          placeholder="Entrez un mot ici"
-          ngModel
-          required
-        />
-        <div class="invalid-feedback">
-          {{ errorMessage.word }}
+        <div style="width: 100%">
+          <input
+            type="text"
+            name="word"
+            id="word"
+            style="text-align: center"
+            [ngClass]="{
+              'form-control': true,
+              'is-invalid': errorMessage.word != ''
+            }"
+            placeholder="Entrez un mot ici"
+            ngModel
+            required
+          />
+          <div class="invalid-feedback">
+            {{ errorMessage.word }}
+          </div>
         </div>
+        <button type="submit" class="send-button">
+          <img src="assets/Send-logo.svg" height="38px" />
+        </button>
       </div>
     </form>
     <button

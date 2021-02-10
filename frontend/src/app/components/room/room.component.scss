@@ -43,13 +43,20 @@
 .word-submit {
   width: 20%;
   margin: auto;
+  display: flex;
 }
-.word-submit input {
-  text-align: center;
+.send-button {
+  border: none;
+  background: none;
+  height: fit-content;
+  width: fit-content;
+  padding: 0;
+  margin-left: 5%;
+  transition: 0.3s;
+  outline: none;
 }
-.WordLoading {
-  margin-top: 3%;
-  margin-left: 45%;
+.send-button:focus-visible {
+  transform: scale(1.2);
 }
 .quitButton {
   position: absolute;
