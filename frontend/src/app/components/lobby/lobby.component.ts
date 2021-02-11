@@ -132,7 +132,7 @@ export class LobbyComponent implements OnInit {
           //Catch invalid number error (useless in theory)
           if (error.error.error == 'Nombre de joueurs invalide !') {
             this.errorMessageCreateRoom.maxPlayers =
-              'Il y a eu un problème, veuillez réessayer';
+              'Nombre de joueurs invalide';
           }
           this.createRoomLoading = false;
           return;

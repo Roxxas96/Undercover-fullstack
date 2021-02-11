@@ -23,6 +23,7 @@ const getUserId = (req) => {
   return userId;
 };
 
+//Anti AFK, kick players that have not been kicked by disconnect()
 const antiAFK = setInterval(() => {
   connectedPlayers.forEach((val, key) => {
     if (val.activity == 0) {
