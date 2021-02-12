@@ -8,6 +8,8 @@ router.get("/players", Auth, UserController.getConnectedPlayers);
 router.post("/signup", UserController.signUp);
 router.post("/login", UserController.login);
 router.post("/recover", UserController.recoverPassword);
+router.get("/recover/:code", UserController.recoverRequest);
+router.post("/recover/:code", UserController.changePassword);
 router.get("/logout", UserController.logout);
 router.get("", UserController.auth);
 

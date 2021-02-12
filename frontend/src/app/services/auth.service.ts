@@ -50,6 +50,24 @@ export class AuthService {
     });
   }
 
+  changePassword(code: string, password: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('http://localhost:3000/api/auth/recover/' + code, {
+          password: password,
+        })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
   //Login : call backend to fatch user provided info with DB and return success/failures
   login(login: string, password: string, autoConnect: boolean) {
     return new Promise((resolve, reject) => {
@@ -176,7 +194,6 @@ export class AuthService {
         })
         .subscribe(
           (res) => {
-            console.log(res);
             resolve(null);
           },
           (error) => {
@@ -184,6 +201,20 @@ export class AuthService {
             reject(error);
           }
         );
+    });
+  }
+
+  recovertRequest(code: string) {
+    return new Promise((resolve, reject) => {
+      this.http.get('http://localhost:3000/api/auth/recover/' + code).subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          console.log(error);
+          reject(error);
+        }
+      );
     });
   }
 }

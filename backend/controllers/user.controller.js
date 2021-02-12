@@ -68,6 +68,32 @@ exports.signUp = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+exports.changePassword = (req, res, next) => {
+  if (req.body.password.length < 8)
+    return res.status(400).json({ error: "Mot de passe trop court !" });
+  const user = recoveryLinks.find((val) => val.code == req.params.code);
+  if (!user) return res.status(404).json({ error: "Code invalide !" });
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      User.updateOne(
+        { email: user.email },
+        {
+          $set: { password: hash },
+          $currentDate: { lastModified: true },
+        }
+      )
+        .then((updatedUser) => {
+          return res.status(200).json({ message: "Mot de passe modifié !" });
+        })
+        .catch((error) => {
+          return res.status(400).json({ error: error });
+        });
+    })
+    //Internal errors
+    .catch((error) => res.status(500).json({ error }));
+};
+
 //Login func : check connection info and fetch with DB
 exports.login = (req, res, next) => {
   //Determine if login info is a mail or a username
@@ -218,7 +244,7 @@ exports.recoverPassword = (req, res, next) => {
     });
     const randomString = cryptoString({ length: 20 });
     let count = 0;
-    while (recoveryLinks.find((val) => val.link == randomString)) {
+    while (recoveryLinks.find((val) => val.code == randomString)) {
       randomString = cryptoString({ length: 20 });
       count = count + 1;
       if (count > 100)
@@ -229,11 +255,11 @@ exports.recoverPassword = (req, res, next) => {
     if (recoveryLinks.find((val) => val.email == req.body.email))
       return res.status(400).json({ error: "Mail déjà envoyé !" });
     const index = recoveryLinks.length;
-    recoveryLinks.push({ email: req.body.email, link: randomString });
+    recoveryLinks.push({ email: req.body.email, code: randomString });
     console.log(recoveryLinks);
     setTimeout(() => {
       recoveryLinks.splice(index, 1);
-    }, 6000);
+    }, 600000);
 
     const mailOptions = {
       from: `"noreply.play.undercover", "noreply.play.undercover@gmail.com"`,
@@ -250,4 +276,10 @@ exports.recoverPassword = (req, res, next) => {
       return res.status(200).json({ message: "Mail envoyé !" });
     });
   });
+};
+
+exports.recoverRequest = (req, res, next) => {
+  if (recoveryLinks.find((val) => val.code == req.params.code))
+    return res.status(202).json({ message: "Code bon !" });
+  else return res.status(401).json({ error: "Code invalide !" });
 };

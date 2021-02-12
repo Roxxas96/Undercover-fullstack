@@ -39,6 +39,13 @@
   padding: 5px 5px 6px 5px;
   cursor: pointer;
 }
+.logo {
+  cursor: pointer;
+  outline: none;
+}
+.logo:focus-visible {
+  transform: scale(1.1);
+}
 .logout {
   margin: auto;
 }
@@ -138,7 +145,7 @@
 .help:hover {
   color: white;
 }
-.help:focus {
+.help:focus-visible {
   transform: scale(1.1);
 }
 .rules-popover {
