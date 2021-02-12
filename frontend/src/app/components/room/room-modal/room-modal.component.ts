@@ -171,6 +171,7 @@ export class RoomModalComponent implements OnInit {
         this.dismissModal();
       })
       .catch((error) => {
+        this.loading = false;
         if (error.status == 400) {
           //Catch invalid name (empty name) error
           if (error.error.error == 'Nom de la salle vide !') {
@@ -191,13 +192,11 @@ export class RoomModalComponent implements OnInit {
             this.errorMessage.maxPlayers =
               'Il y a trop de joueurs dans la salle pour cette limite';
           }
-          this.loading = false;
           return;
         }
 
         //Catch other errors
         this.errorMessage.other = error.message;
-        this.loading = false;
       });
   }
 

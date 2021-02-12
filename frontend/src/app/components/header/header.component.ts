@@ -82,6 +82,7 @@ export class HeaderComponent implements OnInit {
         modal.dismiss();
       })
       .catch((error) => {
+        this.Loading = false;
         if (error.status == 400) {
           if (error.error.error == 'Mot 1 invalide !') {
             this.errorMessage.word1 = 'Veuillez entrer un mot valide';
@@ -97,11 +98,9 @@ export class HeaderComponent implements OnInit {
               'Ce couple est déjà dans la base de données';
             this.errorMessage.word2 = ' ';
           }
-          this.Loading = false;
           return;
         }
         this.errorMessage.global = error.message;
-        this.Loading = false;
       });
   }
 }

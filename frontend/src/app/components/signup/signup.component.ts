@@ -53,6 +53,7 @@ export class SignupComponent implements OnInit {
         this.router.navigate(['lobby']);
       })
       .catch((error) => {
+        this.loading = false;
         if (error.status == 400) {
           //Draw classic errors
           if (error.error.error == 'Pseudo vide !') {
@@ -78,12 +79,10 @@ export class SignupComponent implements OnInit {
           ) {
             this.errorMessage.email = 'Cette adresse mail est déjà utilisée';
           }
-          this.loading = false;
           return;
         }
         //Catch any other error
         this.errorMessage.other = error.message;
-        this.loading = false;
       });
   }
 }

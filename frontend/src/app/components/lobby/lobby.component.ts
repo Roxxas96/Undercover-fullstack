@@ -119,6 +119,7 @@ export class LobbyComponent implements OnInit {
         this.onJoinRoom(roomName);
       })
       .catch((error) => {
+        this.createRoomLoading = false;
         if (error.status == 400) {
           //Catch invalid name (empty name) error
           if (error.error.error == 'Nom de la salle vide !') {
@@ -134,13 +135,11 @@ export class LobbyComponent implements OnInit {
             this.errorMessageCreateRoom.maxPlayers =
               'Nombre de joueurs invalide';
           }
-          this.createRoomLoading = false;
           return;
         }
 
         //Catch other errors
         this.errorMessageCreateRoom.other = error.message;
-        this.createRoomLoading = false;
       });
   }
 
@@ -150,32 +149,30 @@ export class LobbyComponent implements OnInit {
     this.gameService
       .joinRoom(roomName)
       .then(() => {
+        this.joinRoomLoading = '';
         this.router.navigate(['room/' + roomName]);
       })
       .catch((error) => {
+        this.joinRoomLoading = '';
         //Error : User already in the game
         if (error.error.error == 'Cet user est déjà dans la parite !') {
           this.errorMessageMain.rooms =
             'Une érreur est survenue ! Vous semblez déjà être dans la partie. Si vous avez eu un problème de connexion, attendez quelques seccondes (10 max)';
-          this.joinRoomLoading = '';
           return;
         }
         //Error unknown room (useless in theory)
         if (error.error.error == "Cette salle n'existe pas !") {
           this.errorMessageMain.rooms =
             "Il semblerait que cette salle n'existe pas, veuillez réssayer";
-          this.joinRoomLoading = '';
           return;
         }
         //Error : room full
         if (error.error.error == 'La salle est pleine !') {
           this.errorMessageMain.rooms = 'Cette salle est pleine';
-          this.joinRoomLoading = '';
           return;
         }
         //Other errors
         this.errorMessageMain.rooms = error.message;
-        this.joinRoomLoading = '';
       });
   }
 }
