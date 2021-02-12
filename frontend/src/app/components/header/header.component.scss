@@ -123,6 +123,28 @@
 .slide-close h2 {
   margin-right: 5%;
 }
+.help {
+  text-decoration: none;
+  color: black;
+  font-size: 24px;
+  cursor: pointer;
+  width: fit-content;
+  height: fit-content;
+  transition: 0.2s;
+  background: none;
+  border: none;
+  outline: none;
+}
+.help:hover {
+  color: white;
+}
+.help:focus {
+  transform: scale(1.1);
+}
+.rules-popover {
+  text-align: center;
+  background-color: rgb(39, 170, 98);
+}
 
 @media all and (max-width: 992px) {
   .left h5 {

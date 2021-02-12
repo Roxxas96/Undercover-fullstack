@@ -1,12 +1,15 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemail = require("nodemailer");
+const cryptoString = require("crypto-random-string");
 
 const User = require("../models/user.model");
 
 const Auth = require("../middleware/Auth");
 
 let connectedPlayers = require("./connectedPlayers");
+
+let recoveryLinks = [];
 
 //Get userId from headers
 const getUserId = (req) => {
@@ -207,18 +210,43 @@ exports.recoverPassword = (req, res, next) => {
       secure: false,
       auth: {
         user: "noreply.play.undercover@gmail.com",
-        pass: "druY,k}#3b7G*sY!W+W>~EexGnBQ4T/4m8Db@",
+        pass: "RrSZP=`e>>m}5<r`",
+      },
+      tls: {
+        rejectUnauthorized: false,
       },
     });
+    const randomString = cryptoString({ length: 20 });
+    let count = 0;
+    while (recoveryLinks.find((val) => val.link == randomString)) {
+      randomString = cryptoString({ length: 20 });
+      count = count + 1;
+      if (count > 100)
+        return res
+          .status(500)
+          .json({ error: "Nombre max de tentatives dépassé" });
+    }
+    if (recoveryLinks.find((val) => val.email == req.body.email))
+      return res.status(400).json({ error: "Mail déjà envoyé !" });
+    const index = recoveryLinks.length;
+    recoveryLinks.push({ email: req.body.email, link: randomString });
+    console.log(recoveryLinks);
+    setTimeout(() => {
+      recoveryLinks.splice(index, 1);
+    }, 6000);
+
     const mailOptions = {
       from: `"noreply.play.undercover", "noreply.play.undercover@gmail.com"`,
       to: req.body.email,
       subject: "Undercover, Récupération de mot de passe",
-      html: "<h1>And here is the place for HTML</h1>",
+      html:
+        "<h3>Undercover, Récupération de mot de passe</h3> <p>Bonjour,<br><br>Vous avez récemment demandé une réinitialisation de mot de passe sur le site web https://roxxas96.github.io/Undercover-fullstack<br>Pour changer votre mot de passe, veuillez cliquer sur le lien suivant : https://roxxas96.github.io/Undercover-fullstack/recover/" +
+        randomString +
+        "<br>Ce lien n'est disponible que pour une durée de 10 min !<br><br>Cordialement,<br>L'équipe Undercover.</p>",
     };
 
     transport.sendMail(mailOptions, (error, info) => {
-      if (error) return res.status(500).json({ error: error });
+      if (error) return res.status(500).json({ message: error });
       return res.status(200).json({ message: "Mail envoyé !" });
     });
   });

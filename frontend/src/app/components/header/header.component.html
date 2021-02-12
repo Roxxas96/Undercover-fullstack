@@ -1,5 +1,46 @@
-<!--Modal-->
-<ng-template #content let-modal class="modal-dialog">
+<!--Rules Modal-->
+<ng-template #rulesModal let-modal class="modal-dialog">
+  <div class="modal-header">
+    <h5 class="modal-title" id="modal-basic-title">Règles de l'Undercover</h5>
+    <button
+      type="button"
+      class="close"
+      (click)="modal.dismiss()"
+      aria-label="Close"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="text-align: center">
+    <p>
+      Tous les joueurs se voient attribuer un mot. Chacun leur tour ou en même
+      temps (à vous de décider comment vous voulez jouer) ils vont donner un mot
+      clé décrivant ou se raprochant de leur mot (si j’ai le mot renard, je peux
+      dire animal, mignon, poils…).
+    </p>
+    <p>
+      Le but du jeu est de trouver la ou les personnes ayant un mot différent de
+      la majourité, ils se font appeler les Undercovers. Une fois quelques mots
+      clé échangés les participants peuvent décider à la majorité d'initier la
+      phase de vote, dans cette phase chacun va devoir voter pour le/les
+      Undercovers, chaque vote correct raporte 50 points et chaque Undercover
+      gagne 50 points pas Civils n'ayant pas voté pour lui.
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="modal.dismiss()"
+      data-bs-dismiss="modal"
+      ngbAutoFocus
+    >
+      Fermer
+    </button>
+  </div>
+</ng-template>
+<!--Word Modal-->
+<ng-template #wordModal let-modal class="modal-dialog">
   <form (ngSubmit)="onProposeWord(f, modal)" #f="ngForm">
     <div class="modal-header">
       <h5 class="modal-title" id="modal-basic-title">
@@ -81,10 +122,24 @@
 <div class="nav-bar">
   <div class="left">
     <img src="assets/Logo-Undercover.svg" width="64px" class="logo" />
-    <h5>Undercover</h5>
+    <div style="display: flex">
+      <h5 style="margin-right: 3%">Undercover</h5>
+      <button
+        type="button"
+        class="help"
+        (click)="openModal(rulesModal)"
+        #popover="ngbPopover"
+        [closeDelay]="3000"
+        triggers="manual"
+        popoverClass="rules-popover"
+        ngbPopover="Si vous ne connaissez pas les rêgles du jeu, cliquez ici !"
+      >
+        ⓘ
+      </button>
+    </div>
   </div>
   <div class="middle" *ngIf="isAuth">
-    <a (click)="openModal(content)"><h4>Proposez vos mots !</h4></a>
+    <a (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></a>
   </div>
   <div class="right" *ngIf="isAuth">
     <div class="logout">
@@ -99,7 +154,7 @@
 </div>
 <div [ngClass]="{ 'slide-menu': true, 'slide-active': slideMenu }">
   <a (click)="slideMenu = false" class="slide-close"><h2>×</h2></a>
-  <a (click)="openModal(content)"><h4>Proposez vos mots !</h4></a>
+  <a (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></a>
   <a routerLink="lobby" *ngIf="isInRoom()"><h4>Quitter la salle</h4></a>
   <a (click)="onLogout()"><h4>Deconnexion</h4></a>
 </div>

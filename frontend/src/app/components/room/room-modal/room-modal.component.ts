@@ -38,7 +38,7 @@ export class RoomModalComponent implements OnInit {
   loading = false;
 
   //Var used to update h5 on top of range bar in create room modal
-  rangeBarVal = 3;
+  rangeBarVal: Number = 3;
 
   //Players have 20 sec to vote
   ngOnInit(): void {
@@ -105,7 +105,7 @@ export class RoomModalComponent implements OnInit {
         break;
       //Game settings modal
       case 2:
-        this.rangeBarVal = Math.max(3, this.Room.players.length);
+        this.rangeBarVal = this.Room.max_players;
         break;
     }
   }

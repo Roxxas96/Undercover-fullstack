@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  NgbActiveModal,
+  NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 
@@ -23,15 +27,26 @@ export class HeaderComponent implements OnInit {
 
   slideMenu = false;
 
+  @ViewChild('popover') public popover: NgbPopover;
+
   constructor(
     private authService: AuthService,
     private modalService: NgbModal,
     private gameService: GameService,
     private router: Router
-  ) {}
+  ) {
+    this.popover = NgbPopover.prototype;
+  }
 
   ngOnInit(): void {
     this.authService.isAuth$.subscribe((auth) => (this.isAuth = auth));
+  }
+
+  ngAfterViewInit() {
+    this.popover.open();
+    setTimeout(() => {
+      this.popover.close();
+    }, 10000);
   }
 
   onLogout() {

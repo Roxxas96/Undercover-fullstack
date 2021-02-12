@@ -13,6 +13,8 @@ export class RecoverComponent implements OnInit {
     other: '',
   };
 
+  successMessage = '';
+
   loading = false;
 
   constructor(private authService: AuthService) {}
@@ -20,8 +22,32 @@ export class RecoverComponent implements OnInit {
   ngOnInit(): void {}
 
   onRecover(form: NgForm) {
+    this.errorMessage = {
+      email: '',
+      other: '',
+    };
+    this.successMessage = '';
     this.loading = true;
     const email = form.value['email'];
-    this.authService.recoverPassword(email).then().catch();
+    this.authService
+      .recoverPassword(email)
+      .then(() => {
+        this.loading = false;
+        this.successMessage =
+          "Un mail vous a été envoyé. Si vous ne l'avez pas reçu, vérifiez bien vos spams ou réessayez";
+      })
+      .catch((error) => {
+        this.loading = false;
+        if (error.error.error == 'Utilisateur non trouvé !') {
+          this.errorMessage.email =
+            "Cette adresse mail n'est liée à aucun compte";
+          return;
+        }
+        if (error.error.error == 'Mail déjà envoyé !') {
+          this.errorMessage.email = 'Un mail vous a déjà été envoyé';
+          return;
+        }
+        this.errorMessage.other = error.message;
+      });
   }
 }
