@@ -24,6 +24,7 @@ const getUserId = (req) => {
     playerIndex = room.players.findIndex((player) => player.userId == userId);
     return playerIndex != -1;
   });
+  //Update player activity in the room
   if (roomIndex != -1)
     Rooms[roomIndex].players[playerIndex].activity =
       Rooms[roomIndex].players[playerIndex].activity + 1;
@@ -33,6 +34,7 @@ const getUserId = (req) => {
   return userId;
 };
 
+//Anti AFK :  kick players that have not been kicked by quitRoom()
 const antiAFK = setInterval(() => {
   Rooms.forEach((room, roomIndex) => {
     room.players.forEach((player, playerIndex) => {
@@ -106,7 +108,7 @@ exports.getSingleRoom = (req, res, next) => {
     .indexOf(userId);
   //Players not in the game are not alowed to get info
   if (playerIndex == -1)
-    res.status(403).json({ error: "Le joueur n'est pas dans la salle !" });
+    res.status(404).json({ error: "Le joueur n'est pas dans la salle !" });
   //Get Room.players info in order to extract userId
   User.find(
     {

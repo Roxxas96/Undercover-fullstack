@@ -2,11 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
-import {
-  NgbActiveModal,
-  NgbModal,
-  NgbModalConfig,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
 import { Room } from '../../models/Room.model';
 import { GameService } from '../../services/game.service';
 import { RoomModalComponent } from './room-modal/room-modal.component';
@@ -211,11 +207,11 @@ export class RoomComponent implements OnInit {
       //When countdown end, begin game
       if (this.pregameLockout <= 0) {
         clearInterval(this.countdown);
-        //TODO Démarer la game
       }
     }, 1000);
   }
 
+  //Draw game settings modal
   onDrawSettings() {
     this.modalService.dismissAll();
     this.modalRef = this.modalService.open(RoomModalComponent);

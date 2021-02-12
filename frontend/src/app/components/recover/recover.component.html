@@ -21,6 +21,9 @@
       <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
         {{ errorMessage.other }}
       </div>
+      <div class="alert alert-success" *ngIf="successMessage != ''">
+        {{ successMessage }}
+      </div>
       <div>
         <button class="btn btn-primary" type="submit" [disabled]="f.invalid">
           Envoyez moi un mail

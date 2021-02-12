@@ -1,4 +1,3 @@
-import { NgStyle } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
@@ -33,26 +32,36 @@ export class AuthService {
             //And login
             this.login(email, password, false)
               .then(() => {
-                if (this.serverUnvailable) location.reload();
                 resolve(null);
               })
               //Throw login errors
               .catch((error) => {
                 console.log(error);
-                if (error.status == 0) {
-                  error = { message: 'Serveur introuvable !' };
-                  this.serverUnvailable = true;
-                }
                 reject(error);
               });
           },
           //Throw backend errors
           (error) => {
             console.log(error);
-            if (error.status == 0) {
-              error = { message: 'Serveur introuvable !' };
-              this.serverUnvailable = true;
-            }
+
+            reject(error);
+          }
+        );
+    });
+  }
+
+  changePassword(code: string, password: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .post('http://localhost:3000/api/auth/recover/' + code, {
+          password: password,
+        })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          (error) => {
+            console.log(error);
             reject(error);
           }
         );
@@ -93,16 +102,13 @@ export class AuthService {
                 localStorage.removeItem('userId');
               }
             }
-            if (this.serverUnvailable) location.reload();
+
             resolve(null);
           },
           //Throw errors
           (error) => {
             console.log(error);
-            if (error.status == 0) {
-              error = { message: 'Serveur introuvable !' };
-              this.serverUnvailable = true;
-            }
+
             reject(error);
           }
         );
@@ -125,7 +131,6 @@ export class AuthService {
     //Tell backen we disconnected
     this.http.get('http://localhost:3000/api/auth/logout').subscribe(
       () => {
-        if (this.serverUnvailable) location.reload();
         this.token = '';
       },
       (error) => {
@@ -148,16 +153,12 @@ export class AuthService {
         .get('http://localhost:3000/api/auth')
         .subscribe(
           (res) => {
-            if (this.serverUnvailable) location.reload();
             resolve(null);
           },
           //Catch errors (could be wrong token or other)
           (error) => {
             console.log(error);
-            if (error.status == 0) {
-              error = { message: 'Serveur introuvable !' };
-              this.serverUnvailable = true;
-            }
+
             reject(error);
           }
         );
@@ -173,16 +174,12 @@ export class AuthService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
-            if (this.serverUnvailable) location.reload();
             resolve(res.result);
           },
           //Catch errors
           (error) => {
             console.log(error);
-            if (error.status == 0) {
-              error = { message: 'Serveur introuvable !' };
-              this.serverUnvailable = true;
-            }
+
             reject(error);
           }
         );
@@ -197,7 +194,6 @@ export class AuthService {
         })
         .subscribe(
           (res) => {
-            console.log(res);
             resolve(null);
           },
           (error) => {
@@ -205,6 +201,20 @@ export class AuthService {
             reject(error);
           }
         );
+    });
+  }
+
+  recovertRequest(code: string) {
+    return new Promise((resolve, reject) => {
+      this.http.get('http://localhost:3000/api/auth/recover/' + code).subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          console.log(error);
+          reject(error);
+        }
+      );
     });
   }
 }

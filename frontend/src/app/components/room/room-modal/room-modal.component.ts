@@ -38,30 +38,39 @@ export class RoomModalComponent implements OnInit {
   loading = false;
 
   //Var used to update h5 on top of range bar in create room modal
-  rangeBarVal = 3;
+  rangeBarVal: Number = 3;
 
   //Players have 20 sec to vote
   ngOnInit(): void {
     //Handle spectators (they need to be ignored when dealing with game functions)
     this.spectators = this.Room.players.filter((player) => player.word == '');
     switch (this.modalState) {
+      //Vote modal
       case 0:
+        //Register number of available votes
         this.numVotes = Math.round(
           (this.Room.players.length - this.spectators.length) / 3
         );
+        //Begin countdown
         this.beginCountdown();
         break;
+      //Results modal
       case 1:
+        //Push 1 player to be the reference
         this.civilians.push({
           userInfo: this.Room.players[0],
+          //Players have a voted var to identify if owner has voted them
           voted: this.Room.players[this.ownerIndex].voteFor.find(
             (val) => val == 0
           )
             ? true
             : false,
         });
+        //Compare all other players words to this player's word and push them to the arrays
         this.Room.players.forEach((player, key) => {
+          //Ignore ref
           if (key == 0) return;
+          //Ignore spec
           if (
             this.spectators.find(
               (spec) => spec.userInfo.username == player.userInfo.username
@@ -87,14 +96,16 @@ export class RoomModalComponent implements OnInit {
                 : false,
             });
         });
+        //If arrays are twisted, invers them (undercovers length should be < civilians length)
         if (this.undercovers.length > this.civilians.length) {
           let temp = this.civilians;
           this.civilians = this.undercovers;
           this.undercovers = temp;
         }
         break;
+      //Game settings modal
       case 2:
-        this.rangeBarVal = Math.max(3, this.Room.players.length);
+        this.rangeBarVal = this.Room.max_players;
         break;
     }
   }
@@ -160,6 +171,7 @@ export class RoomModalComponent implements OnInit {
         this.dismissModal();
       })
       .catch((error) => {
+        this.loading = false;
         if (error.status == 400) {
           //Catch invalid name (empty name) error
           if (error.error.error == 'Nom de la salle vide !') {
@@ -180,13 +192,11 @@ export class RoomModalComponent implements OnInit {
             this.errorMessage.maxPlayers =
               'Il y a trop de joueurs dans la salle pour cette limite';
           }
-          this.loading = false;
           return;
         }
 
         //Catch other errors
         this.errorMessage.other = error.message;
-        this.loading = false;
       });
   }
 

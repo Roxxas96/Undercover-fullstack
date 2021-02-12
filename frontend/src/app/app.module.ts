@@ -18,6 +18,8 @@ import { RoomComponent } from './components/room/room.component';
 import { CommonModule } from '@angular/common';
 import { RoomModalComponent } from './components/room/room-modal/room-modal.component';
 import { RecoverComponent } from './components/recover/recover.component';
+import { PasswordChangeComponent } from './components/recover/password-change/password-change.component';
+import { RecoverGuard } from './services/recover.guard';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,7 @@ import { RecoverComponent } from './components/recover/recover.component';
     RoomComponent,
     RoomModalComponent,
     RecoverComponent,
+    PasswordChangeComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +44,7 @@ import { RecoverComponent } from './components/recover/recover.component';
   providers: [
     AuthService,
     AuthGuard,
+    RecoverGuard,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     GameService,
   ],
