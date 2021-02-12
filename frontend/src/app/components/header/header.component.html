@@ -160,7 +160,12 @@
 <div [ngClass]="{ 'slide-menu': true, 'slide-active': slideMenu }">
   <a (click)="slideMenu = false" class="slide-close"><h2>×</h2></a>
   <a (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></a>
-  <a routerLink="lobby" *ngIf="isInRoom()"><h4>Quitter la salle</h4></a>
+  <a routerLink="lobby" *ngIf="isInRoom()" (click)="slideMenu = false"
+    ><h4>Quitter la salle</h4></a
+  >
+  <a *ngIf="isHost()" (click)="onDeployGameSettings()"
+    ><h4>Paramètres de la salle</h4></a
+  >
   <a (click)="onLogout()"><h4>Deconnexion</h4></a>
 </div>
 <div

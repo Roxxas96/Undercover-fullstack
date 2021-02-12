@@ -8,6 +8,8 @@ import { RoomSimple } from '../models/RoomSimple.model';
   providedIn: 'root',
 })
 export class GameService {
+  Room: Room = new Room();
+
   constructor(private http: HttpClient) {}
 
   //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)

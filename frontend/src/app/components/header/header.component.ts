@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   NgbModal,
   NgbActiveModal,
@@ -8,6 +8,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
+import { RoomModalComponent } from '../room/room-modal/room-modal.component';
 
 @Component({
   selector: 'app-header',
@@ -33,7 +34,8 @@ export class HeaderComponent implements OnInit {
     private authService: AuthService,
     private modalService: NgbModal,
     private gameService: GameService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.popover = NgbPopover.prototype;
   }
@@ -57,11 +59,19 @@ export class HeaderComponent implements OnInit {
   //Open Propose word popup
   openModal(modal: any) {
     this.slideMenu = false;
-    this.modalService.open(modal);
+    return this.modalService.open(modal);
   }
 
   isInRoom() {
-    return new RegExp('/room').test(this.router.url);
+    return this.gameService.Room.name != '';
+  }
+
+  isHost() {
+    return (
+      this.gameService.Room.host.username ==
+      this.gameService.Room.players.find((val) => val.isOwner)?.userInfo
+        .username
+    );
   }
 
   onProposeWord(form: NgForm, modal: NgbActiveModal) {
@@ -102,5 +112,17 @@ export class HeaderComponent implements OnInit {
         }
         this.errorMessage.global = error.message;
       });
+  }
+
+  onDeployGameSettings() {
+    this.modalService.dismissAll();
+    const modalRef = this.openModal(RoomModalComponent);
+    //Throw variables to modal
+    modalRef.componentInstance.modalState = 2;
+    modalRef.componentInstance.roomId = this.route.snapshot.params['roomId'];
+    modalRef.componentInstance.ownerIndex = this.gameService.Room.players.findIndex(
+      (val) => val.isOwner
+    );
+    modalRef.componentInstance.Room = this.gameService.Room;
   }
 }
