@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #009ce5;
+        stroke-width: 20px;
+      }
+
+      .cls-2 {
+        fill: #009ce5;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="512" cy="512" r="397.5"/>
+  <path id="Rectangle_arrondi_1" data-name="Rectangle arrondi 1" class="cls-2" d="M270,450h98a10,10,0,0,1,10,10V674a10,10,0,0,1-10,10H270a10,10,0,0,1-10-10V460A10,10,0,0,1,270,450Zm126,18V666s108,54,162,54h90s18,0,36-18,28-30,36-60,26-156,18-192c0,0,0-18-18-36s-126,0-126,0,36-38,36-64,0-62-18-80-36-18-54-18-26,18-26,36-10,54-28,72-72,90-72,90,0-9-18,0S396,468,396,468Z"/>
+</svg>

@@ -194,7 +194,7 @@ exports.auth = (req, res, next) => {
   if (authResult) {
     //Add user only if not in connectedPlayers
     if (index == -1)
-      connectedPlayers.push({ userId: userId, activity: 0, room: "" });
+      connectedPlayers.push({ userId: userId, activity: 0, room: "", like: 0 });
     return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {

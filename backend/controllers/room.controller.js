@@ -41,6 +41,11 @@ const antiAFK = setInterval(() => {
       if (player.activity == 0) {
         //Remove player from Rooms
         room.players.splice(playerIndex, 1);
+        //Remove player like stored var
+        const index = connectedPlayers.findIndex(
+          (val) => val.userId == player.userId
+        );
+        if (playerIndex) connectedPlayers[index].like == 0;
         //If room is empty delete it
         if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
         //If player was host change host

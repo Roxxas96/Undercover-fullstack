@@ -29,3 +29,16 @@
   font-weight: 700;
   color: red;
 }
+.like-btn {
+  background: none;
+  border: none;
+  outline: none;
+  transition: 0.3s;
+  cursor: pointer;
+}
+.like-btn:focus-visible {
+  transform: scale(1.1);
+}
+.liked {
+  transform: translateY(-20%);
+}

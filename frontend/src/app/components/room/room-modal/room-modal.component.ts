@@ -37,6 +37,8 @@ export class RoomModalComponent implements OnInit {
   };
   loading = false;
 
+  like = 0;
+
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal: Number = 3;
 
@@ -118,7 +120,9 @@ export class RoomModalComponent implements OnInit {
           this.numVotes + 1
         )
       : Math.max(0, this.numVotes - 1);
-    this.gameService.voteFor(this.roomId, playerIndex);
+    this.gameService.voteFor(this.roomId, playerIndex).catch((error) => {
+      this.errorMessage.other = error.message;
+    });
   }
 
   //voteDone : Determin if player has used all his votes in order to draw a hint
@@ -202,5 +206,21 @@ export class RoomModalComponent implements OnInit {
 
   dismissModal() {
     this.activeModal.dismiss();
+  }
+
+  onLike(like: boolean) {
+    const operator = like ? 1 : -1;
+    if (this.like == operator) this.like = 0;
+    else this.like = operator;
+    this.gameService
+      .likeWords(
+        like,
+        this.undercovers[0].userInfo.word +
+          '/' +
+          this.civilians[0].userInfo.word
+      )
+      .catch((error) => {
+        this.errorMessage.other = error.message;
+      });
   }
 }

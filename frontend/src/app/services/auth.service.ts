@@ -14,6 +14,8 @@ export class AuthService {
 
   serverUnvailable = false;
 
+  host = 'http://localhost:3000/';
+
   constructor(private http: HttpClient) {}
 
   //CreateUser : call backend to create new user and return success/failures
@@ -21,7 +23,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       //Send HTTP request POST
       this.http
-        .post('http://localhost:3000/api/auth/signup', {
+        .post(this.host + '/api/auth/signup', {
           username: username,
           email: email,
           password: password,
@@ -53,7 +55,7 @@ export class AuthService {
   changePassword(code: string, password: string) {
     return new Promise((resolve, reject) => {
       this.http
-        .post('http://localhost:3000/api/auth/recover/' + code, {
+        .post(this.host + '/api/auth/recover/' + code, {
           password: password,
         })
         .subscribe(
@@ -74,7 +76,7 @@ export class AuthService {
       //Send HTTP request POST
       this.http
         .post<{ userId: string; token: string }>(
-          'http://localhost:3000/api/auth/login',
+          this.host + '/api/auth/login',
           {
             login: login,
             password: password,
@@ -129,7 +131,7 @@ export class AuthService {
       localStorage.removeItem('userId');
     }
     //Tell backen we disconnected
-    this.http.get('http://localhost:3000/api/auth/logout').subscribe(
+    this.http.get(this.host + '/api/auth/logout').subscribe(
       () => {
         this.token = '';
       },
@@ -150,7 +152,7 @@ export class AuthService {
       //HTTP request GET
       this.http
         //Provide userId (token is in header)
-        .get('http://localhost:3000/api/auth')
+        .get(this.host + '/api/auth')
         .subscribe(
           (res) => {
             resolve(null);
@@ -170,7 +172,7 @@ export class AuthService {
     return new Promise<Array<User>>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Array<User> }>('http://localhost:3000/api/auth/players')
+        .get<{ result: Array<User> }>(this.host + '/api/auth/players')
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<User> }) => {
@@ -189,7 +191,7 @@ export class AuthService {
   recoverPassword(email: string) {
     return new Promise((resolve, reject) => {
       this.http
-        .post('http://localhost:3000/api/auth/recover', {
+        .post(this.host + '/api/auth/recover', {
           email: email,
         })
         .subscribe(
@@ -206,7 +208,7 @@ export class AuthService {
 
   recovertRequest(code: string) {
     return new Promise((resolve, reject) => {
-      this.http.get('http://localhost:3000/api/auth/recover/' + code).subscribe(
+      this.http.get(this.host + '/api/auth/recover/' + code).subscribe(
         (res) => {
           resolve(null);
         },
