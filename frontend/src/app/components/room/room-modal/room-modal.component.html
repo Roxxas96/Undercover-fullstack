@@ -30,11 +30,14 @@
             *ngIf="!player.isOwner && player.word != '' && isVoted(i1)"
             (click)="onVote(i1, true)"
           >
-            Annuler
+            Voté
           </button>
         </div>
         <h6 *ngIf="player.word == ''">(Spectateur)</h6>
       </div>
+    </div>
+    <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
+      {{ errorMessage.other }}
     </div>
   </div>
 </div>
@@ -74,6 +77,36 @@
           {{ civilian.userInfo.userInfo.username }}
         </p>
       </div>
+    </div>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        width: 50%;
+        margin: auto;
+      "
+    >
+      <button
+        [ngClass]="{ 'like-btn': true, liked: like == 1 }"
+        ngbPopover="Liker les mots"
+        popoverClass="like-popover"
+        triggers="mouseenter:mouseleave"
+        (click)="onLike(true)"
+      >
+        <img src="assets/Like-logo.svg" width="64px" />
+      </button>
+      <div
+        [ngClass]="{ 'like-btn': true, liked: like == -1 }"
+        ngbPopover="Disliker les mots"
+        popoverClass="dislike-popover"
+        triggers="mouseenter:mouseleave"
+        (click)="onLike(false)"
+      >
+        <img src="assets/Dislike-logo.svg" width="64px" />
+      </div>
+    </div>
+    <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
+      {{ errorMessage.other }}
     </div>
   </div>
   <div class="modal-footer">

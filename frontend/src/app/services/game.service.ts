@@ -10,6 +10,8 @@ import { RoomSimple } from '../models/RoomSimple.model';
 export class GameService {
   Room: Room = new Room();
 
+  host = 'http://localhost:3000/';
+
   constructor(private http: HttpClient) {}
 
   //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)
@@ -19,7 +21,7 @@ export class GameService {
       this.http
         .get<{
           result: Array<RoomSimple>;
-        }>('http://localhost:3000/api/room')
+        }>(this.host + '/api/room')
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<RoomSimple> }) => {
@@ -39,9 +41,7 @@ export class GameService {
     return new Promise<Room>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Room }>(
-          'http://localhost:3000/api/room/' + roomId + '/get'
-        )
+        .get<{ result: Room }>(this.host + '/api/room/' + roomId + '/get')
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
@@ -61,7 +61,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post('http://localhost:3000/api/room/create', {
+        .post(this.host + '/api/room/create', {
           roomName: roomName,
           maxPlayers: maxPlayers,
         })
@@ -85,7 +85,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post('http://localhost:3000/api/room/' + roomId + '/modify', {
+        .post(this.host + '/api/room/' + roomId + '/modify', {
           maxPlayers: maxPlayers,
         })
         .subscribe(
@@ -107,19 +107,17 @@ export class GameService {
   joinRoom(roomName: String) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http
-        .get('http://localhost:3000/api/room/' + roomName + '/join')
-        .subscribe(
-          (res) => {
-            resolve(null);
-          },
-          (error) => {
-            //Throw
-            console.log(error);
+      this.http.get(this.host + '/api/room/' + roomName + '/join').subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          //Throw
+          console.log(error);
 
-            reject(error);
-          }
-        );
+          reject(error);
+        }
+      );
     });
   }
 
@@ -127,19 +125,17 @@ export class GameService {
   quitRoom(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http
-        .get('http://localhost:3000/api/room/' + roomId + '/quit')
-        .subscribe(
-          (res) => {
-            resolve(null);
-          },
-          (error) => {
-            //Throw
-            console.log(error);
+      this.http.get(this.host + '/api/room/' + roomId + '/quit').subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          //Throw
+          console.log(error);
 
-            reject(error);
-          }
-        );
+          reject(error);
+        }
+      );
     });
   }
 
@@ -148,7 +144,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST Request
       this.http
-        .post('http://localhost:3000/api/room/' + roomId + '/word', {
+        .post(this.host + '/api/room/' + roomId + '/word', {
           word: word,
         })
         .subscribe(
@@ -169,19 +165,17 @@ export class GameService {
   playerVote(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http
-        .get('http://localhost:3000/api/room/' + roomId + '/vote')
-        .subscribe(
-          (res) => {
-            resolve(null);
-          },
-          (error) => {
-            //Throw
-            console.log(error);
+      this.http.get(this.host + '/api/room/' + roomId + '/vote').subscribe(
+        (res) => {
+          resolve(null);
+        },
+        (error) => {
+          //Throw
+          console.log(error);
 
-            reject(error);
-          }
-        );
+          reject(error);
+        }
+      );
     });
   }
 
@@ -190,7 +184,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post('http://localhost:3000/api/words', {
+        .post(this.host + '/api/words', {
           word1: word1,
           word2: word2,
         })
@@ -212,19 +206,17 @@ export class GameService {
   startGame(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET
-      this.http
-        .get('http://localhost:3000/api/room/' + roomId + '/start')
-        .subscribe(
-          (res) => {
-            resolve(res);
-          },
-          //Throw
-          (error) => {
-            console.log(error);
+      this.http.get(this.host + '/api/room/' + roomId + '/start').subscribe(
+        (res) => {
+          resolve(res);
+        },
+        //Throw
+        (error) => {
+          console.log(error);
 
-            reject(error);
-          }
-        );
+          reject(error);
+        }
+      );
     });
   }
 
@@ -232,19 +224,17 @@ export class GameService {
   abortGame(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET
-      this.http
-        .get('http://localhost:3000/api/room/' + roomId + '/abort')
-        .subscribe(
-          (res) => {
-            resolve(res);
-          },
-          //Throw
-          (error) => {
-            console.log(error);
+      this.http.get(this.host + '/api/room/' + roomId + '/abort').subscribe(
+        (res) => {
+          resolve(res);
+        },
+        //Throw
+        (error) => {
+          console.log(error);
 
-            reject(error);
-          }
-        );
+          reject(error);
+        }
+      );
     });
   }
 
@@ -253,7 +243,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post('http://localhost:3000/api/room/' + roomId + '/vote', {
+        .post(this.host + '/api/room/' + roomId + '/vote', {
           target: playerIndex.toString(),
         })
         .subscribe(
@@ -263,7 +253,24 @@ export class GameService {
           //Throw
           (error) => {
             console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
 
+  likeWords(like: boolean, words: string) {
+    return new Promise((resolve, reject) => {
+      //POST
+      this.http
+        .post(this.host + '/api/words/like/' + like, { words: words })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          //Throw
+          (error) => {
+            console.log(error);
             reject(error);
           }
         );
