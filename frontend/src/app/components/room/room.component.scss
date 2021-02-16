@@ -52,11 +52,10 @@
   width: fit-content;
   padding: 0;
   margin-left: 5%;
-  transition: 0.3s;
   outline: none;
 }
 .send-button:focus-visible {
-  transform: scale(1.1);
+  outline: auto;
 }
 .bottom-right-buttons {
   position: absolute;

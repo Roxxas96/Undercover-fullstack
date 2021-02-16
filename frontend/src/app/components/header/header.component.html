@@ -144,29 +144,40 @@
     </div>
   </div>
   <div class="middle" *ngIf="isAuth">
-    <a (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></a>
+    <button (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></button>
   </div>
   <div class="right" *ngIf="isAuth">
     <div class="logout">
-      <a (click)="onLogout()">Deconnexion</a>
+      <button (click)="onLogout()">Deconnexion</button>
     </div>
-    <a class="mobile-menu" (click)="slideMenu = true">
+    <button class="mobile-menu" (click)="slideMenu = true">
       <div></div>
       <div></div>
       <div></div>
-    </a>
+    </button>
   </div>
 </div>
 <div [ngClass]="{ 'slide-menu': true, 'slide-active': slideMenu }">
-  <a (click)="slideMenu = false" class="slide-close"><h2>×</h2></a>
-  <a (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></a>
-  <a routerLink="lobby" *ngIf="isInRoom()" (click)="slideMenu = false"
-    ><h4>Quitter la salle</h4></a
+  <button (click)="slideMenu = false" class="slide-close"><h2>×</h2></button>
+  <button
+    (click)="openModal(wordModal)"
+    class="slide-btn"
+    style="margin-top: 8%"
   >
-  <a *ngIf="isHost()" (click)="onDeployGameSettings()"
-    ><h4>Paramètres de la salle</h4></a
+    <h4>Proposez vos mots !</h4>
+  </button>
+  <button
+    routerLink="lobby"
+    class="slide-btn"
+    *ngIf="isInRoom()"
+    (click)="slideMenu = false"
   >
-  <a (click)="onLogout()"><h4>Deconnexion</h4></a>
+    <h4>Quitter la salle</h4>
+  </button>
+  <button *ngIf="isHost()" class="slide-btn" (click)="onDeployGameSettings()">
+    <h4>Paramètres de la salle</h4>
+  </button>
+  <button (click)="onLogout()" class="slide-btn"><h4>Deconnexion</h4></button>
 </div>
 <div
   [ngClass]="{ 'slide-background': true, 'back-active': slideMenu }"

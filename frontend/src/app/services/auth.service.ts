@@ -16,7 +16,7 @@ export class AuthService {
 
   //http://localhost:3000/
   //https://play-undercover.herokuapp.com/
-  host = 'https://play-undercover.herokuapp.com/';
+  host = 'http://localhost:3000/';
 
   constructor(private http: HttpClient) {}
 

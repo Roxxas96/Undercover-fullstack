@@ -517,7 +517,7 @@ exports.voteFor = (req, res, next) => {
   //Invalid target
   if (!Rooms[roomIndex].players[playerIndex])
     return res.status(404).json({ error: "Cible invalide !" });
-  //If target is not in array push it
+  //If target is in array splice it
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
     return res.status(200).json({ message: "Cible déVoté !" });
@@ -530,15 +530,10 @@ exports.voteFor = (req, res, next) => {
     Rooms[roomIndex].players[playerIndex].voteFor.length >=
     Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
   ) {
-    //Replace oldest target by new one
-    Rooms[roomIndex].players[playerIndex].voteFor[
-      Rooms[roomIndex].players[playerIndex].voteFor.length - 1
-    ] = req.body.target;
-    return res.status(200).json({ message: "Changement de cible !" });
-    //Else if taget can be targeted
-  } else {
-    //Push target
-    Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
-    return res.status(200).json({ message: "Cible Voté !" });
+    //Splice oldest target
+    Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
   }
+  //Push target
+  Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
+  return res.status(200).json({ message: "Cible Voté !" });
 };

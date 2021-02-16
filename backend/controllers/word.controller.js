@@ -65,7 +65,9 @@ exports.likeWords = (req, res, next) => {
             return res.status(400).json({ error: error });
           });
       connectedPlayers[playerIndex].like = operator;
-      return res.status(200).json({ message: "Mots modifié ! " + operator });
+      return res.status(200).json({
+        message: "Mots modifié ! " + operator,
+      });
     })
     .catch((error) => {
       return res.status(400).json({ error: error });

@@ -37,8 +37,14 @@
   cursor: pointer;
 }
 .like-btn:focus-visible {
-  transform: scale(1.1);
+  outline: auto;
 }
 .liked {
   transform: translateY(-20%);
+}
+.dislike-popover {
+  background-color: rgb(255, 47, 47);
+}
+.like-popover {
+  background-color: rgb(96, 255, 96);
 }

@@ -8,18 +8,19 @@
     {{ errorMessage.global }}
   </div>
   <div class="game">
-    <div class="gameInfo">
+    <div class="gameInfo" style="margin-bottom: 2%">
       <div class="GameInPlay" *ngIf="pregameLockout == -2">
         <h3>Une partie est déjà en cour, veuillez attendre la fin</h3>
       </div>
       <div class="Pregame" *ngIf="pregameLockout == -1">
-        <h3>
+        <h3 style="margin-bottom: 1%">
           En du attente lancement de la partie, il y a
           {{ Room.players.length }} joueurs dans la partie (3 minimum pour
           commencer)
         </h3>
         <button
           class="btn btn-primary"
+          style="margin-bottom: 0"
           (click)="onBeginGame()"
           *ngIf="
             Room.players.length >= 3 &&
@@ -30,9 +31,12 @@
         </button>
       </div>
       <div class="Pregame-lockout" *ngIf="pregameLockout > 0">
-        <h3>Début de la partie dans {{ pregameLockout }}</h3>
+        <h3 style="margin-bottom: 1%">
+          Début de la partie dans {{ pregameLockout }}
+        </h3>
         <button
           class="btn btn-danger"
+          style="margin-bottom: 0"
           (click)="onAbortGame()"
           *ngIf="
             Room.host.username == Room.players[ownerIndex].userInfo.username
@@ -42,7 +46,7 @@
         </button>
       </div>
       <div class="GameMain" *ngIf="pregameLockout == 0">
-        <h4>
+        <h4 style="margin-bottom: 1%">
           Il y a {{ numUndercovers }} Undercover{{
             numUndercovers > 1 ? "s" : ""
           }}

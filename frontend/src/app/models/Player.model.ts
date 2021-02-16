@@ -6,6 +6,6 @@ export class Player {
   isOwner: boolean = false;
   vote: boolean = true;
   word: string = '';
-  voteFor: Array<Number> = [];
+  voteFor: Array<String> = [];
   score: Number = 0;
 }

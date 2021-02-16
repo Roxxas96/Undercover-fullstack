@@ -12,7 +12,7 @@ export class GameService {
 
   //http://localhost:3000/
   //https://play-undercover.herokuapp.com/
-  host = 'https://play-undercover.herokuapp.com/';
+  host = 'http://localhost:3000/';
 
   constructor(private http: HttpClient) {}
 
@@ -83,7 +83,7 @@ export class GameService {
   }
 
   //Create room : call backend to create a room, return the index of created room
-  modifyRoom(maxPlayers: number, roomId: string) {
+  modifyRoom(maxPlayers: number, roomId: String) {
     return new Promise((resolve, reject) => {
       //POST request
       this.http

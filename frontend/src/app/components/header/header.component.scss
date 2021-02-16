@@ -29,8 +29,9 @@
   display: flex;
   margin-right: 15px;
 }
-.right a {
+.logout button {
   font-size: 20px;
+  font-weight: 600;
   margin: 0;
   text-decoration: none;
   color: rgb(33, 37, 41);
@@ -38,30 +39,31 @@
   border-radius: 10px;
   padding: 5px 5px 6px 5px;
   cursor: pointer;
+  background: none;
+  border: none;
+}
+.logout button:hover {
+  background-color: white;
+}
+.right button:focus-visible {
+  outline: auto;
 }
 .logo {
   cursor: pointer;
   outline: none;
 }
 .logo:focus-visible {
-  transform: scale(1.1);
+  outline: auto;
 }
-.logout {
-  margin: auto;
-}
-.logout a:hover {
-  background-color: white;
-}
-.middle a {
+.middle button {
+  padding: 1px;
   text-decoration: none;
   color: rgb(33, 37, 41);
-}
-.middle a h4 {
-  margin: 0;
-  cursor: pointer;
+  background: none;
+  border: none;
   transition: 0.2s;
 }
-.middle a h4:hover {
+.middle button:hover {
   transform: translateY(-10%);
 }
 .inputs {
@@ -75,7 +77,13 @@
 .mobile-menu {
   width: 35px;
   display: none;
-  margin: 1em 0 0 1em;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.mobile-menu:focus-visible {
+  outline: auto;
 }
 .mobile-menu div {
   height: 4px;
@@ -97,10 +105,15 @@
   transition: 0.3s;
   transform: translateX(100%);
 }
-.slide-menu a {
-  text-decoration: none;
+.slide-menu button {
+  border: none;
+  background: none;
   color: black;
-  cursor: pointer;
+}
+.slide-btn {
+  display: block;
+  margin: auto;
+  margin-top: 2%;
 }
 .slide-menu h4 {
   margin-top: 5%;
@@ -110,6 +123,7 @@
   background-color: transparent;
   position: absolute;
   z-index: -1;
+  display: none;
   left: 0;
   right: 0;
   width: 100vw;
@@ -124,11 +138,13 @@
   background-color: rgba(0, 0, 0, 0.65);
 }
 .slide-close {
-  text-align: right;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  right: 0;
+  padding: 5px;
   width: 35px;
   height: auto;
-}
-.slide-close h2 {
   margin-right: 5%;
 }
 .help {
@@ -138,8 +154,8 @@
   cursor: pointer;
   width: fit-content;
   height: fit-content;
-  transition: 0.2s;
   background: none;
+  transition: 0.2s;
   border: none;
   outline: none;
 }
@@ -147,7 +163,7 @@
   color: white;
 }
 .help:focus-visible {
-  transform: scale(1.1);
+  outline: auto;
 }
 .rules-popover {
   text-align: center;
@@ -166,7 +182,10 @@
   .logout {
     display: none;
   }
+  .slide-background {
+    display: block;
+  }
   .slide-menu {
-    display: inline-block;
+    display: block !important;
   }
 }
