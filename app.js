@@ -8,7 +8,7 @@ const WordRoutes = require("./routes/word.route");
 
 const app = express();
 
-//Connection MongoDB
+//MongoDB
 mongoose
   .connect(
     "mongodb+srv://Roxxas96:Mexican1995@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
-//On transforme la requête en objet JSON
+//JSON request
 app.use(bodyParser.json());
 
 //Routes

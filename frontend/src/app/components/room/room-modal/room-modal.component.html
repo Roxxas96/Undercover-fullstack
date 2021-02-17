@@ -78,6 +78,9 @@
         </p>
       </div>
     </div>
+    <h5 style="text-align: center; margin-bottom: 5%">
+      Notez les mots que vous avez eu !
+    </h5>
     <div
       style="
         display: flex;
@@ -88,22 +91,22 @@
     >
       <button
         [ngClass]="{ 'like-btn': true, liked: like == 1 }"
-        ngbPopover="Liker les mots"
+        ngbPopover="Like"
         popoverClass="like-popover"
         triggers="mouseenter:mouseleave"
         (click)="onLike(true)"
       >
         <img src="assets/Like-logo.svg" width="64px" />
       </button>
-      <div
+      <button
         [ngClass]="{ 'like-btn': true, liked: like == -1 }"
-        ngbPopover="Disliker les mots"
+        ngbPopover="Dislike"
         popoverClass="dislike-popover"
         triggers="mouseenter:mouseleave"
         (click)="onLike(false)"
       >
         <img src="assets/Dislike-logo.svg" width="64px" />
-      </div>
+      </button>
     </div>
     <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
       {{ errorMessage.other }}

@@ -10,6 +10,8 @@ import { RoomSimple } from '../models/RoomSimple.model';
 export class GameService {
   Room: Room = new Room();
 
+  //http://localhost:3000/
+  //https://play-undercover.herokuapp.com/
   host = 'http://localhost:3000/';
 
   constructor(private http: HttpClient) {}
@@ -21,7 +23,7 @@ export class GameService {
       this.http
         .get<{
           result: Array<RoomSimple>;
-        }>(this.host + '/api/room')
+        }>(this.host + 'api/room')
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<RoomSimple> }) => {
@@ -41,7 +43,7 @@ export class GameService {
     return new Promise<Room>((resolve, reject) => {
       //HTTP request : GET
       this.http
-        .get<{ result: Room }>(this.host + '/api/room/' + roomId + '/get')
+        .get<{ result: Room }>(this.host + 'api/room/' + roomId + '/get')
         .subscribe(
           //Returned object is stored in result key
           (res: { result: Room }) => {
@@ -61,7 +63,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post(this.host + '/api/room/create', {
+        .post(this.host + 'api/room/create', {
           roomName: roomName,
           maxPlayers: maxPlayers,
         })
@@ -81,11 +83,11 @@ export class GameService {
   }
 
   //Create room : call backend to create a room, return the index of created room
-  modifyRoom(maxPlayers: number, roomId: string) {
+  modifyRoom(maxPlayers: number, roomId: String) {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
-        .post(this.host + '/api/room/' + roomId + '/modify', {
+        .post(this.host + 'api/room/' + roomId + '/modify', {
           maxPlayers: maxPlayers,
         })
         .subscribe(
@@ -107,7 +109,7 @@ export class GameService {
   joinRoom(roomName: String) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get(this.host + '/api/room/' + roomName + '/join').subscribe(
+      this.http.get(this.host + 'api/room/' + roomName + '/join').subscribe(
         (res) => {
           resolve(null);
         },
@@ -125,7 +127,7 @@ export class GameService {
   quitRoom(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get(this.host + '/api/room/' + roomId + '/quit').subscribe(
+      this.http.get(this.host + 'api/room/' + roomId + '/quit').subscribe(
         (res) => {
           resolve(null);
         },
@@ -144,7 +146,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST Request
       this.http
-        .post(this.host + '/api/room/' + roomId + '/word', {
+        .post(this.host + 'api/room/' + roomId + '/word', {
           word: word,
         })
         .subscribe(
@@ -165,7 +167,7 @@ export class GameService {
   playerVote(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET Request
-      this.http.get(this.host + '/api/room/' + roomId + '/vote').subscribe(
+      this.http.get(this.host + 'api/room/' + roomId + '/vote').subscribe(
         (res) => {
           resolve(null);
         },
@@ -184,7 +186,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post(this.host + '/api/words', {
+        .post(this.host + 'api/words', {
           word1: word1,
           word2: word2,
         })
@@ -206,7 +208,7 @@ export class GameService {
   startGame(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET
-      this.http.get(this.host + '/api/room/' + roomId + '/start').subscribe(
+      this.http.get(this.host + 'api/room/' + roomId + '/start').subscribe(
         (res) => {
           resolve(res);
         },
@@ -224,7 +226,7 @@ export class GameService {
   abortGame(roomId: string) {
     return new Promise((resolve, reject) => {
       //GET
-      this.http.get(this.host + '/api/room/' + roomId + '/abort').subscribe(
+      this.http.get(this.host + 'api/room/' + roomId + '/abort').subscribe(
         (res) => {
           resolve(res);
         },
@@ -243,7 +245,7 @@ export class GameService {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post(this.host + '/api/room/' + roomId + '/vote', {
+        .post(this.host + 'api/room/' + roomId + '/vote', {
           target: playerIndex.toString(),
         })
         .subscribe(
@@ -259,11 +261,12 @@ export class GameService {
     });
   }
 
-  likeWords(like: boolean, words: string) {
+  //Like words : Call back that user liked a word
+  likeWords(like: number, words: string) {
     return new Promise((resolve, reject) => {
       //POST
       this.http
-        .post(this.host + '/api/words/like/' + like, { words: words })
+        .post(this.host + 'api/words/like/' + like, { words: words })
         .subscribe(
           (res) => {
             resolve(null);

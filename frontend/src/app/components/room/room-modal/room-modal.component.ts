@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbActiveModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
+import { BehaviorSubject } from 'rxjs';
 import { Player } from 'src/app/models/Player.model';
 import { GameService } from 'src/app/services/game.service';
 import { Room } from '../../../models/Room.model';
@@ -17,10 +18,12 @@ export class RoomModalComponent implements OnInit {
     private modalConfig: NgbModalConfig
   ) {}
 
-  @Input() Room: Room = new Room();
+  @Input() ParentRoom = new BehaviorSubject<Room>(new Room());
   @Input() roomId = '';
   @Input() ownerIndex = -1;
   @Input() modalState = 0;
+
+  Room: Room = new Room();
 
   timeOut = -1;
   countdown = setInterval(() => {}, 1000);
@@ -39,11 +42,16 @@ export class RoomModalComponent implements OnInit {
 
   like = 0;
 
+  skipRoomRefresh = false;
+
   //Var used to update h5 on top of range bar in create room modal
   rangeBarVal: Number = 3;
 
   //Players have 20 sec to vote
   ngOnInit(): void {
+    this.ParentRoom.subscribe((observer) => {
+      if (!this.skipRoomRefresh) this.Room = observer;
+    });
     //Handle spectators (they need to be ignored when dealing with game functions)
     this.spectators = this.Room.players.filter((player) => player.word == '');
     switch (this.modalState) {
@@ -63,7 +71,7 @@ export class RoomModalComponent implements OnInit {
           userInfo: this.Room.players[0],
           //Players have a voted var to identify if owner has voted them
           voted: this.Room.players[this.ownerIndex].voteFor.find(
-            (val) => val == 0
+            (val) => val == '0'
           )
             ? true
             : false,
@@ -83,7 +91,7 @@ export class RoomModalComponent implements OnInit {
             this.undercovers.push({
               userInfo: player,
               voted: this.Room.players[this.ownerIndex].voteFor.find(
-                (val) => val == key
+                (val) => val == key.toString()
               )
                 ? true
                 : false,
@@ -92,7 +100,7 @@ export class RoomModalComponent implements OnInit {
             this.civilians.push({
               userInfo: player,
               voted: this.Room.players[this.ownerIndex].voteFor.find(
-                (val) => val == key
+                (val) => val == key.toString()
               )
                 ? true
                 : false,
@@ -112,17 +120,49 @@ export class RoomModalComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.gameService
+      .likeWords(
+        this.like,
+        this.undercovers[0].userInfo.word +
+          '/' +
+          this.civilians[0].userInfo.word
+      )
+      .catch((error) => {
+        this.errorMessage.other = error.message;
+      });
+  }
+
   //onVote : tell back that the player want to vote for a target
   onVote(playerIndex: number, cancelVote: boolean) {
+    this.skipRoomRefresh = true;
+    if (cancelVote) {
+      const targetIndex = this.Room.players[this.ownerIndex].voteFor.findIndex(
+        (val) => val == playerIndex.toString()
+      );
+      if (targetIndex != -1)
+        this.Room.players[this.ownerIndex].voteFor.splice(targetIndex, 1);
+    } else {
+      if (this.numVotes == 0) {
+        this.Room.players[this.ownerIndex].voteFor.splice(0, 1);
+      }
+      this.Room.players[this.ownerIndex].voteFor.push(playerIndex.toString());
+    }
     this.numVotes = cancelVote
       ? Math.min(
           Math.round((this.Room.players.length - this.spectators.length) / 3),
           this.numVotes + 1
         )
       : Math.max(0, this.numVotes - 1);
-    this.gameService.voteFor(this.roomId, playerIndex).catch((error) => {
-      this.errorMessage.other = error.message;
-    });
+    this.gameService
+      .voteFor(this.roomId, playerIndex)
+      .then(() => {
+        this.skipRoomRefresh = false;
+      })
+      .catch((error) => {
+        this.skipRoomRefresh = false;
+        this.errorMessage.other = error.message;
+      });
   }
 
   //voteDone : Determin if player has used all his votes in order to draw a hint
@@ -136,13 +176,13 @@ export class RoomModalComponent implements OnInit {
   //is Voted : Determin if a certain player is voted by the client in order to draw cancel button
   isVoted(index: number) {
     return this.Room.players[this.ownerIndex].voteFor.find(
-      (val) => val == index
+      (val) => val == index.toString()
     );
   }
 
   //Begin vote countdown
   beginCountdown() {
-    this.timeOut = Math.round(this.Room.players.length / 3) * 10;
+    this.timeOut = Math.round(this.Room.players.length / 3) * 5 + 10;
     this.countdown = setInterval(() => {
       this.timeOut -= 1;
       //On countdown end dismiss modal
@@ -164,11 +204,10 @@ export class RoomModalComponent implements OnInit {
       other: '',
     };
     //Retreive form data
-    const roomName = form.value['name'];
     const maxPlayers = form.value['max-players'];
     //Call gameService createRoom func
     this.gameService
-      .modifyRoom(maxPlayers, this.roomId)
+      .modifyRoom(maxPlayers, this.Room.name)
       .then(() => {
         //If creation succeded hide loading hint
         this.loading = false;
@@ -212,15 +251,5 @@ export class RoomModalComponent implements OnInit {
     const operator = like ? 1 : -1;
     if (this.like == operator) this.like = 0;
     else this.like = operator;
-    this.gameService
-      .likeWords(
-        like,
-        this.undercovers[0].userInfo.word +
-          '/' +
-          this.civilians[0].userInfo.word
-      )
-      .catch((error) => {
-        this.errorMessage.other = error.message;
-      });
   }
 }

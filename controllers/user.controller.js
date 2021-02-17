@@ -13,25 +13,41 @@ let recoveryLinks = [];
 
 //Get userId from headers
 const getUserId = (req) => {
+  ///*UserId part
+  //Get token from headers
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
+  //Decode using key
   const decodedToken = jwt.verify(
     token,
     "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
   );
+  //Get userId from decoded token
   const userId = decodedToken.userId;
-  const index = connectedPlayers.findIndex((val) => val.userId == userId);
-  if (index != -1)
-    connectedPlayers[index].activity = connectedPlayers[index].activity + 1;
+
+  //*Activity part (for anti afk)
+  //Index of the player in Connected players Array
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  //Update player activity in connected players array
+  if (connectedPlayerIndex != -1)
+    connectedPlayers[connectedPlayerIndex].activity =
+      connectedPlayers[connectedPlayerIndex].activity + 1;
+
+  //Finally return the userId
   return userId;
 };
 
 //Anti AFK, kick players that have not been kicked by disconnect()
 const antiAFK = setInterval(() => {
+  //Check for inactive players
   connectedPlayers.forEach((val, key) => {
     if (val.activity == 0) {
+      //Remove them from connected players
       connectedPlayers.splice(key, 1);
     }
+    //Reset player activity
     val.activity = 0;
   });
 }, 10000);
@@ -68,14 +84,17 @@ exports.signUp = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+//Change password : change the password of a player
 exports.changePassword = (req, res, next) => {
   if (req.body.password.length < 8)
     return res.status(400).json({ error: "Mot de passe trop court !" });
   const user = recoveryLinks.find((val) => val.code == req.params.code);
   if (!user) return res.status(404).json({ error: "Code invalide !" });
+  //Crypt pass
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
+      //Update in DB
       User.updateOne(
         { email: user.email },
         {
@@ -86,8 +105,9 @@ exports.changePassword = (req, res, next) => {
         .then((updatedUser) => {
           return res.status(200).json({ message: "Mot de passe modifié !" });
         })
+        //DB error
         .catch((error) => {
-          return res.status(400).json({ error: error });
+          return res.status(500).json({ error: error });
         });
     })
     //Internal errors
@@ -174,9 +194,11 @@ exports.login = (req, res, next) => {
 //Logout : remove player from Connected Players array
 exports.logout = (req, res, next) => {
   const userId = getUserId(req);
-  const index = connectedPlayers.findIndex((val) => val.userId == userId);
-  if (index >= 0) {
-    connectedPlayers.splice(index, 1);
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  if (connectedPlayerIndex >= 0) {
+    connectedPlayers.splice(connectedPlayerIndex, 1);
     return res.status(200).json({ message: "Utilisateur déconnecté !" });
   }
   //Throw errors
@@ -194,7 +216,12 @@ exports.auth = (req, res, next) => {
   if (authResult) {
     //Add user only if not in connectedPlayers
     if (index == -1)
-      connectedPlayers.push({ userId: userId, activity: 0, room: "", like: 0 });
+      connectedPlayers.push({
+        userId: userId,
+        activity: 0,
+        room: "",
+        like: false,
+      });
     return res.status(202).json({ message: "Authentification réussie !" });
   }
   if (!authResult) {
@@ -206,7 +233,9 @@ exports.auth = (req, res, next) => {
 
 //Get connected players : return an array of all connected players
 exports.getConnectedPlayers = (req, res, next) => {
+  //Used only to update player activity (do not remove)
   const userId = getUserId(req);
+  //Find in DB
   User.find(
     {
       _id: {
@@ -225,11 +254,15 @@ exports.getConnectedPlayers = (req, res, next) => {
     });
 };
 
+//Recover password : send an email to the user with a usique generated link that last for 10 min, with this link he can modify his password
 exports.recoverPassword = (req, res, next) => {
+  //Find user in DB
   User.findOne({ email: req.body.email }).then((user) => {
+    //Not found
     if (!user) {
       return res.status(404).json({ error: "Utilisateur non trouvé !" });
     }
+    //Generate host informations
     const transport = nodemail.createTransport({
       host: "smtp.gmail.com",
       port: 587,
@@ -242,25 +275,31 @@ exports.recoverPassword = (req, res, next) => {
         rejectUnauthorized: false,
       },
     });
+    //Random link code
     const randomString = cryptoString({ length: 20 });
     let count = 0;
+    //Max attempts to prevent infinite loops
+    const maxAttempts = 100;
+    //Be sure link is unique
     while (recoveryLinks.find((val) => val.code == randomString)) {
       randomString = cryptoString({ length: 20 });
       count = count + 1;
-      if (count > 100)
+      if (count > maxAttempts)
         return res
           .status(500)
           .json({ error: "Nombre max de tentatives dépassé" });
     }
+    //If an email was alrdy sent, don't send. Prevent user to have multiple password change links (for security)
     if (recoveryLinks.find((val) => val.email == req.body.email))
       return res.status(400).json({ error: "Mail déjà envoyé !" });
     const index = recoveryLinks.length;
     recoveryLinks.push({ email: req.body.email, code: randomString });
-    console.log(recoveryLinks);
+    //Delete link in 10 min
     setTimeout(() => {
       recoveryLinks.splice(index, 1);
     }, 600000);
 
+    //Generate email info and body
     const mailOptions = {
       from: `"noreply.play.undercover", "noreply.play.undercover@gmail.com"`,
       to: req.body.email,
@@ -271,6 +310,7 @@ exports.recoverPassword = (req, res, next) => {
         "<br>Ce lien n'est disponible que pour une durée de 10 min !<br><br>Cordialement,<br>L'équipe Undercover.</p>",
     };
 
+    //Send mail
     transport.sendMail(mailOptions, (error, info) => {
       if (error) return res.status(500).json({ message: error });
       return res.status(200).json({ message: "Mail envoyé !" });
@@ -278,6 +318,7 @@ exports.recoverPassword = (req, res, next) => {
   });
 };
 
+//Recover request : Check for validity of a link code for password change page
 exports.recoverRequest = (req, res, next) => {
   if (recoveryLinks.find((val) => val.code == req.params.code))
     return res.status(202).json({ message: "Code bon !" });

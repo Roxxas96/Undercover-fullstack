@@ -21,10 +21,12 @@ exports.proposeWord = (req, res, next) => {
   const word2 = req.body.word2;
   if (word1 <= 0) return res.status(400).json({ error: "Mot 1 invalide !" });
   if (word2 <= 0) return res.status(400).json({ error: "Mot 2 invalide !" });
+  //Create a new word
   const word = new Word({
     words: word1.trim().concat("/", word2.trim()),
     fame: 0,
   });
+  //Save to DB
   word
     .save()
     .then(() => {
@@ -36,38 +38,51 @@ exports.proposeWord = (req, res, next) => {
     });
 };
 
+//Like word : update the fame of a word, if a word has fame < -5 then delete it
 exports.likeWords = (req, res, next) => {
-  const words =
-    req.body.words.split(":")[0] + "/" + req.body.words.split(":")[1];
-  if (words == "") return res.status(400).json({ error: "Mots invalide !" });
-  const playerIndex = connectedPlayers.findIndex(
-    (val) => val.userId == getUserId(req)
+  if (req.body.words == "")
+    return res.status(400).json({ error: "Mots invalide !" });
+  const userId = getUserId(req);
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
   );
-  if (playerIndex == -1)
-    return res.status(404).json({ error: "Utilisateur non trouvé !" });
-  const operator =
-    req.params.like == "true"
-      ? +1
-      : req.params.like == "false"
-      ? -1
-      : 0 - connectedPlayers[playerIndex].like;
+  if (connectedPlayerIndex == -1)
+    return res.status(400).json({ error: "Utilisateur non trouvé !" });
+  //Anti spam, user are allowed to like a word onec in a game
+  if (connectedPlayers[connectedPlayerIndex].like)
+    return res.status(400).json({ error: "Cet Utilisateur a déjà liké !" });
+  //Update DB
   Word.updateOne(
-    { words: words },
-    { $inc: { fame: operator }, $currentDate: { lastModified: true } }
+    { words: req.body.words },
+    {
+      //Increase fame by -1 or +1
+      $inc: { fame: parseInt(req.params.like) },
+      $currentDate: { lastModified: true },
+    }
   )
     .then((updatedWords) => {
+      //Word not found
+      if (!updatedWords)
+        return res.status(404).json({ error: "Mot non trouvé !" });
+      //If word has a bad fame delete it
       if (updatedWords.fame < 5)
+        //Call DB to delete
         Word.deleteOne({ words: words })
           .then(() => {
             return res.status(200).json({ message: "Mots supprimé !" });
           })
+          //DB errors
           .catch((error) => {
-            return res.status(400).json({ error: error });
+            return res.status(500).json({ error: error });
           });
-      connectedPlayers[playerIndex].like = operator;
-      return res.status(200).json({ message: "Mots modifié ! " + operator });
+      //Set player as already liked for anti spam
+      connectedPlayers[connectedPlayerIndex].like = true;
+      return res.status(200).json({
+        message: "Mots modifié ! ",
+      });
     })
+    //DB Errors
     .catch((error) => {
-      return res.status(400).json({ error: error });
+      return res.status(500).json({ error: error });
     });
 };

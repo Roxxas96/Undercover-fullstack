@@ -31,8 +31,7 @@ export class RoomComponent implements OnInit {
 
   refresh = interval(1000);
   refreshSub: Subscription = new Observable().subscribe();
-  //Used when pushing word or voting to prevent server to tell local that variables are wrong (ppl with more than 1s ping can still have this issue)
-  skipRefresh = false;
+  skipRoomRefresh = false;
 
   constructor(
     private gameService: GameService,
@@ -49,16 +48,15 @@ export class RoomComponent implements OnInit {
     //Refres every sec
     this.refreshSub = this.refresh.subscribe(() => {
       //Don't update if local info prevent
-      if (!this.skipRefresh) this.getRoomInfo(false);
-      this.skipRefresh = false;
+      if (!this.skipRoomRefresh) this.getRoomInfo(false);
     });
   }
 
   ngOnDestroy() {
     //On destroy : make the player leave and unsub refresh
-    this.gameService.Room = new Room();
     this.gameService.quitRoom(this.roomId);
     this.refreshSub.unsubscribe();
+    this.gameService.Room = new Room();
     this.modalService.dismissAll();
   }
 
@@ -115,7 +113,7 @@ export class RoomComponent implements OnInit {
           this.gameService.Room = res;
           //Update modal info
           if (this.modalRef.componentInstance) {
-            this.modalRef.componentInstance.Room = this.Room;
+            this.modalRef.componentInstance.ParentRoom.next(this.Room);
           }
           //Update owner index too, just in case he mooved
           this.ownerIndex = this.Room.players.findIndex((val) => val.isOwner);
@@ -145,59 +143,79 @@ export class RoomComponent implements OnInit {
 
     //Update local info
     this.Room.players[this.ownerIndex].words.push(word);
-    this.skipRefresh = true;
+    this.skipRoomRefresh = true;
 
     //Tell back to update server info
     this.gameService
       .pushWord(this.roomId, word)
       .then(() => {
         form.reset();
+        this.skipRoomRefresh = false;
       })
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
         form.reset();
+        this.skipRoomRefresh = false;
       });
   }
 
   //On player vote : tell back player wants to vote
   onPlayerVote() {
+    this.skipRoomRefresh = true;
     //Tell back to update server info
     this.gameService
       .playerVote(this.roomId)
-      .then(() => {})
+      .then(() => {
+        this.skipRoomRefresh = false;
+      })
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
+        this.skipRoomRefresh = false;
       });
-
     //Update local info
     this.Room.players[this.ownerIndex].vote = !this.Room.players[
       this.ownerIndex
     ].vote;
-    this.skipRefresh = true;
   }
 
   //Begin game : tell back to begin the game
   onBeginGame() {
+    this.skipRoomRefresh = true;
     this.gameService
       .startGame(this.roomId)
-      .then(() => {})
+      .then(() => {
+        this.skipRoomRefresh = false;
+      })
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
+        this.skipRoomRefresh = false;
       });
+    //Update local info
+    this.Room.gameState = 1;
+    this.beginCountdown();
+    this.numUndercovers = Math.round(this.Room.players.length / 3);
   }
 
   //Abort game : tell back to abort
   onAbortGame() {
+    this.skipRoomRefresh = true;
     this.gameService
       .abortGame(this.roomId)
-      .then(() => {})
+      .then(() => {
+        this.skipRoomRefresh = false;
+      })
       //Throw
       .catch((error) => {
         this.errorMessage.global = error.message;
+        this.skipRoomRefresh = false;
       });
+    //Update local info
+    this.Room.gameState = 0;
+    clearInterval(this.countdown);
+    this.pregameLockout = -1;
   }
 
   //Begin countdow : begin the countdown locally
@@ -219,8 +237,8 @@ export class RoomComponent implements OnInit {
     this.modalRef = this.modalService.open(RoomModalComponent);
     //Throw variables to modal
     this.modalRef.componentInstance.modalState = 2;
-    this.modalRef.componentInstance.roomId = this.roomId;
+    this.modalRef.componentInstance.ParentRoomId = this.roomId;
     this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
-    this.modalRef.componentInstance.Room = this.Room;
+    this.modalRef.componentInstance.ParentRoom.next(this.Room);
   }
 }
