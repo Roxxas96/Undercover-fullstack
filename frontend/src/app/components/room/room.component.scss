@@ -9,6 +9,7 @@
 .gameInfo {
   text-align: center;
 }
+
 .players {
   width: 100%;
   display: grid;
@@ -33,6 +34,7 @@
 .player div {
   overflow-x: hidden;
 }
+
 .buttons {
   height: 15%;
 }
@@ -57,6 +59,7 @@
 .send-button:focus-visible {
   outline: auto;
 }
+
 .bottom-right-buttons {
   position: absolute;
   right: 5%;

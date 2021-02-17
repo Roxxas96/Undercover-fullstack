@@ -261,6 +261,7 @@ export class GameService {
     });
   }
 
+  //Like words : Call back that user liked a word
   likeWords(like: number, words: string) {
     return new Promise((resolve, reject) => {
       //POST

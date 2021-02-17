@@ -12,8 +12,6 @@ export class AuthService {
   token: string = '';
   userId: string = '';
 
-  serverUnvailable = false;
-
   //http://localhost:3000/
   //https://play-undercover.herokuapp.com/
   host = 'http://localhost:3000/';
@@ -54,16 +52,20 @@ export class AuthService {
     });
   }
 
+  //Change password : call back for a password change
   changePassword(code: string, password: string) {
     return new Promise((resolve, reject) => {
+      //POST
       this.http
         .post(this.host + 'api/auth/recover/' + code, {
           password: password,
         })
+        //Catch
         .subscribe(
           (res) => {
             resolve(null);
           },
+          //Throw
           (error) => {
             console.log(error);
             reject(error);
@@ -138,7 +140,6 @@ export class AuthService {
         console.log(error);
         if (error.status == 0) {
           error = { message: 'Serveur introuvable !' };
-          this.serverUnvailable = true;
         }
         this.token = '';
       }
@@ -187,8 +188,10 @@ export class AuthService {
     });
   }
 
+  //Recover password : call back to send an email for password recovery
   recoverPassword(email: string) {
     return new Promise((resolve, reject) => {
+      //POST
       this.http
         .post(this.host + 'api/auth/recover', {
           email: email,
@@ -205,8 +208,10 @@ export class AuthService {
     });
   }
 
+  //Recover request : Call backend to chack if link code is valid
   recovertRequest(code: string) {
     return new Promise((resolve, reject) => {
+      //GET
       this.http.get(this.host + 'api/auth/recover/' + code).subscribe(
         (res) => {
           resolve(null);

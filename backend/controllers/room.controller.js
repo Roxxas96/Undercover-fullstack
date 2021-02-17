@@ -8,19 +8,26 @@ const connectedPlayers = require("./connectedPlayers");
 
 let Rooms = [];
 
-let voteTimeout = setTimeout(() => {}, 10);
-
 //Get userId from headers
 const getUserId = (req) => {
+  ///*UserId part
+  //Get token from headers
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
+  //Decode using key
   const decodedToken = jwt.verify(
     token,
     "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
   );
+  //Get userId from decoded token
   const userId = decodedToken.userId;
+
+  //*Activity part (for anti afk)
+  //Index of the player in the room
   let playerIndex = -1;
+  //Index of the room in which the player is
   const roomIndex = Rooms.findIndex((room) => {
+    //Set player Index in room
     playerIndex = room.players.findIndex((player) => player.userId == userId);
     return playerIndex != -1;
   });
@@ -28,24 +35,33 @@ const getUserId = (req) => {
   if (roomIndex != -1)
     Rooms[roomIndex].players[playerIndex].activity =
       Rooms[roomIndex].players[playerIndex].activity + 1;
-  const index = connectedPlayers.findIndex((val) => val.userId == userId);
-  if (index != -1)
-    connectedPlayers[index].activity = connectedPlayers[index].activity + 1;
+  //Index of the player in Connected players Array
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  //Update player activity in connected players array
+  if (connectedPlayerIndex != -1)
+    connectedPlayers[connectedPlayerIndex].activity =
+      connectedPlayers[connectedPlayerIndex].activity + 1;
+
+  //Finally return the userId
   return userId;
 };
 
 //Anti AFK :  kick players that have not been kicked by quitRoom()
 const antiAFK = setInterval(() => {
   Rooms.forEach((room, roomIndex) => {
+    //For each room chexk for inactive player
     room.players.forEach((player, playerIndex) => {
       if (player.activity == 0) {
         //Remove player from Rooms
         room.players.splice(playerIndex, 1);
-        //Remove player like stored var
-        const index = connectedPlayers.findIndex(
+        //Index of the player in Connected players Array
+        const connectedPlayerIndex = connectedPlayers.findIndex(
           (val) => val.userId == player.userId
         );
-        if (playerIndex) connectedPlayers[index].like == 0;
+        //Reset player like antispam
+        if (playerIndex) connectedPlayers[connectedPlayerIndex].like == 0;
         //If room is empty delete it
         if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
         //If player was host change host
@@ -54,9 +70,11 @@ const antiAFK = setInterval(() => {
         //Stop game if players < 3
         else if (room.players.length < 3) room.gameState = 0;
       }
+      //Reset player activity
       player.activity = 0;
     });
   });
+  //Anti AFK trigger every 10 sec
 }, 10000);
 
 //*-----------------------------------------------------------------------------------------------Room control part----------------------------------------------------------------------------------------------------------
@@ -80,7 +98,7 @@ exports.getRooms = (req, res, next) => {
           .status(404)
           .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
       return res.status(200).json({
-        result: Rooms.map((room, index) => {
+        result: Rooms.map((room, roomIndex) => {
           return {
             //!!! Change if model changes
             name: room.name,
@@ -88,7 +106,7 @@ exports.getRooms = (req, res, next) => {
             //Only return length
             players: room.players.length,
             gameState: room.gameState,
-            host: users[index],
+            host: users[roomIndex],
           };
         }),
       });
@@ -131,12 +149,12 @@ exports.getSingleRoom = (req, res, next) => {
         return res
           .status(404)
           .json({ error: "Aucun utilisateurs trouvés dans cette salle !" });
-      const userId = getUserId(req);
       User.findOne(
         { _id: Rooms[roomIndex].host },
         { _id: false, password: false, email: false }
       )
         .then((hostInfo) => {
+          //Host not found
           if (!hostInfo) {
             return res
               .status(404)
@@ -153,7 +171,6 @@ exports.getSingleRoom = (req, res, next) => {
                 const user = users.find((val) => {
                   return val._id == player.userId;
                 });
-                //Pas ouf comme méthode
                 let playerInfo = {
                   username: user.username,
                 };
@@ -282,6 +299,9 @@ exports.quitRoom = (req, res, next) => {
 
 //*-----------------------------------------------------------------------------------------------Game Part-------------------------------------------------------------------------------------------------------------------
 
+//Timeout between vote phase and result show
+let voteTimeout = setTimeout(() => {}, 10);
+
 //Reset game, reset all game variables
 const resetGame = (index) => {
   Rooms[index].players.forEach((val) => {
@@ -290,6 +310,66 @@ const resetGame = (index) => {
     val.voteFor = [];
     val.word = "";
   });
+};
+
+const calculateResults = (roomIndex) => {
+  //Verify that the game has not been cancelled
+  if (Rooms[roomIndex].gameState == 2) {
+    Rooms[roomIndex].gameState = 3;
+    //Initialize civilians and undercovers
+    let civilians = [];
+    let undercovers = [];
+    //Handle spectators
+    let spectators = Rooms[roomIndex].players.filter(
+      (player) => player.word == ""
+    );
+    //Push 1 player to be the reference
+    civilians.push(Rooms[roomIndex].players[0]);
+    //Compare all other players words to this player's word and push them to the arrays
+    Rooms[roomIndex].players.forEach((player, key) => {
+      //Ignore ref
+      if (key == 0) return;
+      //Ignore spec
+      if (spectators.find((spec) => spec.userId == player.userId)) return;
+      if (player.word != civilians[0].word) undercovers.push(player);
+      else civilians.push(player);
+    });
+    //If arrays are twisted, invers them (undercovers length should be < civilians length)
+    if (undercovers.length > civilians.length) {
+      let temp = civilians;
+      civilians = undercovers;
+      undercovers = temp;
+    }
+    //Calculate score
+    Rooms[roomIndex].players.forEach((player, key) => {
+      //Ignore spec
+      if (spectators.find((spec) => spec.userId == player.userId)) return;
+      //Score of civilans will cout by 50 from 0 to max
+      if (civilians.find((civ) => civ.userId == player.userId)) {
+        player.voteFor.forEach((vote) => {
+          //If voted player is undercover
+          if (
+            undercovers.find(
+              (undercover) =>
+                undercover.userId == Rooms[roomIndex].players[vote].userId
+            )
+          ) {
+            player.score = player.score + 50;
+            Rooms[roomIndex].players[vote].score =
+              Rooms[roomIndex].players[vote].score - 50;
+          }
+        });
+        //Score of undercovers will cout by 50 from max to 0
+      } else {
+        player.score = player.score + 50 * civilians.length;
+      }
+    });
+    //Change to state 0 after 5 sec
+    setTimeout(() => {
+      Rooms[roomIndex].gameState = 0;
+      resetGame(roomIndex);
+    }, 5000);
+  }
 };
 
 //Push word : push a specified word in the room.players[player].words array
@@ -306,16 +386,16 @@ exports.pushWord = (req, res, next) => {
     return res.status(400).json({ error: "Mauvaise phase !" });
   //Get the index of the player in the room.players array
   const userId = getUserId(req);
-  const index = Rooms[roomIndex].players
+  const playerIndex = Rooms[roomIndex].players
     .map((user) => {
       return user.userId;
     })
     .indexOf(userId);
   //User not found
-  if (index == -1)
+  if (playerIndex == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
   //Push word
-  Rooms[roomIndex].players[index].words.push(req.body.word);
+  Rooms[roomIndex].players[playerIndex].words.push(req.body.word);
   return res.status(200).json({ message: "Le mot a été entré !" });
 };
 
@@ -354,63 +434,8 @@ exports.playerVote = (req, res, next) => {
     Rooms[roomIndex].gameState = 2;
     //Timeout to draw and calculate results
     voteTimeout = setTimeout(() => {
-      //Verify that the game has not been cancelled
-      if (Rooms[roomIndex].gameState == 2) {
-        Rooms[roomIndex].gameState = 3;
-        //Initialize civilians and undercovers
-        let civilians = [];
-        let undercovers = [];
-        //Actualize spectators
-        spectators = Rooms[roomIndex].players.filter(
-          (player) => player.word == ""
-        );
-        //Push 1 player to be the reference
-        civilians.push(Rooms[roomIndex].players[0]);
-        //Compare all other players words to this player's word and push them to the arrays
-        Rooms[roomIndex].players.forEach((player, key) => {
-          //Ignore ref
-          if (key == 0) return;
-          //Ignore spec
-          if (spectators.find((spec) => spec.userId == player.userId)) return;
-          if (player.word != civilians[0].word) undercovers.push(player);
-          else civilians.push(player);
-        });
-        //If arrays are twisted, invers them (undercovers length should be < civilians length)
-        if (undercovers.length > civilians.length) {
-          let temp = civilians;
-          civilians = undercovers;
-          undercovers = temp;
-        }
-        //Calculate score
-        Rooms[roomIndex].players.forEach((player, key) => {
-          //Ignore spec
-          if (spectators.find((spec) => spec.userId == player.userId)) return;
-          //Score of civilans will cout by 50 from 0 to max
-          if (civilians.find((civ) => civ.userId == player.userId)) {
-            player.voteFor.forEach((vote) => {
-              if (
-                undercovers.find(
-                  (undercover) =>
-                    undercover.userId == Rooms[roomIndex].players[vote].userId
-                )
-              ) {
-                player.score = player.score + 50;
-                Rooms[roomIndex].players[vote].score =
-                  Rooms[roomIndex].players[vote].score - 50;
-              }
-            });
-            //Score of undercovers will cout by 50 from max to 0
-          } else {
-            player.score = player.score + 50 * civilians.length;
-          }
-        });
-        //Change to state 0 after 5 sec
-        setTimeout(() => {
-          Rooms[roomIndex].gameState = 0;
-          resetGame(roomIndex);
-        }, 5000);
-      }
-    }, Math.round(Rooms[roomIndex].players.length / 3) * 10000 + 2000);
+      calculateResults(roomIndex);
+    }, Math.round(Rooms[roomIndex].players.length / 3) * 5000 + 10000);
   }
   return res.status(200).json({
     message: "Le vote a été changé !",
@@ -450,18 +475,31 @@ exports.startGame = (req, res, next) => {
       Rooms[roomIndex].players.forEach((val) => {
         val.word = words[0].words.split("/")[1 - undercoverIndex];
       });
-      let previousRandInt = -1;
+      //Vars used to prevent random from chosing an undercover again
+      let previousRandInts = [];
       let i = 0;
+      //Set a max attemps var to prevent infinite loop
+      const maxAtempts = 500;
+      //Ratio of Untercover
+      const undercoverRatio = 1 / 3;
       //Then asign undercover word to random unique players
-      while (i < Math.round(Rooms[roomIndex].players.length / 3)) {
+      while (
+        i <
+        Math.round(
+          Rooms[roomIndex].players.length * undercoverRatio || i <= maxAtempts
+        )
+      ) {
+        //Random var between 0 and number of players - 1
         let index = Math.floor(
           Math.random() * (Rooms[roomIndex].players.length - 1)
         );
-        if (index != previousRandInt) {
+        //If var was not picked before, assign undercover word to player
+        if (!previousRandInts.find((val) => val == index)) {
           Rooms[roomIndex].players[index].word = words[0].words.split("/")[
             undercoverIndex
           ];
           i = i + 1;
+          previousRandInts.push(index);
         }
       }
       //Finaly reset like antispam of each players
@@ -493,6 +531,7 @@ exports.abortGame = (req, res, next) => {
       .json({ error: "Seul l'hote peut commencer une partie !" });
   //Change game state
   Rooms[roomIndex].gameState = 0;
+  //Reset game
   resetGame(roomIndex);
   return res.status(200).json({ message: "Partie stopée !" });
 };
@@ -521,23 +560,35 @@ exports.voteFor = (req, res, next) => {
   //Invalid target
   if (!Rooms[roomIndex].players[playerIndex])
     return res.status(404).json({ error: "Cible invalide !" });
-  //If target is in array splice it
-  if (targetIndex != -1) {
-    Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
-    return res.status(200).json({ message: "Cible déVoté !" });
-  }
   const numSpectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
   ).length;
-  //If target can't be targeted because max target reached (multiple targets allowed)
-  if (
-    Rooms[roomIndex].players[playerIndex].voteFor.length >=
-    Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
-  ) {
-    //Splice oldest target
-    Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
+  //If target is in array splice it
+  if (targetIndex != -1) {
+    Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
+    res.status(200).json({ message: "Cible déVoté !" });
+  } else {
+    //If target can't be targeted because max target reached (multiple targets allowed)
+    if (
+      Rooms[roomIndex].players[playerIndex].voteFor.length >=
+      Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
+    ) {
+      //Splice oldest target
+      Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
+    }
+    //Push target
+    Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
+    res.status(200).json({ message: "Cible Voté !" });
   }
-  //Push target
-  Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
-  return res.status(200).json({ message: "Cible Voté !" });
+  //When all players voted, skip timer and pass results
+  if (
+    Rooms[roomIndex].players.filter(
+      (val) =>
+        val.voteFor.length >=
+        Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
+    ).length == Rooms[roomIndex].players.length
+  ) {
+    clearTimeout(voteTimeout);
+    calculateResults(roomIndex);
+  }
 };

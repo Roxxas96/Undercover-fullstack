@@ -182,7 +182,7 @@ export class RoomModalComponent implements OnInit {
 
   //Begin vote countdown
   beginCountdown() {
-    this.timeOut = Math.round(this.Room.players.length / 3) * 10;
+    this.timeOut = Math.round(this.Room.players.length / 3) * 5 + 10;
     this.countdown = setInterval(() => {
       this.timeOut -= 1;
       //On countdown end dismiss modal
