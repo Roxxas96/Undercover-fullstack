@@ -54,9 +54,9 @@ export class RoomComponent implements OnInit {
 
   ngOnDestroy() {
     //On destroy : make the player leave and unsub refresh
-    this.gameService.Room = new Room();
     this.gameService.quitRoom(this.roomId);
     this.refreshSub.unsubscribe();
+    this.gameService.Room = new Room();
     this.modalService.dismissAll();
   }
 

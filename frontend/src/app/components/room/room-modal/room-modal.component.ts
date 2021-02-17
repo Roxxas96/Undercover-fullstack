@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbActiveModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject } from 'rxjs';
@@ -120,6 +120,19 @@ export class RoomModalComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.gameService
+      .likeWords(
+        this.like,
+        this.undercovers[0].userInfo.word +
+          '/' +
+          this.civilians[0].userInfo.word
+      )
+      .catch((error) => {
+        this.errorMessage.other = error.message;
+      });
+  }
+
   //onVote : tell back that the player want to vote for a target
   onVote(playerIndex: number, cancelVote: boolean) {
     this.skipRoomRefresh = true;
@@ -238,15 +251,5 @@ export class RoomModalComponent implements OnInit {
     const operator = like ? 1 : -1;
     if (this.like == operator) this.like = 0;
     else this.like = operator;
-    this.gameService
-      .likeWords(
-        like,
-        this.undercovers[0].userInfo.word +
-          '/' +
-          this.civilians[0].userInfo.word
-      )
-      .catch((error) => {
-        this.errorMessage.other = error.message;
-      });
   }
 }

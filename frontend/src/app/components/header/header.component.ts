@@ -119,7 +119,7 @@ export class HeaderComponent implements OnInit {
     const modalRef = this.openModal(RoomModalComponent);
     //Throw variables to modal
     modalRef.componentInstance.modalState = 2;
-    modalRef.componentInstance.roomId = this.route.snapshot.params['roomId'];
+    modalRef.componentInstance.roomId = this.gameService.Room.name;
     modalRef.componentInstance.ownerIndex = this.gameService.Room.players.findIndex(
       (val) => val.isOwner
     );

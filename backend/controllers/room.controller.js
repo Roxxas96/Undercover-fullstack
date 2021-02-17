@@ -448,7 +448,7 @@ exports.startGame = (req, res, next) => {
       const undercoverIndex = Math.floor(Math.random() * 2);
       //First asign civilian word to all players
       Rooms[roomIndex].players.forEach((val) => {
-        val.word = words[0].words.split("/")[Math.abs(1 - undercoverIndex)];
+        val.word = words[0].words.split("/")[1 - undercoverIndex];
       });
       let previousRandInt = -1;
       let i = 0;
@@ -464,6 +464,10 @@ exports.startGame = (req, res, next) => {
           i = i + 1;
         }
       }
+      //Finaly reset like antispam of each players
+      connectedPlayers.forEach((val, key) => {
+        val.like = false;
+      });
       res.status(200).json({ message: "Partie lancée !" });
     })
     //DB errors

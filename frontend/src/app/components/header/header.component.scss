@@ -98,7 +98,7 @@
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   display: none;
   text-align: center;
   padding-top: 2%;
@@ -134,7 +134,7 @@
   transform: translate(0);
 }
 .back-active {
-  z-index: 0;
+  z-index: 1;
   background-color: rgba(0, 0, 0, 0.65);
 }
 .slide-close {

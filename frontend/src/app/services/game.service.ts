@@ -261,7 +261,7 @@ export class GameService {
     });
   }
 
-  likeWords(like: boolean, words: string) {
+  likeWords(like: number, words: string) {
     return new Promise((resolve, reject) => {
       //POST
       this.http

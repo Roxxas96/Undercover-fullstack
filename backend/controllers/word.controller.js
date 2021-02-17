@@ -37,39 +37,38 @@ exports.proposeWord = (req, res, next) => {
 };
 
 exports.likeWords = (req, res, next) => {
-  const words =
-    req.body.words.split(":")[0] + "/" + req.body.words.split(":")[1];
-  if (words == "") return res.status(400).json({ error: "Mots invalide !" });
-  const playerIndex = connectedPlayers.findIndex(
-    (val) => val.userId == getUserId(req)
-  );
+  if (req.body.words == "")
+    return res.status(400).json({ error: "Mots invalide !" });
+  const userId = getUserId(req);
+  const playerIndex = connectedPlayers.findIndex((val) => val.userId == userId);
   if (playerIndex == -1)
-    return res.status(404).json({ error: "Utilisateur non trouvé !" });
-  const operator =
-    req.params.like == "true"
-      ? +1
-      : req.params.like == "false"
-      ? -1
-      : 0 - connectedPlayers[playerIndex].like;
+    return res.status(400).json({ error: "Utilisateur non trouvé !" });
+  if (connectedPlayers[playerIndex].like)
+    return res.status(400).json({ error: "Cet Utilisateur a déjà liké !" });
   Word.updateOne(
-    { words: words },
-    { $inc: { fame: operator }, $currentDate: { lastModified: true } }
+    { words: req.body.words },
+    {
+      $inc: { fame: parseInt(req.params.like) },
+      $currentDate: { lastModified: true },
+    }
   )
     .then((updatedWords) => {
+      if (!updatedWords)
+        return res.status(404).json({ error: "Mot non trouvé !" });
       if (updatedWords.fame < 5)
         Word.deleteOne({ words: words })
           .then(() => {
             return res.status(200).json({ message: "Mots supprimé !" });
           })
           .catch((error) => {
-            return res.status(400).json({ error: error });
+            return res.status(500).json({ error: error });
           });
-      connectedPlayers[playerIndex].like = operator;
+      connectedPlayers[playerIndex].like = true;
       return res.status(200).json({
-        message: "Mots modifié ! " + operator,
+        message: "Mots modifié ! ",
       });
     })
     .catch((error) => {
-      return res.status(400).json({ error: error });
+      return res.status(500).json({ error: error });
     });
 };
