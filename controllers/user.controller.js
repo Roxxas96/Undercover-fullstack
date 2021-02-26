@@ -20,12 +20,12 @@ const getUserId = (req) => {
   //Decode using key
   const decodedToken = jwt.verify(
     token,
-    "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p"
+    "_bj!VmVmENuK3&8Zfh#7^c%LcvnZDZ@JG&N$+uqynq?GJje!BE*hNqPHYK$heG!kFNd7GG8$*FvrVK?9aSLkbg*RS@k#QY2FYK_2^wds6ERG9KHu85yDg7v?&Y-$5wrQ"
   );
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
-  //*Activity part (for anti afk)
+  //*Activity part (for Auto Kick)
   //Index of the player in Connected players Array
   const connectedPlayerIndex = connectedPlayers.findIndex(
     (val) => val.userId == userId
@@ -39,8 +39,8 @@ const getUserId = (req) => {
   return userId;
 };
 
-//Anti AFK, kick players that have not been kicked by disconnect()
-const antiAFK = setInterval(() => {
+//Auto Kick, kick players that have not been kicked by disconnect()
+const autoKick = setInterval(() => {
   //Check for inactive players
   connectedPlayers.forEach((val, key) => {
     if (val.activity == 0) {
@@ -50,7 +50,7 @@ const antiAFK = setInterval(() => {
     //Reset player activity
     val.activity = 0;
   });
-}, 10000);
+}, 1000);
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
@@ -143,7 +143,7 @@ exports.login = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p",
+                "_bj!VmVmENuK3&8Zfh#7^c%LcvnZDZ@JG&N$+uqynq?GJje!BE*hNqPHYK$heG!kFNd7GG8$*FvrVK?9aSLkbg*RS@k#QY2FYK_2^wds6ERG9KHu85yDg7v?&Y-$5wrQ",
                 {
                   expiresIn: "72h",
                 }
@@ -177,7 +177,7 @@ exports.login = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                "8ubwh+bnbg8X45YWV3MWGx'2-.R<$0XK:.lF~r?w4Z[*V<7l3Lrg+Ba(z>lt2:p",
+                "_bj!VmVmENuK3&8Zfh#7^c%LcvnZDZ@JG&N$+uqynq?GJje!BE*hNqPHYK$heG!kFNd7GG8$*FvrVK?9aSLkbg*RS@k#QY2FYK_2^wds6ERG9KHu85yDg7v?&Y-$5wrQ",
                 {
                   expiresIn: "72h",
                 }
@@ -269,7 +269,7 @@ exports.recoverPassword = (req, res, next) => {
       secure: false,
       auth: {
         user: "noreply.play.undercover@gmail.com",
-        pass: "RrSZP=`e>>m}5<r`",
+        pass: "n2ZKbxyzKyu4a6fD",
       },
       tls: {
         rejectUnauthorized: false,
