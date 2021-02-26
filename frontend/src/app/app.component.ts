@@ -8,7 +8,7 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  version = '1.3';
+  version = '1.3.2';
 
   constructor(private authService: AuthService, private router: Router) {}
 
