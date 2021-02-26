@@ -17,7 +17,7 @@ const getUserId = (req) => {
   //Decode using key
   const decodedToken = jwt.verify(
     token,
-    "_bj!VmVmENuK3&8Zfh#7^c%LcvnZDZ@JG&N$+uqynq?GJje!BE*hNqPHYK$heG!kFNd7GG8$*FvrVK?9aSLkbg*RS@k#QY2FYK_2^wds6ERG9KHu85yDg7v?&Y-$5wrQ"
+    "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf"
   );
   //Get userId from decoded token
   const userId = decodedToken.userId;
