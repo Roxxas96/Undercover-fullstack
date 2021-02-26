@@ -90,10 +90,7 @@
       (click)="errorMessageMain.rooms = ''"
       style="cursor: pointer"
     >
-      <p style="text-align: center; margin: 0">
-        ! Cliquez pour cacher ce message !
-      </p>
-      <p style="margin: 0">{{ errorMessageMain.rooms }}</p>
+      {{ errorMessageMain.rooms }}
     </div>
     <div class="list-group rooms">
       <div
@@ -128,10 +125,7 @@
       (click)="errorMessageMain.players = ''"
       style="cursor: pointer"
     >
-      <p style="text-align: center; margin: 0">
-        ! Cliquez pour cacher ce message !
-      </p>
-      <p style="margin: 0">{{ errorMessageMain.players }}</p>
+      {{ errorMessageMain.players }}
     </div>
     <div class="players">
       <div class="player" *ngFor="let player of players">

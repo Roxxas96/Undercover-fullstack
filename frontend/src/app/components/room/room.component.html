@@ -5,10 +5,7 @@
     (click)="errorMessage.global = ''"
     style="cursor: pointer; width: fit-content; margin: auto"
   >
-    <p style="text-align: center; margin: 0">
-      ! Cliquez pour cacher ce message !
-    </p>
-    <p style="margin: 0">{{ errorMessage.global }}</p>
+    {{ errorMessage.global }}
   </div>
   <div class="game">
     <div class="gameInfo" style="margin-bottom: 2%">
@@ -61,7 +58,7 @@
     </div>
     <div class="players">
       <div class="player" *ngFor="let player of Room.players; let i1 = index">
-        <div style="display: flex; justify-content: center; margin-top: 5%">
+        <div style="display: flex; justify-content: center">
           <h5
             style="margin-right: 2%"
             *ngIf="player.userInfo.username == Room.host.username"

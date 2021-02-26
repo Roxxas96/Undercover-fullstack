@@ -11,7 +11,7 @@ const app = express();
 //MongoDB
 mongoose
   .connect(
-    "mongodb+srv://Roxxas96:FlPQo78dGjTK6T6x@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
+    "mongodb+srv://Roxxas96:Kh0mfcLw1waCSam6@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))

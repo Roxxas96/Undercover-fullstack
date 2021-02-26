@@ -20,12 +20,12 @@ const getUserId = (req) => {
   //Decode using key
   const decodedToken = jwt.verify(
     token,
-    "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf"
+    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
   );
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
-  //*Activity part (for Auto Kick)
+  //*Activity part (for anti afk)
   //Index of the player in Connected players Array
   const connectedPlayerIndex = connectedPlayers.findIndex(
     (val) => val.userId == userId
@@ -39,8 +39,8 @@ const getUserId = (req) => {
   return userId;
 };
 
-//Auto Kick, kick players that have not been kicked by disconnect()
-const autoKick = setInterval(() => {
+//Anti AFK, kick players that have not been kicked by disconnect()
+const antiAFK = setInterval(() => {
   //Check for inactive players
   connectedPlayers.forEach((val, key) => {
     if (val.activity == 0) {
@@ -50,7 +50,7 @@ const autoKick = setInterval(() => {
     //Reset player activity
     val.activity = 0;
   });
-}, 1000);
+}, 10000);
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {
@@ -143,7 +143,7 @@ exports.login = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf",
+                "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@",
                 {
                   expiresIn: "72h",
                 }
@@ -177,7 +177,7 @@ exports.login = (req, res, next) => {
               userId: user._id,
               token: jwt.sign(
                 { userId: user._id },
-                "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf",
+                "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@",
                 {
                   expiresIn: "72h",
                 }
@@ -269,7 +269,7 @@ exports.recoverPassword = (req, res, next) => {
       secure: false,
       auth: {
         user: "noreply.play.undercover@gmail.com",
-        pass: "S\"-z(CcMk'33F%HQ",
+        pass: "g&F_pzs2s37^_nkj",
       },
       tls: {
         rejectUnauthorized: false,

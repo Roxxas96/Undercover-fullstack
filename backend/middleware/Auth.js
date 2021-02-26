@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const cryptKey =
-  "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf";
+  "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@";
 
 module.exports = (req, res, next) => {
   var authSucceded = false;

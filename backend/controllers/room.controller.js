@@ -17,12 +17,12 @@ const getUserId = (req) => {
   //Decode using key
   const decodedToken = jwt.verify(
     token,
-    "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf"
+    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
   );
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
-  //*Activity part (for Auto Kick)
+  //*Activity part (for anti afk)
   //Index of the player in the room
   let playerIndex = -1;
   //Index of the room in which the player is
@@ -48,35 +48,34 @@ const getUserId = (req) => {
   return userId;
 };
 
-//Auto Kick :  kick players that have not been kicked by quitRoom()
-const autoKick = setInterval(() => {
+//Anti AFK :  kick players that have not been kicked by quitRoom()
+const antiAFK = setInterval(() => {
   Rooms.forEach((room, roomIndex) => {
     //For each room chexk for inactive player
     room.players.forEach((player, playerIndex) => {
       if (player.activity == 0) {
+        //Remove player from Rooms
+        room.players.splice(playerIndex, 1);
         //Index of the player in Connected players Array
         const connectedPlayerIndex = connectedPlayers.findIndex(
           (val) => val.userId == player.userId
         );
         //Reset player like antispam
-        if (connectedPlayerIndex != -1)
-          connectedPlayers[connectedPlayerIndex].like == 0;
+        if (playerIndex) connectedPlayers[connectedPlayerIndex].like == 0;
         //If room is empty delete it
         if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
         //If player was host change host
         else if (room && room.host == player.userId)
           room.host = room.players[0].userId;
-        //Stop game if players was playing
-        if (room.players[playerIndex].word != "") room.gameState = 0;
-        //Remove player from Rooms
-        room.players.splice(playerIndex, 1);
+        //Stop game if players < 3
+        else if (room.players.length < 3) room.gameState = 0;
       }
       //Reset player activity
       player.activity = 0;
     });
   });
-  //Auto Kick trigger every 10 sec
-}, 1000);
+  //Anti AFK trigger every 10 sec
+}, 10000);
 
 //*-----------------------------------------------------------------------------------------------Room control part----------------------------------------------------------------------------------------------------------
 
@@ -293,8 +292,8 @@ exports.quitRoom = (req, res, next) => {
   //If player was host change host
   else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
     Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
-  //Stop game if players was playing
-  if (Rooms[roomIndex].players[playerIndex].word != "") room.gameState = 0;
+  //Stop game if players < 3
+  else if (Rooms[roomIndex].players.length < 3) Rooms[roomIndex].gameState = 0;
   return res.status(200).json({ message: "Salle quitée !" });
 };
 

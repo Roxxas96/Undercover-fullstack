@@ -9,7 +9,7 @@ const getUserId = (req) => {
   if (!token || token == "") return "";
   const decodedToken = jwt.verify(
     token,
-    "Sx9vR^-MzLqtePXrS7bqx76Ba=Lz=M#zTjA?9p@27H#jJXYSRv-^yTdbWmp@WCAf"
+    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
   );
   const userId = decodedToken.userId;
   return userId;
