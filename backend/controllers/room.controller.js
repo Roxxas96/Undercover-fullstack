@@ -43,7 +43,6 @@ const getUserId = (req) => {
   if (connectedPlayerIndex != -1)
     connectedPlayers[connectedPlayerIndex].activity =
       connectedPlayers[connectedPlayerIndex].activity + 1;
-
   //Finally return the userId
   return userId;
 };
@@ -54,6 +53,11 @@ const antiAFK = setInterval(() => {
     //For each room chexk for inactive player
     room.players.forEach((player, playerIndex) => {
       if (player.activity == 0) {
+        //Place player in rememberedPlayers to save his score
+        //!!! Change player here if model changes
+        room.rememberedPlayers.push(
+          new Player(player.userId, [], false, "", [], player.score)
+        );
         //Remove player from Rooms
         room.players.splice(playerIndex, 1);
         //Index of the player in Connected players Array
@@ -61,14 +65,16 @@ const antiAFK = setInterval(() => {
           (val) => val.userId == player.userId
         );
         //Reset player like antispam
-        if (playerIndex) connectedPlayers[connectedPlayerIndex].like == 0;
+        if (connectedPlayerIndex != -1)
+          connectedPlayers[connectedPlayerIndex].like == 0;
+        //Stop game
+        room.gameState = 0;
         //If room is empty delete it
         if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
         //If player was host change host
         else if (room && room.host == player.userId)
           room.host = room.players[0].userId;
-        //Stop game if players < 3
-        else if (room.players.length < 3) room.gameState = 0;
+        resetGame(roomIndex);
       }
       //Reset player activity
       player.activity = 0;
@@ -166,6 +172,7 @@ exports.getSingleRoom = (req, res, next) => {
             result: {
               name: Rooms[roomIndex].name,
               max_players: Rooms[roomIndex].max_players,
+              undercovers: Rooms[roomIndex].undercovers,
               //in players array, don't return userId but return isOwner that tell front if this user = client (front doesn't have access to userIds)
               players: Rooms[roomIndex].players.map((player, index) => {
                 const user = users.find((val) => {
@@ -218,13 +225,29 @@ exports.createRoom = (req, res, next) => {
   //Name must be unique
   if (Rooms.find((val) => val.name === req.body.roomName))
     return res.status(400).json({ error: "Nom de salle déjà pris !" });
-  //Not needed in theory
   if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
+  if (req.body.undercovers > 4 || req.body.undercovers < 1)
+    return res.status(400).json({ error: "Nombre d'undercovers invalide !" });
+  if (req.body.undercovers >= req.body.maxPlayers / 2)
+    return res.status(400).json({
+      error:
+        "Nombre d'undercovers au dessus de la limite fixée par le nombre de joueurs !",
+    });
   const userId = getUserId(req);
   //Push array
   //!!! Change Room here if model changes
-  Rooms.push(new Room(req.body.roomName, req.body.maxPlayers, [], 0, userId));
+  Rooms.push(
+    new Room(
+      req.body.roomName,
+      req.body.maxPlayers,
+      req.body.undercovers,
+      [],
+      0,
+      userId,
+      []
+    )
+  );
   //Return index of created room
   return res.status(201).json({ message: "Salle créée !" });
 };
@@ -234,13 +257,20 @@ exports.modifyRoom = (req, res, next) => {
   //Not needed in theory
   if (req.body.maxPlayers > 10 || req.body.maxPlayers < 3)
     return res.status(400).json({ error: "Nombre de joueurs invalide !" });
+  if (req.body.undercovers > 4 || req.body.undercovers < 1)
+    return res.status(400).json({ error: "Nombre d'undercovers invalide !" });
+  if (req.body.undercovers >= req.body.maxPlayers / 2)
+    return res.status(400).json({
+      error:
+        "Nombre d'undercovers au dessus de la limite fixée par le nombre de joueurs !",
+    });
   const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
   if (req.body.maxPlayers < Rooms[roomIndex].players.length)
     return res
       .status(400)
       .json({ error: "Nombre de joueurs au dessus de la limite !" });
-  //!!! Change Room here if model changes
   Rooms[roomIndex].max_players = req.body.maxPlayers;
+  Rooms[roomIndex].undercovers = req.body.undercovers;
   //Return index of created room
   return res.status(201).json({ message: "Salle modifiée !" });
 };
@@ -262,7 +292,10 @@ exports.joinRoom = (req, res, next) => {
     return res.status(401).json({ error: "La salle est pleine !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
-  Rooms[roomIndex].players.push(new Player(userId, [], false, "", [], 0));
+  Rooms[roomIndex].players.push(
+    Rooms[roomIndex].rememberedPlayers.find((val) => val.userId == userId) ||
+      new Player(userId, [], false, "", [], 0)
+  );
   return res.status(200).json({ message: "Salle rejoint !" });
 };
 
@@ -285,15 +318,28 @@ exports.quitRoom = (req, res, next) => {
       error: "Cet user n'est pas dans la parite !",
       test: Rooms[roomIndex].players,
     });
+  //Place player in rememberedPlayers to save his score
+  //!!! Change player here if model changes
+  Rooms[roomIndex].rememberedPlayers.push(
+    new Player(
+      Rooms[roomIndex].players[playerIndex].userId,
+      [],
+      false,
+      "",
+      [],
+      Rooms[roomIndex].players[playerIndex].score
+    )
+  );
   //Remove player from Rooms
   Rooms[roomIndex].players.splice(playerIndex, 1);
+  //Stop game
+  Rooms[roomIndex].gameState = 0;
   //If room is empty delete it
   if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
   //If player was host change host
   else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
     Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
-  //Stop game if players < 3
-  else if (Rooms[roomIndex].players.length < 3) Rooms[roomIndex].gameState = 0;
+  resetGame(roomIndex);
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -461,7 +507,10 @@ exports.startGame = (req, res, next) => {
   if (Rooms[roomIndex].players.length < 3)
     return res
       .status(400)
-      .json({ error: "Pass assez de joueurs pour commencer la partie !" });
+      .json({ error: "Pas assez de joueurs pour commencer la partie !" });
+  //Not enought players to start
+  if (Rooms[roomIndex].undercovers >= Rooms[roomIndex].players.length / 2)
+    return res.status(400).json({ error: "Il y a trop d'undercovers !" });
   //Change game state (begin game)
   Rooms[roomIndex].gameState = 1;
   //Reset players info
@@ -478,17 +527,13 @@ exports.startGame = (req, res, next) => {
       //Vars used to prevent random from chosing an undercover again
       let previousRandInts = [];
       let i = 0;
+      let pickedUndercovers = 0;
       //Set a max attemps var to prevent infinite loop
       const maxAtempts = 500;
-      //Ratio of Untercover
-      const undercoverRatio = 1 / 3;
+      //number of Untercover
+      const numberOfUndercovers = Rooms[roomIndex].undercovers;
       //Then asign undercover word to random unique players
-      while (
-        i <
-        Math.round(
-          Rooms[roomIndex].players.length * undercoverRatio || i <= maxAtempts
-        )
-      ) {
+      while (pickedUndercovers < numberOfUndercovers && i <= maxAtempts) {
         //Random var between 0 and number of players - 1
         let index = Math.floor(
           Math.random() * (Rooms[roomIndex].players.length - 1)
@@ -498,9 +543,10 @@ exports.startGame = (req, res, next) => {
           Rooms[roomIndex].players[index].word = words[0].words.split("/")[
             undercoverIndex
           ];
-          i = i + 1;
+          pickedUndercovers += 1;
           previousRandInts.push(index);
         }
+        i += 1;
       }
       //Finaly reset like antispam of each players
       connectedPlayers.forEach((val, key) => {
@@ -528,7 +574,7 @@ exports.abortGame = (req, res, next) => {
   if (Rooms[roomIndex].host != userId)
     return res
       .status(400)
-      .json({ error: "Seul l'hote peut commencer une partie !" });
+      .json({ error: "Seul l'hote peut stoper une partie !" });
   //Change game state
   Rooms[roomIndex].gameState = 0;
   //Reset game
@@ -560,9 +606,6 @@ exports.voteFor = (req, res, next) => {
   //Invalid target
   if (!Rooms[roomIndex].players[playerIndex])
     return res.status(404).json({ error: "Cible invalide !" });
-  const numSpectators = Rooms[roomIndex].players.filter(
-    (player) => player.word == ""
-  ).length;
   //If target is in array splice it
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
@@ -571,7 +614,7 @@ exports.voteFor = (req, res, next) => {
     //If target can't be targeted because max target reached (multiple targets allowed)
     if (
       Rooms[roomIndex].players[playerIndex].voteFor.length >=
-      Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
+      Rooms[roomIndex].undercovers
     ) {
       //Splice oldest target
       Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
@@ -583,9 +626,7 @@ exports.voteFor = (req, res, next) => {
   //When all players voted, skip timer and pass results
   if (
     Rooms[roomIndex].players.filter(
-      (val) =>
-        val.voteFor.length >=
-        Math.round((Rooms[roomIndex].players.length - numSpectators) / 3)
+      (val) => val.voteFor.length >= Rooms[roomIndex].undercovers
     ).length == Rooms[roomIndex].players.length
   ) {
     clearTimeout(voteTimeout);

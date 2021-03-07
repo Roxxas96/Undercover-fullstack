@@ -7,6 +7,14 @@
       Il vous reste
       {{ numVotes }} votes
     </h6>
+    <button
+      type="button"
+      class="close"
+      (click)="dismissModal()"
+      aria-label="Close"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
   </div>
   <div class="modal-body">
     <div class="players">
@@ -141,7 +149,19 @@
       <h5 style="text-align: center">{{ Room.name }}</h5>
       <div class="form-group mb-3">
         <label for="max-players" class="form-label">Nombre de joueurs</label>
-        <h5 style="text-align: center">{{ rangeBarVal }}</h5>
+        <input
+          type="number"
+          name="max-players"
+          min="3"
+          max="10"
+          [value]="getFormVal(f, 'max-players')"
+          [ngClass]="{
+            'form-control': true,
+            'is-invalid': errorMessage.maxPlayers != ''
+          }"
+          style="text-align: center; margin-bottom: 2%"
+          ngModel
+        />
         <input
           type="range"
           name="max-players"
@@ -149,15 +169,48 @@
           min="3"
           max="10"
           step="1"
-          value="3"
+          [value]="getFormVal(f, 'max-players')"
           [ngClass]="{
             'custom-range': true,
             'is-invalid': errorMessage.maxPlayers != ''
           }"
-          [(ngModel)]="rangeBarVal"
+          ngModel
         />
         <div class="invalid-feedback">
           {{ errorMessage.maxPlayers }}
+        </div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="undercovers" class="form-label">Nombre d'Undercovers</label>
+        <input
+          type="number"
+          name="undercovers"
+          min="1"
+          max="4"
+          [value]="getFormVal(f, 'undercovers')"
+          [ngClass]="{
+            'form-control': true,
+            'is-invalid': errorMessage.undercovers != ''
+          }"
+          style="text-align: center; margin-bottom: 2%"
+          ngModel
+        />
+        <input
+          type="range"
+          name="undercovers"
+          id="undercovers"
+          min="1"
+          max="4"
+          step="1"
+          [value]="getFormVal(f, 'undercovers')"
+          [ngClass]="{
+            'custom-range': true,
+            'is-invalid': errorMessage.undercovers != ''
+          }"
+          ngModel
+        />
+        <div class="invalid-feedback">
+          {{ errorMessage.undercovers }}
         </div>
       </div>
       <div class="alert alert-danger" *ngIf="errorMessage.other != ''">
@@ -180,11 +233,7 @@
       >
         Fermer
       </button>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="f.invalid || rangeBarVal == Room.max_players"
-      >
+      <button type="submit" class="btn btn-primary" [disabled]="f.invalid">
         Modifier la salle
       </button>
     </div>

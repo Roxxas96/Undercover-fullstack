@@ -3,9 +3,26 @@
     class="alert alert-danger"
     *ngIf="errorMessage.global != ''"
     (click)="errorMessage.global = ''"
-    style="cursor: pointer; width: fit-content; margin: auto"
+    style="
+      cursor: pointer;
+      width: fit-content;
+      margin: auto;
+      padding-right: 40px;
+      padding-left: 40px;
+      margin-bottom: 1%;
+    "
   >
-    {{ errorMessage.global }}
+    <h2
+      style="
+        position: absolute;
+        top: 0;
+        right: 5px;
+        transform: translateY(-20%);
+      "
+    >
+      ×
+    </h2>
+    <p style="margin: 0; text-align: center">{{ errorMessage.global }}</p>
   </div>
   <div class="game">
     <div class="gameInfo" style="margin-bottom: 2%">
@@ -47,11 +64,11 @@
       </div>
       <div class="GameMain" *ngIf="pregameLockout == 0">
         <h4 style="margin-bottom: 1%">
-          Il y a {{ numUndercovers }} Undercover{{
-            numUndercovers > 1 ? "s" : ""
+          Il y a {{ Room.undercovers }} Undercover{{
+            Room.undercovers > 1 ? "s" : ""
           }}
-          dans la partie, trouvez {{ numUndercovers > 1 ? "les" : "le" }} ou ne
-          vous faîtes pas prendre
+          dans la partie, trouvez {{ Room.undercovers > 1 ? "les" : "le" }} ou
+          ne vous faîtes pas prendre
         </h4>
         <h3>Votre mot est : {{ Room.players[ownerIndex].word }}</h3>
       </div>

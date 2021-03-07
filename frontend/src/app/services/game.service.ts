@@ -59,13 +59,14 @@ export class GameService {
   }
 
   //Create room : call backend to create a room, return the index of created room
-  createRoom(roomName: string, maxPlayers: number) {
+  createRoom(roomName: string, maxPlayers: number, undercovers: number) {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
         .post(this.host + 'api/room/create', {
           roomName: roomName,
           maxPlayers: maxPlayers,
+          undercovers: undercovers,
         })
         .subscribe(
           //Stored in result
@@ -83,12 +84,13 @@ export class GameService {
   }
 
   //Create room : call backend to create a room, return the index of created room
-  modifyRoom(maxPlayers: number, roomId: String) {
+  modifyRoom(maxPlayers: number, undercovers: number, roomId: String) {
     return new Promise((resolve, reject) => {
       //POST request
       this.http
         .post(this.host + 'api/room/' + roomId + '/modify', {
           maxPlayers: maxPlayers,
+          undercovers: undercovers,
         })
         .subscribe(
           //Stored in result

@@ -22,14 +22,12 @@ export class LobbyComponent implements OnInit {
   errorMessageCreateRoom = {
     name: '',
     maxPlayers: '',
+    undercovers: '',
     other: '',
   };
 
   createRoomLoading = false;
   joinRoomLoading: String = '';
-
-  //Var used to update h5 on top of range bar in create room modal
-  rangeBarVal = 3;
 
   rooms: Array<RoomSimple> = [];
 
@@ -97,6 +95,14 @@ export class LobbyComponent implements OnInit {
     this.modalService.open(modal);
   }
 
+  //Return 3 if the form value is null, used on createRoom Form initialisation to set defaul value of inputs
+  getFormVal(f: NgForm, value: string) {
+    if (f.value[value] == '') {
+      f.value[value] = value == 'max-players' ? 3 : 1;
+    }
+    return f.value[value];
+  }
+
   //Create room : Gather form info and call gameService to create a room
   onCreateRoom(form: NgForm, modal: NgbActiveModal) {
     //Reset var & draw loading hint
@@ -104,14 +110,16 @@ export class LobbyComponent implements OnInit {
     this.errorMessageCreateRoom = {
       name: '',
       maxPlayers: '',
+      undercovers: '',
       other: '',
     };
     //Retreive form data
     const roomName = form.value['name'];
     const maxPlayers = form.value['max-players'];
+    const undercovers = form.value['undercovers'];
     //Call gameService createRoom func
     this.gameService
-      .createRoom(roomName, maxPlayers)
+      .createRoom(roomName, maxPlayers, undercovers)
       .then(() => {
         //If creation succeded hide loading hint
         this.createRoomLoading = false;
@@ -130,10 +138,23 @@ export class LobbyComponent implements OnInit {
           if (error.error.error == 'Nom de salle déjà pris !') {
             this.errorMessageCreateRoom.name = 'Ce nom est déjà pris';
           }
-          //Catch invalid number error (useless in theory)
+          //Catch invalid number error
           if (error.error.error == 'Nombre de joueurs invalide !') {
             this.errorMessageCreateRoom.maxPlayers =
               'Nombre de joueurs invalide';
+          }
+          //Catch invalid number error
+          if (error.error.error == "Nombre d'undercovers invalide !") {
+            this.errorMessageCreateRoom.undercovers =
+              "Nombre d'undercovers invalide";
+          }
+          //Catch to high number error
+          if (
+            error.error.error ==
+            "Nombre d'undercovers au dessus de la limite fixée par le nombre de joueurs !"
+          ) {
+            this.errorMessageCreateRoom.undercovers =
+              "Vous devez choisir un nombre d'Undercovers ne dépassant pas la moitié de la limite de joueurs";
           }
           return;
         }

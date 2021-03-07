@@ -25,7 +25,6 @@ export class RoomComponent implements OnInit {
 
   countdown = setInterval(() => {}, 1000);
   pregameLockout = -1;
-  numUndercovers = 0;
 
   modalRef: any = '';
 
@@ -37,7 +36,6 @@ export class RoomComponent implements OnInit {
     private gameService: GameService,
     private route: ActivatedRoute,
     private modalService: NgbModal,
-    private modalConfig: NgbModalConfig,
     private router: Router
   ) {}
 
@@ -82,8 +80,6 @@ export class RoomComponent implements OnInit {
               //Vote phase
               case 2:
                 //Show vote modal
-                this.modalConfig.backdrop = 'static';
-                this.modalConfig.keyboard = false;
                 this.modalService.dismissAll();
                 this.modalRef = this.modalService.open(RoomModalComponent);
                 //Throw variables to modal
@@ -96,9 +92,6 @@ export class RoomComponent implements OnInit {
                 //Begin countdown only if player was here during game launch
                 if (!firstTime) {
                   this.beginCountdown();
-                  this.numUndercovers = Math.round(
-                    this.Room.players.length / 3
-                  );
                 } else this.pregameLockout = -2;
                 break;
               //Pregame phase
@@ -190,13 +183,16 @@ export class RoomComponent implements OnInit {
       })
       //Throw
       .catch((error) => {
+        if (error.error.error) {
+          this.skipRoomRefresh = false;
+          return (this.errorMessage.global = error.error.error);
+        }
         this.errorMessage.global = error.message;
         this.skipRoomRefresh = false;
       });
     //Update local info
     this.Room.gameState = 1;
     this.beginCountdown();
-    this.numUndercovers = Math.round(this.Room.players.length / 3);
   }
 
   //Abort game : tell back to abort

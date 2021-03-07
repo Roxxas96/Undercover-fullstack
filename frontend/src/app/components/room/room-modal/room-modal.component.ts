@@ -36,6 +36,7 @@ export class RoomModalComponent implements OnInit {
   errorMessage = {
     name: '',
     maxPlayers: '',
+    undercovers: '',
     other: '',
   };
   loading = false;
@@ -43,9 +44,6 @@ export class RoomModalComponent implements OnInit {
   like = 0;
 
   skipRoomRefresh = false;
-
-  //Var used to update h5 on top of range bar in create room modal
-  rangeBarVal: Number = 3;
 
   //Players have 20 sec to vote
   ngOnInit(): void {
@@ -58,9 +56,7 @@ export class RoomModalComponent implements OnInit {
       //Vote modal
       case 0:
         //Register number of available votes
-        this.numVotes = Math.round(
-          (this.Room.players.length - this.spectators.length) / 3
-        );
+        this.numVotes = this.Room.undercovers;
         //Begin countdown
         this.beginCountdown();
         break;
@@ -113,10 +109,6 @@ export class RoomModalComponent implements OnInit {
           this.undercovers = temp;
         }
         break;
-      //Game settings modal
-      case 2:
-        this.rangeBarVal = this.Room.max_players;
-        break;
     }
   }
 
@@ -149,10 +141,7 @@ export class RoomModalComponent implements OnInit {
       this.Room.players[this.ownerIndex].voteFor.push(playerIndex.toString());
     }
     this.numVotes = cancelVote
-      ? Math.min(
-          Math.round((this.Room.players.length - this.spectators.length) / 3),
-          this.numVotes + 1
-        )
+      ? Math.min(this.Room.undercovers, this.numVotes + 1)
       : Math.max(0, this.numVotes - 1);
     this.gameService
       .voteFor(this.roomId, playerIndex)
@@ -167,10 +156,7 @@ export class RoomModalComponent implements OnInit {
 
   //voteDone : Determin if player has used all his votes in order to draw a hint
   voteDone(index: number) {
-    return (
-      this.Room.players[index].voteFor.length >=
-      Math.round((this.Room.players.length - this.spectators.length) / 3)
-    );
+    return this.Room.players[index].voteFor.length >= this.Room.undercovers;
   }
 
   //is Voted : Determin if a certain player is voted by the client in order to draw cancel button
@@ -195,19 +181,30 @@ export class RoomModalComponent implements OnInit {
     }, 1000);
   }
 
+  //Return 3 if the form value is null, used on modifyroom Form initialisation to set defaul value of inputs
+  getFormVal(f: NgForm, value: string) {
+    if (f.value[value] == '') {
+      f.value[value] =
+        value == 'max-players' ? this.Room.max_players : this.Room.undercovers;
+    }
+    return f.value[value];
+  }
+
   onModifyRoom(form: NgForm) {
     //Reset var & draw loading hint
     this.loading = true;
     this.errorMessage = {
       name: '',
       maxPlayers: '',
+      undercovers: '',
       other: '',
     };
     //Retreive form data
     const maxPlayers = form.value['max-players'];
+    const undercovers = form.value['undercovers'];
     //Call gameService createRoom func
     this.gameService
-      .modifyRoom(maxPlayers, this.Room.name)
+      .modifyRoom(maxPlayers, undercovers, this.Room.name)
       .then(() => {
         //If creation succeded hide loading hint
         this.loading = false;
@@ -234,6 +231,18 @@ export class RoomModalComponent implements OnInit {
           ) {
             this.errorMessage.maxPlayers =
               'Il y a trop de joueurs dans la salle pour cette limite';
+          }
+          //Catch invalid number error
+          if (error.error.error == "Nombre d'undercovers invalide !") {
+            this.errorMessage.undercovers = "Nombre d'undercovers invalide";
+          }
+          //Catch to high number error
+          if (
+            error.error.error ==
+            "Nombre d'undercovers au dessus de la limite fixée par le nombre de joueurs !"
+          ) {
+            this.errorMessage.undercovers =
+              "Vous devez choisir un nombre d'Undercovers ne dépassant pas la moitié de la limite de joueurs";
           }
           return;
         }
