@@ -23,8 +23,11 @@ export class RoomComponent implements OnInit {
 
   Room: Room = new Room();
 
-  countdown = setInterval(() => {}, 1000);
+  pregameCountdown = setInterval(() => {}, 1000);
   pregameLockout = -1;
+
+  voteCountdown = setInterval(() => {}, 1000);
+  voteLockout = -1;
 
   modalRef: any = '';
 
@@ -40,6 +43,7 @@ export class RoomComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.gameService.RoomComponent = this;
     //Store roomId from route params
     this.roomId = this.route.snapshot.params['roomId'];
     this.getRoomInfo(true);
@@ -51,10 +55,10 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.gameService.RoomComponent = '';
     //On destroy : make the player leave and unsub refresh
     this.gameService.quitRoom(this.roomId);
     this.refreshSub.unsubscribe();
-    this.gameService.Room = new Room();
     this.modalService.dismissAll();
   }
 
@@ -79,31 +83,25 @@ export class RoomComponent implements OnInit {
                 break;
               //Vote phase
               case 2:
-                //Show vote modal
-                this.modalService.dismissAll();
-                this.modalRef = this.modalService.open(RoomModalComponent);
-                //Throw variables to modal
-                this.modalRef.componentInstance.modalState = 0;
-                this.modalRef.componentInstance.roomId = this.roomId;
-                this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
+                this.onDrawVote();
+                this.beginVoteCountdown();
                 break;
               //Game phase
               case 1:
-                //Begin countdown only if player was here during game launch
+                //Begin pregameCountdown only if player was here during game launch
                 if (!firstTime) {
-                  this.beginCountdown();
+                  this.beginPregameCountdown();
                 } else this.pregameLockout = -2;
                 break;
               //Pregame phase
               case 0:
                 //Clear timer and reset game
-                clearInterval(this.countdown);
+                clearInterval(this.pregameCountdown);
                 this.pregameLockout = -1;
             }
           }
           //Update Room
           this.Room = res;
-          this.gameService.Room = res;
           //Update modal info
           if (this.modalRef.componentInstance) {
             this.modalRef.componentInstance.ParentRoom.next(this.Room);
@@ -192,7 +190,7 @@ export class RoomComponent implements OnInit {
       });
     //Update local info
     this.Room.gameState = 1;
-    this.beginCountdown();
+    this.beginPregameCountdown();
   }
 
   //Abort game : tell back to abort
@@ -210,19 +208,35 @@ export class RoomComponent implements OnInit {
       });
     //Update local info
     this.Room.gameState = 0;
-    clearInterval(this.countdown);
+    clearInterval(this.pregameCountdown);
     this.pregameLockout = -1;
   }
 
-  //Begin countdow : begin the countdown locally
-  beginCountdown() {
+  //Begin countdow : begin the pregameCountdown locally
+  beginPregameCountdown() {
     this.modalService.dismissAll();
     this.pregameLockout = 5;
-    this.countdown = setInterval(() => {
+    this.pregameCountdown = setInterval(() => {
       this.pregameLockout -= 1;
-      //When countdown end, begin game
+      //When pregameCountdown end, begin game
       if (this.pregameLockout <= 0) {
-        clearInterval(this.countdown);
+        clearInterval(this.pregameCountdown);
+      }
+    }, 1000);
+  }
+
+  //Begin countdow : begin the VoteCountdown locally
+  beginVoteCountdown() {
+    this.voteLockout = Math.round(this.Room.players.length / 3) * 5 + 10;
+    if (this.modalRef.componentInstance)
+      this.modalRef.componentInstance.voteLockout = this.voteLockout;
+    this.voteCountdown = setInterval(() => {
+      this.voteLockout -= 1;
+      if (this.modalRef.componentInstance)
+        this.modalRef.componentInstance.voteLockout = this.voteLockout;
+      //When VoteCountdown end
+      if (this.voteLockout <= 0) {
+        clearInterval(this.voteCountdown);
       }
     }, 1000);
   }
@@ -234,6 +248,18 @@ export class RoomComponent implements OnInit {
     //Throw variables to modal
     this.modalRef.componentInstance.modalState = 2;
     this.modalRef.componentInstance.ParentRoomId = this.roomId;
+    this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
+    this.modalRef.componentInstance.ParentRoom.next(this.Room);
+  }
+
+  onDrawVote() {
+    //Show vote modal
+    this.modalService.dismissAll();
+    this.modalRef = this.modalService.open(RoomModalComponent);
+    //Throw variables to modal
+    this.modalRef.componentInstance.voteLockout = this.voteLockout;
+    this.modalRef.componentInstance.modalState = 0;
+    this.modalRef.componentInstance.roomId = this.roomId;
     this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
     this.modalRef.componentInstance.ParentRoom.next(this.Room);
   }

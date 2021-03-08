@@ -25,8 +25,7 @@ export class RoomModalComponent implements OnInit {
 
   Room: Room = new Room();
 
-  timeOut = -1;
-  countdown = setInterval(() => {}, 1000);
+  voteLockout = 0;
   numVotes = 0;
 
   undercovers: Array<{ userInfo: Player; voted: boolean }> = [];
@@ -49,6 +48,7 @@ export class RoomModalComponent implements OnInit {
   ngOnInit(): void {
     this.ParentRoom.subscribe((observer) => {
       if (!this.skipRoomRefresh) this.Room = observer;
+      console.log(observer);
     });
     //Handle spectators (they need to be ignored when dealing with game functions)
     this.spectators = this.Room.players.filter((player) => player.word == '');
@@ -57,8 +57,6 @@ export class RoomModalComponent implements OnInit {
       case 0:
         //Register number of available votes
         this.numVotes = this.Room.undercovers;
-        //Begin countdown
-        this.beginCountdown();
         break;
       //Results modal
       case 1:
@@ -113,16 +111,18 @@ export class RoomModalComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.gameService
-      .likeWords(
-        this.like,
-        this.undercovers[0].userInfo.word +
-          '/' +
-          this.civilians[0].userInfo.word
-      )
-      .catch((error) => {
-        this.errorMessage.other = error.message;
-      });
+    if (this.modalState == 1) {
+      this.gameService
+        .likeWords(
+          this.like,
+          this.undercovers[0].userInfo.word +
+            '/' +
+            this.civilians[0].userInfo.word
+        )
+        .catch((error) => {
+          this.errorMessage.other = error.message;
+        });
+    }
   }
 
   //onVote : tell back that the player want to vote for a target
@@ -164,21 +164,6 @@ export class RoomModalComponent implements OnInit {
     return this.Room.players[this.ownerIndex].voteFor.find(
       (val) => val == index.toString()
     );
-  }
-
-  //Begin vote countdown
-  beginCountdown() {
-    this.timeOut = Math.round(this.Room.players.length / 3) * 5 + 10;
-    this.countdown = setInterval(() => {
-      this.timeOut -= 1;
-      //On countdown end dismiss modal
-      if (this.timeOut <= 0) {
-        clearInterval(this.countdown);
-        this.modalConfig.backdrop = true;
-        this.modalConfig.keyboard = true;
-        this.activeModal.dismiss();
-      }
-    }, 1000);
   }
 
   //Return 3 if the form value is null, used on modifyroom Form initialisation to set defaul value of inputs

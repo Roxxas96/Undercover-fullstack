@@ -69,12 +69,12 @@ const antiAFK = setInterval(() => {
           connectedPlayers[connectedPlayerIndex].like == 0;
         //Stop game
         room.gameState = 0;
+        resetGame(roomIndex);
         //If room is empty delete it
         if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
         //If player was host change host
         else if (room && room.host == player.userId)
           room.host = room.players[0].userId;
-        resetGame(roomIndex);
       }
       //Reset player activity
       player.activity = 0;
@@ -334,12 +334,12 @@ exports.quitRoom = (req, res, next) => {
   Rooms[roomIndex].players.splice(playerIndex, 1);
   //Stop game
   Rooms[roomIndex].gameState = 0;
+  resetGame(roomIndex);
   //If room is empty delete it
   if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
   //If player was host change host
   else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
     Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
-  resetGame(roomIndex);
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -412,8 +412,10 @@ const calculateResults = (roomIndex) => {
     });
     //Change to state 0 after 5 sec
     setTimeout(() => {
-      Rooms[roomIndex].gameState = 0;
-      resetGame(roomIndex);
+      if (Rooms[roomIndex]) {
+        Rooms[roomIndex].gameState = 0;
+        resetGame(roomIndex);
+      }
     }, 5000);
   }
 };

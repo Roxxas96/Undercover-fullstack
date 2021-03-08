@@ -6,6 +6,7 @@ import {
   NgbActiveModal,
   NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
+import { Player } from 'src/app/models/Player.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 import { RoomModalComponent } from '../room/room-modal/room-modal.component';
@@ -63,15 +64,16 @@ export class HeaderComponent implements OnInit {
   }
 
   isInRoom() {
-    return this.gameService.Room.name != '';
+    return this.gameService.RoomComponent.Room;
   }
 
   isHost() {
-    return (
-      this.gameService.Room.host.username ==
-      this.gameService.Room.players.find((val) => val.isOwner)?.userInfo
-        .username
-    );
+    return this.isInRoom()
+      ? this.gameService.RoomComponent.Room.host.username ==
+          this.gameService.RoomComponent.Room.players.find(
+            (val: Player) => val.isOwner
+          )?.userInfo.username
+      : false;
   }
 
   onProposeWord(form: NgForm, modal: NgbActiveModal) {
@@ -115,14 +117,20 @@ export class HeaderComponent implements OnInit {
   }
 
   onDeployGameSettings() {
-    this.modalService.dismissAll();
-    const modalRef = this.openModal(RoomModalComponent);
-    //Throw variables to modal
-    modalRef.componentInstance.modalState = 2;
-    modalRef.componentInstance.roomId = this.gameService.Room.name;
-    modalRef.componentInstance.ownerIndex = this.gameService.Room.players.findIndex(
-      (val) => val.isOwner
-    );
-    modalRef.componentInstance.Room = this.gameService.Room;
+    this.gameService.RoomComponent.onDrawSettings();
+  }
+
+  onDrawVote() {
+    this.gameService.RoomComponent.onDrawVote();
+  }
+
+  isVoteModalActive() {
+    return this.isInRoom()
+      ? this.gameService.RoomComponent.modalRef.componentInstance
+      : false;
+  }
+
+  getVoteLockout() {
+    return this.gameService.RoomComponent.voteLockout;
   }
 }

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { RoomComponent } from '../components/room/room.component';
 
 import { Room } from '../models/Room.model';
 import { RoomSimple } from '../models/RoomSimple.model';
@@ -8,7 +9,7 @@ import { RoomSimple } from '../models/RoomSimple.model';
   providedIn: 'root',
 })
 export class GameService {
-  Room: Room = new Room();
+  RoomComponent: any = '';
 
   //http://localhost:3000/
   //https://play-undercover.herokuapp.com/

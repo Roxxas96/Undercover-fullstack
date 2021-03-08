@@ -137,14 +137,45 @@
     </button>
   </div>
   <div class="bottom-right-buttons">
-    <button
-      class="btn btn-primary quitButton"
-      style="margin-right: 1vw"
-      (click)="onDrawSettings()"
-      *ngIf="Room.host.username == Room.players[ownerIndex].userInfo.username"
+    <div
+      style="
+        margin-bottom: 20px;
+        margin-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+      "
     >
-      Paramètres de la salle
-    </button>
-    <button class="btn btn-primary" routerLink="lobby">Quitter la salle</button>
+      <div
+        style="position: relative"
+        *ngIf="voteLockout > 0 && !modalRef.componentInstance"
+      >
+        <img
+          src="assets/Vote-logo.svg"
+          (click)="onDrawVote()"
+          width="56px"
+          class="popup-logo"
+        />
+        <div *ngIf="voteLockout > 0" (click)="onDrawVote()" class="badge">
+          {{ voteLockout }}
+        </div>
+      </div>
+      <div style="margin-left: 5%; position: relative; display: none">
+        <img src="assets/Chat-logo.svg" width="56px" class="popup-logo" />
+        <div class="badge">9+</div>
+      </div>
+    </div>
+    <div>
+      <button
+        class="btn btn-primary quitButton"
+        style="margin-right: 1vw"
+        (click)="onDrawSettings()"
+        *ngIf="Room.host.username == Room.players[ownerIndex].userInfo.username"
+      >
+        Paramètres de la salle
+      </button>
+      <button class="btn btn-primary" routerLink="lobby">
+        Quitter la salle
+      </button>
+    </div>
   </div>
 </div>

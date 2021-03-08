@@ -147,6 +147,26 @@
     <button (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></button>
   </div>
   <div class="right" *ngIf="isAuth">
+    <div class="mobile-popup-logo">
+      <div
+        style="position: relative"
+        *ngIf="getVoteLockout() && getVoteLockout() > 0 && !isVoteModalActive()"
+      >
+        <img
+          src="assets/Vote-logo.svg"
+          (click)="onDrawVote()"
+          class="popup-logo"
+          width="42px"
+        />
+        <div
+          class="badge"
+          (click)="onDrawVote()"
+          *ngIf="getVoteLockout() && getVoteLockout() > 0"
+        >
+          {{ getVoteLockout() }}
+        </div>
+      </div>
+    </div>
     <div class="logout">
       <button (click)="onLogout()">Deconnexion</button>
     </div>

@@ -37,12 +37,8 @@ $dislike-color: rgb(255, 145, 145);
 .like-btn {
   background: none;
   border: none;
-  outline: none !important;
   transition: 0.3s;
   cursor: pointer;
-}
-.like-btn:focus-visible {
-  outline: auto;
 }
 .liked {
   transform: translateY(-20%);
