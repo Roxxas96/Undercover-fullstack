@@ -167,38 +167,12 @@
         btn: true
       }"
       (click)="onPlayerVote()"
+      [disabled]="Room.gameState != 1"
     >
       <h5 style="margin: 5px">Voter</h5>
     </button>
   </div>
   <div class="bottom-right-buttons">
-    <div
-      style="
-        margin-bottom: 20px;
-        margin-right: 10px;
-        display: flex;
-        justify-content: flex-end;
-      "
-    >
-      <div
-        style="position: relative"
-        *ngIf="voteLockout > 0 && !modalRef.componentInstance"
-      >
-        <img
-          src="assets/Vote-logo.svg"
-          (click)="onDrawVote()"
-          width="56px"
-          class="popup-logo"
-        />
-        <div *ngIf="voteLockout > 0" (click)="onDrawVote()" class="badge">
-          {{ voteLockout > 99 ? "99" : voteLockout }}
-        </div>
-      </div>
-      <div style="margin-left: 5%; position: relative; display: none">
-        <img src="assets/Chat-logo.svg" width="56px" class="popup-logo" />
-        <div class="badge">9+</div>
-      </div>
-    </div>
     <div>
       <button
         class="btn btn-primary quitButton"

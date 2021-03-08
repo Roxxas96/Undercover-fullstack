@@ -55,31 +55,11 @@
   padding: 0;
   margin-left: 5%;
 }
-
 .bottom-right-buttons {
   position: absolute;
   right: 5%;
   bottom: 3%;
   width: fit-content;
-}
-.popup-logo {
-  cursor: pointer;
-}
-.badge {
-  background-color: #f44336;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(5px, -5px);
-  cursor: pointer;
-  text-align: center;
-  padding-top: 2px;
 }
 .dot {
   border-radius: 50%;

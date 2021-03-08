@@ -136,6 +136,7 @@
         #popover="ngbPopover"
         [closeDelay]="3000"
         triggers="manual"
+        container="body"
         ngbPopover="Si vous ne connaissez pas les rêgles du jeu, cliquez ici !"
         popoverClass="rules-popover"
       >
@@ -177,6 +178,7 @@
           src="assets/Players-logo.svg"
           [ngbPopover]="popContent"
           [popoverTitle]="popTitle"
+          container="body"
           placement="bottom-right"
           width="42px"
           class="popup-logo"
@@ -194,6 +196,22 @@
       <div></div>
       <div></div>
     </button>
+  </div>
+</div>
+<div *ngIf="isAuth" class="bottom-left-buttons">
+  <div class="popup-div">
+    <img src="assets/Chat-logo.svg" width="56px" class="popup-logo" />
+    <div class="badge">9+</div>
+  </div>
+  <div
+    class="popup-div"
+    *ngIf="getVoteLockout() && getVoteLockout() > 0 && !isVoteModalActive()"
+    (click)="onDrawVote()"
+  >
+    <img src="assets/Vote-logo.svg" class="popup-logo" width="56px" />
+    <div class="badge" *ngIf="getVoteLockout() && getVoteLockout() > 0">
+      {{ getVoteLockout() > 99 ? "99" : getVoteLockout() }}
+    </div>
   </div>
 </div>
 <div [ngClass]="{ 'slide-menu': true, 'slide-active': slideMenu }">
