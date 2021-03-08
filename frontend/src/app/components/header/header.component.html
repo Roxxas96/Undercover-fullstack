@@ -162,7 +162,7 @@
         <img src="assets/Chat-logo.svg" width="42px" class="popup-logo" />
         <div class="badge">9+</div>
       </div>
-      <div class="popup-div">
+      <div *ngIf="!isInRoom()" class="popup-div">
         <ng-template #popContent>
           <div class="players">
             <div *ngFor="let player of getPlayers()" class="player">
