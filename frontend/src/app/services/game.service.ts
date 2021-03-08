@@ -10,6 +10,7 @@ import { RoomSimple } from '../models/RoomSimple.model';
 })
 export class GameService {
   RoomComponent: any = '';
+  LobbyComponent: any = '';
 
   //http://localhost:3000/
   //https://play-undercover.herokuapp.com/

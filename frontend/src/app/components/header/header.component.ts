@@ -7,6 +7,7 @@ import {
   NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { Player } from 'src/app/models/Player.model';
+import { User } from 'src/app/models/User.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { GameService } from 'src/app/services/game.service';
 import { RoomModalComponent } from '../room/room-modal/room-modal.component';
@@ -132,5 +133,8 @@ export class HeaderComponent implements OnInit {
 
   getVoteLockout() {
     return this.gameService.RoomComponent.voteLockout;
+  }
+  getPlayers() {
+    return this.gameService.LobbyComponent.players;
   }
 }

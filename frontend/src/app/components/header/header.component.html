@@ -149,21 +149,40 @@
   <div class="right" *ngIf="isAuth">
     <div class="mobile-popup-logo">
       <div
-        style="position: relative"
+        class="popup-div"
         *ngIf="getVoteLockout() && getVoteLockout() > 0 && !isVoteModalActive()"
+        (click)="onDrawVote()"
       >
+        <img src="assets/Vote-logo.svg" class="popup-logo" width="42px" />
+        <div class="badge" *ngIf="getVoteLockout() && getVoteLockout() > 0">
+          {{ getVoteLockout() > 99 ? "99" : getVoteLockout() }}
+        </div>
+      </div>
+      <div class="popup-div" style="display: none">
+        <img src="assets/Chat-logo.svg" width="42px" class="popup-logo" />
+        <div class="badge">9+</div>
+      </div>
+      <div class="popup-div">
+        <ng-template #popContent>
+          <div class="players">
+            <div *ngFor="let player of getPlayers()" class="player">
+              <h5>{{ player.username }}</h5>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #popTitle>
+          <div class="pop-title"><b>Joueurs connectés</b></div>
+        </ng-template>
         <img
-          src="assets/Vote-logo.svg"
-          (click)="onDrawVote()"
-          class="popup-logo"
+          src="assets/Players-logo.svg"
+          [ngbPopover]="popContent"
+          [popoverTitle]="popTitle"
+          placement="bottom-right"
           width="42px"
+          class="popup-logo"
         />
-        <div
-          class="badge"
-          (click)="onDrawVote()"
-          *ngIf="getVoteLockout() && getVoteLockout() > 0"
-        >
-          {{ getVoteLockout() }}
+        <div class="badge">
+          {{ getPlayers().length > 99 ? "99" : getPlayers().length }}
         </div>
       </div>
     </div>

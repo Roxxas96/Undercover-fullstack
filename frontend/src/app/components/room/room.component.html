@@ -191,7 +191,7 @@
           class="popup-logo"
         />
         <div *ngIf="voteLockout > 0" (click)="onDrawVote()" class="badge">
-          {{ voteLockout }}
+          {{ voteLockout > 99 ? "99" : voteLockout }}
         </div>
       </div>
       <div style="margin-left: 5%; position: relative; display: none">

@@ -161,6 +161,10 @@ $text-color: rgb(33, 37, 41);
 .popup-logo {
   cursor: pointer;
 }
+.popup-div {
+  position: relative;
+  margin-left: 10px;
+}
 .badge {
   background-color: #f44336;
   border-radius: 50%;
@@ -181,6 +185,20 @@ $text-color: rgb(33, 37, 41);
 .mobile-popup-logo {
   display: none;
   margin-right: 20px;
+}
+.pop-title {
+  text-align: center;
+}
+.players {
+  overflow-y: auto;
+  max-height: 75vh;
+  height: fit-content;
+}
+.player h5 {
+  overflow: hidden;
+  margin: 0;
+  white-space: nowrap;
+  text-align: center;
 }
 
 @media all and (max-width: 992px) {
@@ -203,6 +221,6 @@ $text-color: rgb(33, 37, 41);
     display: block !important;
   }
   .mobile-popup-logo {
-    display: block;
+    display: flex;
   }
 }

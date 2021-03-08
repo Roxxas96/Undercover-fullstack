@@ -44,6 +44,7 @@ export class LobbyComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.gameService.LobbyComponent = this;
     this.getPlayers();
     this.getRooms();
     //Refresh data every sec
@@ -55,6 +56,7 @@ export class LobbyComponent implements OnInit {
 
   //On lobby quit stop refreshing
   ngOnDestroy() {
+    this.gameService.LobbyComponent = '';
     this.refreshSub.unsubscribe();
     this.modalService.dismissAll();
   }
