@@ -8,4 +8,5 @@ export class Player {
   word: string = '';
   voteFor: Array<String> = [];
   score: Number = 0;
+  kick: Array<Number> = [];
 }

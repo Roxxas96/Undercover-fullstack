@@ -50,7 +50,7 @@ const antiAFK = setInterval(() => {
     //Reset player activity
     val.activity = 0;
   });
-}, 10000);
+}, 5000);
 
 //Signup : send new uer info to DB
 exports.signUp = (req, res, next) => {

@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
-import { NgbModal, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  NgbDropdownModule,
+  NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
 import { Room } from '../../models/Room.model';
 import { GameService } from '../../services/game.service';
 import { RoomModalComponent } from './room-modal/room-modal.component';
@@ -57,7 +61,6 @@ export class RoomComponent implements OnInit {
   ngOnDestroy() {
     this.gameService.RoomComponent = '';
     //On destroy : make the player leave and unsub refresh
-    this.gameService.quitRoom(this.roomId);
     this.refreshSub.unsubscribe();
     this.modalService.dismissAll();
   }
@@ -113,6 +116,8 @@ export class RoomComponent implements OnInit {
       //Throw
       .catch((error) => {
         if (error.error.error == "La salle n'existe pas !")
+          return this.router.navigate(['lobby']);
+        if (error.error.error == "Le joueur n'est pas dans la salle !")
           return this.router.navigate(['lobby']);
         return (this.errorMessage.global = error.message);
       });
@@ -262,5 +267,38 @@ export class RoomComponent implements OnInit {
     this.modalRef.componentInstance.roomId = this.roomId;
     this.modalRef.componentInstance.ownerIndex = this.ownerIndex;
     this.modalRef.componentInstance.ParentRoom.next(this.Room);
+  }
+
+  initiateKick(playerIndex: number) {
+    this.skipRoomRefresh = true;
+    this.gameService
+      .voteKick(this.roomId, playerIndex)
+      .then(() => {
+        this.skipRoomRefresh = false;
+      })
+      .catch((error) => {
+        if (error.error.error) {
+          this.skipRoomRefresh = false;
+          return (this.errorMessage.global = error.error.error);
+        }
+        this.errorMessage.global = error.message;
+        this.skipRoomRefresh = false;
+      });
+    this.Room.players[playerIndex].kick.push(this.ownerIndex);
+  }
+
+  isVoteKicked(playerIndex: number) {
+    return (
+      this.Room.players[playerIndex].kick.find(
+        (val) => val == this.ownerIndex
+      ) != undefined ||
+      this.Room.players[playerIndex].kick.find(
+        (val) => val == this.ownerIndex
+      ) == 0
+    );
+  }
+
+  getMajority() {
+    return Math.ceil(this.Room.players.length / 2);
   }
 }

@@ -47,41 +47,53 @@ const getUserId = (req) => {
   return userId;
 };
 
+const playerQuitRoom = (roomIndex, playerIndex, userId) => {
+  //Place player in rememberedPlayers to save his score
+  //!!! Change player here if model changes
+  Rooms[roomIndex].rememberedPlayers.push(
+    new Player(
+      Rooms[roomIndex].players[playerIndex].userId,
+      [],
+      false,
+      "",
+      [],
+      Rooms[roomIndex].players[playerIndex].score,
+      []
+    )
+  );
+  //Remove player from Rooms
+  Rooms[roomIndex].players.splice(playerIndex, 1);
+  //Index of the player in Connected players Array
+  const connectedPlayerIndex = connectedPlayers.findIndex(
+    (val) => val.userId == userId
+  );
+  //Reset player like antispam
+  if (connectedPlayerIndex != -1)
+    connectedPlayers[connectedPlayerIndex].like == 0;
+  //Stop game
+  Rooms[roomIndex].gameState = 0;
+  resetGame(roomIndex);
+  //If room is empty delete it
+  if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
+  //If player was host change host
+  else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
+    Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
+};
+
 //Anti AFK :  kick players that have not been kicked by quitRoom()
 const antiAFK = setInterval(() => {
   Rooms.forEach((room, roomIndex) => {
     //For each room chexk for inactive player
     room.players.forEach((player, playerIndex) => {
       if (player.activity == 0) {
-        //Place player in rememberedPlayers to save his score
-        //!!! Change player here if model changes
-        room.rememberedPlayers.push(
-          new Player(player.userId, [], false, "", [], player.score)
-        );
-        //Remove player from Rooms
-        room.players.splice(playerIndex, 1);
-        //Index of the player in Connected players Array
-        const connectedPlayerIndex = connectedPlayers.findIndex(
-          (val) => val.userId == player.userId
-        );
-        //Reset player like antispam
-        if (connectedPlayerIndex != -1)
-          connectedPlayers[connectedPlayerIndex].like == 0;
-        //Stop game
-        room.gameState = 0;
-        resetGame(roomIndex);
-        //If room is empty delete it
-        if (room.players.length <= 0) Rooms.splice(roomIndex, 1);
-        //If player was host change host
-        else if (room && room.host == player.userId)
-          room.host = room.players[0].userId;
+        playerQuitRoom(roomIndex, playerIndex, player.userId);
       }
       //Reset player activity
       player.activity = 0;
     });
   });
-  //Anti AFK trigger every 10 sec
-}, 10000);
+  //Anti AFK trigger every 5 sec
+}, 5000);
 
 //*-----------------------------------------------------------------------------------------------Room control part----------------------------------------------------------------------------------------------------------
 
@@ -200,6 +212,7 @@ exports.getSingleRoom = (req, res, next) => {
                           return -42;
                         }),
                   score: player.score,
+                  kick: player.kick,
                 };
               }),
               gameState: Rooms[roomIndex].gameState,
@@ -245,6 +258,7 @@ exports.createRoom = (req, res, next) => {
       [],
       0,
       userId,
+      [],
       []
     )
   );
@@ -290,11 +304,14 @@ exports.joinRoom = (req, res, next) => {
   //Room is full
   if (Rooms[roomIndex].players.length >= Rooms[roomIndex].max_players)
     return res.status(401).json({ error: "La salle est pleine !" });
+  //User banned
+  if (Rooms[roomIndex].bannedPlayers.find((val) => val == userId))
+    return res.status(401).json({ error: "Cet user est ban !" });
   //Push player to Rooms array
   //!!! Change player here if model changes
   Rooms[roomIndex].players.push(
     Rooms[roomIndex].rememberedPlayers.find((val) => val.userId == userId) ||
-      new Player(userId, [], false, "", [], 0)
+      new Player(userId, [], false, "", [], 0, [])
   );
   return res.status(200).json({ message: "Salle rejoint !" });
 };
@@ -318,28 +335,7 @@ exports.quitRoom = (req, res, next) => {
       error: "Cet user n'est pas dans la parite !",
       test: Rooms[roomIndex].players,
     });
-  //Place player in rememberedPlayers to save his score
-  //!!! Change player here if model changes
-  Rooms[roomIndex].rememberedPlayers.push(
-    new Player(
-      Rooms[roomIndex].players[playerIndex].userId,
-      [],
-      false,
-      "",
-      [],
-      Rooms[roomIndex].players[playerIndex].score
-    )
-  );
-  //Remove player from Rooms
-  Rooms[roomIndex].players.splice(playerIndex, 1);
-  //Stop game
-  Rooms[roomIndex].gameState = 0;
-  resetGame(roomIndex);
-  //If room is empty delete it
-  if (Rooms[roomIndex].players.length <= 0) Rooms.splice(roomIndex, 1);
-  //If player was host change host
-  else if (Rooms[roomIndex] && Rooms[roomIndex].host == userId)
-    Rooms[roomIndex].host = Rooms[roomIndex].players[0].userId;
+  playerQuitRoom(roomIndex, playerIndex, userId);
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
@@ -634,4 +630,47 @@ exports.voteFor = (req, res, next) => {
     clearTimeout(voteTimeout);
     calculateResults(roomIndex);
   }
+};
+//Vote for : vote gestion store all votes of a player in an array
+exports.voteKick = (req, res, next) => {
+  const userId = getUserId(req);
+  const roomIndex = Rooms.findIndex((val) => val.name == req.params.roomName);
+  //Room not found
+  if (Rooms[roomIndex] == null)
+    return res.status(404).json({ error: "Cette salle n'existe pas !" });
+  const playerIndex = Rooms[roomIndex].players
+    .map((user) => {
+      return user.userId;
+    })
+    .indexOf(userId);
+  //User not found
+  if (playerIndex == -1)
+    return res.status(404).json({ error: "Utilisateur non trouvé !" });
+  const playerIndexInKickList = Rooms[roomIndex].players[
+    req.body.target
+  ].kick.findIndex((val) => val == playerIndex);
+  //Kick or unKick player
+  if (playerIndexInKickList == -1)
+    Rooms[roomIndex].players[req.body.target].kick.push(playerIndex);
+  else {
+    Rooms[roomIndex].players[req.body.target].kick.splice(
+      playerIndexInKickList,
+      1
+    );
+  }
+  //Add player to ban list if vote succeded
+  if (
+    Rooms[roomIndex].players[req.body.target].kick.length >=
+    Rooms[roomIndex].players.length / 2
+  ) {
+    Rooms[roomIndex].bannedPlayers.push(
+      Rooms[roomIndex].players[req.body.target].userId
+    );
+    playerQuitRoom(
+      roomIndex,
+      req.body.target,
+      Rooms[roomIndex].players[req.body.target].userId
+    );
+  }
+  return res.status(200).json({ message: "Player Kicked/UnKicked !" });
 };

@@ -282,4 +282,24 @@ export class GameService {
         );
     });
   }
+
+  voteKick(roomId: string, playerIndex: number) {
+    return new Promise((resolve, reject) => {
+      //POST
+      this.http
+        .post(this.host + 'api/room/' + roomId + '/kick', {
+          target: playerIndex.toString(),
+        })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          //Throw
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
 }

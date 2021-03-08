@@ -6,7 +6,8 @@ class Room {
     players,
     gameState,
     host,
-    rememberedPlayers
+    rememberedPlayers,
+    bannedPlayers
   ) {
     //Name : String
     this.name = name;
@@ -22,6 +23,8 @@ class Room {
     this.gameState = gameState;
     //Host : Player
     this.host = host;
+    //BannedPlayers : String[] (userIds)
+    this.bannedPlayers = bannedPlayers;
   }
 }
 

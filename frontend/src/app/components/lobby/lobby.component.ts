@@ -192,6 +192,10 @@ export class LobbyComponent implements OnInit {
           this.errorMessageMain.rooms = 'Cette salle est pleine';
           return;
         }
+        if (error.error.error == 'Cet user est ban !') {
+          this.errorMessageMain.rooms = 'Vous avez été banni de cette salle !';
+          return;
+        }
         //Other errors
         this.errorMessageMain.rooms = error.message;
       });

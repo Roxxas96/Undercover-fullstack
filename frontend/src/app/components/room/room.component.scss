@@ -81,6 +81,14 @@
   text-align: center;
   padding-top: 2px;
 }
+.dot {
+  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  background-color: gray;
+  margin-top: 2px;
+  text-align: center;
+}
 
 @media all and (max-width: 992px) {
   .vote-btn {

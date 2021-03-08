@@ -18,5 +18,6 @@ router.get("/:roomName/vote", Auth, RoomController.playerVote);
 router.get("/:roomName/start", Auth, RoomController.startGame);
 router.get("/:roomName/abort", Auth, RoomController.abortGame);
 router.post("/:roomName/vote", Auth, RoomController.voteFor);
+router.post("/:roomName/kick", Auth, RoomController.voteKick);
 
 module.exports = router;
