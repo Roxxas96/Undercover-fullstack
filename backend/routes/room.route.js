@@ -20,4 +20,7 @@ router.get("/:roomName/abort", Auth, RoomController.abortGame);
 router.post("/:roomName/vote", Auth, RoomController.voteFor);
 router.post("/:roomName/kick", Auth, RoomController.voteKick);
 
+router.post("/chat", Auth, RoomController.chat);
+router.get("/chat", Auth, RoomController.getChat);
+
 module.exports = router;

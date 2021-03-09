@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  Input,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -6,6 +12,8 @@ import {
   NgbActiveModal,
   NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
+import { interval, Observable, Subscription } from 'rxjs';
+import { Chat } from 'src/app/models/Chat.model';
 import { Player } from 'src/app/models/Player.model';
 import { User } from 'src/app/models/User.model';
 import { AuthService } from 'src/app/services/auth.service';
@@ -22,6 +30,7 @@ export class HeaderComponent implements OnInit {
     word1: '',
     word2: '',
     global: '',
+    chat: '',
   };
 
   Loading = false;
@@ -29,6 +38,12 @@ export class HeaderComponent implements OnInit {
   isAuth = false;
 
   slideMenu = false;
+
+  messageSeen = 0;
+
+  generalChat: Array<Chat> = [];
+  refresh = interval(1000);
+  refreshSub: Subscription = new Observable().subscribe();
 
   @ViewChild('popover') public popover: NgbPopover;
 
@@ -43,7 +58,16 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.isAuth$.subscribe((auth) => (this.isAuth = auth));
+    this.authService.isAuth$.subscribe((auth) => {
+      this.isAuth = auth;
+      if (auth) {
+        this.getChat();
+        //Refresh data every sec
+        this.refreshSub = this.refresh.subscribe(() => {
+          this.getChat();
+        });
+      } else this.refreshSub.unsubscribe();
+    });
   }
 
   ngAfterViewInit() {
@@ -83,6 +107,7 @@ export class HeaderComponent implements OnInit {
       word1: '',
       word2: '',
       global: '',
+      chat: this.errorMessage.chat,
     };
 
     const word1 = form.value['word1'];
@@ -136,5 +161,56 @@ export class HeaderComponent implements OnInit {
   }
   getPlayers() {
     return this.gameService.LobbyComponent.players;
+  }
+
+  getChat() {
+    this.gameService
+      .getChat()
+      .then((chat: Array<Chat>) => {
+        //Update chat array only if different from local
+        if (JSON.stringify(chat) != JSON.stringify(this.generalChat)) {
+          this.generalChat = chat;
+        }
+      })
+      //Catch any errors
+      .catch((error) => {
+        this.errorMessage.chat = error.message;
+      });
+  }
+
+  onChat(form: NgForm) {
+    this.errorMessage = {
+      word1: this.errorMessage.word1,
+      word2: this.errorMessage.word2,
+      global: this.errorMessage.global,
+      chat: '',
+    };
+
+    const text = form.value['chat'];
+    //Word empty error
+    if (text == '') {
+      this.errorMessage.chat = 'Veuillez entrer un message valide';
+      return;
+    }
+    this.gameService
+      .chat('', text)
+      .then(() => {
+        form.reset();
+      })
+      .catch((error) => {
+        form.reset();
+        if (error.error.error == 'Le texte est vide !') {
+          this.errorMessage.chat = 'Veuillez entrer un message valide';
+          return;
+        }
+        this.errorMessage.global = error.message;
+      });
+  }
+
+  updateMessageSeen(chatbox: HTMLElement) {
+    chatbox.scrollTo(0, chatbox.scrollHeight);
+    setTimeout(() => {
+      this.messageSeen = this.generalChat.length;
+    }, 100);
   }
 }

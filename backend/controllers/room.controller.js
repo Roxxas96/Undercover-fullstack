@@ -4,9 +4,12 @@ const Word = require("../models/word.model");
 const User = require("../models/user.model");
 const Room = require("../models/room.model");
 const Player = require("../models/player.model");
+const Chat = require("../models/chat.model");
 const connectedPlayers = require("./connectedPlayers");
 
 let Rooms = [];
+
+let generalChat = [];
 
 //Get userId from headers
 const getUserId = (req) => {
@@ -339,6 +342,57 @@ exports.quitRoom = (req, res, next) => {
   return res.status(200).json({ message: "Salle quitée !" });
 };
 
+exports.chat = (req, res, next) => {
+  if (req.body.text <= 0)
+    return res.status(400).json({ error: "Le texte est vide !" });
+  const userId = getUserId(req);
+  generalChat.push(new Chat(userId, req.body.text, new Date()));
+  return res.status(200).json({ message: "Message envoyé !" });
+};
+
+exports.getChat = (req, res, next) => {
+  //Find in DB
+  User.find(
+    {
+      _id: {
+        $in: generalChat.map((val) => {
+          return val.author;
+        }),
+      },
+    },
+    { password: false, email: false }
+  )
+    .then((users) => {
+      return res.status(200).json({
+        result: generalChat.map((chat, chatIndex) => {
+          const user = users.find((val) => {
+            return val._id == chat.author;
+          });
+          let playerInfo = {
+            username: user.username,
+          };
+          return {
+            author: playerInfo,
+            content: chat.content,
+            date:
+              "le " +
+              chat.date.getDate() +
+              "/" +
+              (chat.date.getMonth() + 1) +
+              " à " +
+              (chat.date.getHours() < 10 ? "0" : "") +
+              chat.date.getHours() +
+              ":" +
+              (chat.date.getMinutes() < 10 ? "0" : "") +
+              chat.date.getMinutes(),
+          };
+        }),
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error });
+    });
+};
 //*-----------------------------------------------------------------------------------------------Game Part-------------------------------------------------------------------------------------------------------------------
 
 //Timeout between vote phase and result show

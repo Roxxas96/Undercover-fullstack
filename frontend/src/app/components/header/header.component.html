@@ -159,9 +159,85 @@
           {{ getVoteLockout() > 99 ? "99" : getVoteLockout() }}
         </div>
       </div>
-      <div class="popup-div" style="display: none">
-        <img src="assets/Chat-logo.svg" width="42px" class="popup-logo" />
-        <div class="badge">9+</div>
+      <div class="popup-div" (click)="messageSeen = generalChat.length">
+        <ng-template #popContent>
+          <div class="chat-mobile">
+            <div class="chatbox" #chatbox>
+              <div
+                class="chat-entry"
+                *ngFor="let chat of generalChat; let i = index"
+              >
+                <p style="margin-right: 0.5%">{{ generalChat[i].date }}</p>
+                <p style="margin-right: 1%">
+                  <b>{{ chat.author.username }} :</b>
+                </p>
+                <p>{{ chat.content }}</p>
+              </div>
+            </div>
+            <code>{{
+              generalChat.length > messageSeen ? updateMessageSeen(chatbox) : ""
+            }}</code>
+            <div class="chatinput">
+              <form
+                #f="ngForm"
+                style="display: flex; justify-content: space-between"
+                (ngSubmit)="onChat(f)"
+              >
+                <div class="form-group mb-3" style="width: 90%">
+                  <input
+                    [ngClass]="{
+                      'form-control': true,
+                      'is-invalid': errorMessage.chat != ''
+                    }"
+                    style="width: 100%"
+                    type="text"
+                    name="chat"
+                    id="chat"
+                    #chatInput
+                    placeholder="Entrez votre message ici"
+                    ngModel
+                    required
+                  />
+                  <code>{{ chatInput.focus() }}</code>
+                  <div class="invalid-feedback">
+                    {{ errorMessage.chat }}
+                  </div>
+                </div>
+                <div class="form-group mb-3" style="width: 7%">
+                  <button type="submit" class="send-button">
+                    <img
+                      src="assets/Send-logo.svg"
+                      width="42px"
+                      style="cursor: pointer"
+                    />
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #popTitle>
+          <div class="pop-title">
+            <b>Chat {{ isInRoom() ? "de Salle" : "Général" }}</b>
+          </div>
+        </ng-template>
+        <img
+          [ngbPopover]="popContent"
+          [popoverTitle]="popTitle"
+          [autoClose]="'outside'"
+          container="body"
+          placement="bottom-right"
+          src="assets/Chat-logo.svg"
+          width="42px"
+          class="popup-logo"
+        />
+        <div *ngIf="generalChat.length - messageSeen > 0" class="badge">
+          {{
+            generalChat.length - messageSeen > 99
+              ? "99"
+              : generalChat.length - messageSeen
+          }}
+        </div>
       </div>
       <div *ngIf="!isInRoom()" class="popup-div">
         <ng-template #popContent>
@@ -178,6 +254,7 @@
           src="assets/Players-logo.svg"
           [ngbPopover]="popContent"
           [popoverTitle]="popTitle"
+          [autoClose]="'outside'"
           container="body"
           placement="bottom-right"
           width="42px"
@@ -199,9 +276,85 @@
   </div>
 </div>
 <div *ngIf="isAuth" class="bottom-left-buttons">
-  <div class="popup-div">
-    <img src="assets/Chat-logo.svg" width="56px" class="popup-logo" />
-    <div class="badge">9+</div>
+  <div class="popup-div" (click)="messageSeen = generalChat.length">
+    <ng-template #popContent>
+      <div class="chat">
+        <div class="chatbox" #chatbox>
+          <div
+            class="chat-entry"
+            *ngFor="let chat of generalChat; let i = index"
+          >
+            <p style="margin-right: 0.5%">{{ generalChat[i].date }}</p>
+            <p style="margin-right: 1%">
+              <b>{{ chat.author.username }} :</b>
+            </p>
+            <p>{{ chat.content }}</p>
+          </div>
+        </div>
+        <code>{{
+          generalChat.length > messageSeen ? updateMessageSeen(chatbox) : ""
+        }}</code>
+        <div class="chatinput">
+          <form
+            #f="ngForm"
+            style="display: flex; justify-content: space-between"
+            (ngSubmit)="onChat(f)"
+          >
+            <div class="form-group mb-3" style="width: 90%">
+              <input
+                [ngClass]="{
+                  'form-control': true,
+                  'is-invalid': errorMessage.chat != ''
+                }"
+                style="width: 100%"
+                type="text"
+                name="chat"
+                id="chat"
+                #chatInput
+                placeholder="Entrez votre message ici"
+                ngModel
+                required
+              />
+              <code>{{ chatInput.focus() }}</code>
+              <div class="invalid-feedback">
+                {{ errorMessage.chat }}
+              </div>
+            </div>
+            <div class="form-group mb-3" style="width: 7%">
+              <button type="submit" class="send-button">
+                <img
+                  src="assets/Send-logo.svg"
+                  width="42px"
+                  style="cursor: pointer"
+                />
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #popTitle>
+      <div class="pop-title">
+        <b>Chat {{ isInRoom() ? "de Salle" : "Général" }}</b>
+      </div>
+    </ng-template>
+    <img
+      [ngbPopover]="popContent"
+      [popoverTitle]="popTitle"
+      [autoClose]="'outside'"
+      container="body"
+      placement="top-left"
+      src="assets/Chat-logo.svg"
+      width="56px"
+      class="popup-logo"
+    />
+    <div *ngIf="generalChat.length - messageSeen > 0" class="badge">
+      {{
+        generalChat.length - messageSeen > 99
+          ? "99"
+          : generalChat.length - messageSeen
+      }}
+    </div>
   </div>
   <div
     class="popup-div"

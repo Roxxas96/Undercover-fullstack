@@ -8,6 +8,7 @@ import { GameService } from 'src/app/services/game.service';
 
 import { User } from '../../models/User.model';
 import { RoomSimple } from '../../models/RoomSimple.model';
+import { Chat } from 'src/app/models/Chat.model';
 
 @Component({
   selector: 'app-lobby',
@@ -28,6 +29,8 @@ export class LobbyComponent implements OnInit {
 
   createRoomLoading = false;
   joinRoomLoading: String = '';
+
+  generalChat: Array<Chat> = [];
 
   rooms: Array<RoomSimple> = [];
 

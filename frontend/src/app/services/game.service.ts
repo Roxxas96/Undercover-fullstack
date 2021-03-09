@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RoomComponent } from '../components/room/room.component';
+import { Chat } from '../models/Chat.model';
 
 import { Room } from '../models/Room.model';
 import { RoomSimple } from '../models/RoomSimple.model';
@@ -29,6 +30,28 @@ export class GameService {
         .subscribe(
           //Returned array is stored in result key
           (res: { result: Array<RoomSimple> }) => {
+            resolve(res.result);
+          },
+          //Throw errors
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
+  //Get rooms : get an array of all roms, return type ; Array<Rooms> (see Room.model for more info)
+  getChat() {
+    return new Promise<Array<Chat>>((resolve, reject) => {
+      //HTTP request : GET
+      this.http
+        .get<{
+          result: Array<Chat>;
+        }>(this.host + 'api/room/chat')
+        .subscribe(
+          //Returned array is stored in result key
+          (res: { result: Array<Chat> }) => {
             resolve(res.result);
           },
           //Throw errors
@@ -290,6 +313,26 @@ export class GameService {
       this.http
         .post(this.host + 'api/room/' + roomId + '/kick', {
           target: playerIndex.toString(),
+        })
+        .subscribe(
+          (res) => {
+            resolve(null);
+          },
+          //Throw
+          (error) => {
+            console.log(error);
+            reject(error);
+          }
+        );
+    });
+  }
+
+  chat(roomId: string, text: string) {
+    return new Promise((resolve, reject) => {
+      //POST
+      this.http
+        .post(this.host + 'api/room/chat', {
+          text: text,
         })
         .subscribe(
           (res) => {
