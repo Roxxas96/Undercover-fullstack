@@ -1,5 +1,5 @@
 class Player {
-  constructor(userId, words, vote, word, voteFor, score) {
+  constructor(userId, words, vote, word, voteFor, score, kick) {
     //UserId : String
     this.userId = userId;
     //Words : String[]
@@ -12,6 +12,8 @@ class Player {
     this.voteFor = voteFor;
     //Score : Number
     this.score = score;
+    //Kick : Number[]
+    this.kick = kick;
   }
 }
 
