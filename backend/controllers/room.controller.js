@@ -6,6 +6,7 @@ const Room = require("../models/room.model");
 const Player = require("../models/player.model");
 const Chat = require("../models/chat.model");
 const connectedPlayers = require("./connectedPlayers");
+const credentials = require("../credentials.json");
 
 let Rooms = [];
 
@@ -18,10 +19,7 @@ const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
   //Decode using key
-  const decodedToken = jwt.verify(
-    token,
-    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
-  );
+  const decodedToken = jwt.verify(token, credentials.jwt);
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
@@ -152,7 +150,9 @@ exports.getSingleRoom = (req, res, next) => {
     .indexOf(userId);
   //Players not in the game are not alowed to get info
   if (playerIndex == -1)
-    res.status(404).json({ error: "Le joueur n'est pas dans la salle !" });
+    return res
+      .status(404)
+      .json({ error: "Le joueur n'est pas dans la salle !" });
   //Get Room.players info in order to extract userId
   User.find(
     {
@@ -604,11 +604,11 @@ exports.startGame = (req, res, next) => {
       connectedPlayers.forEach((val, key) => {
         val.like = false;
       });
-      res.status(200).json({ message: "Partie lancée !" });
+      return res.status(200).json({ message: "Partie lancée !" });
     })
     //DB errors
     .catch((error) => {
-      res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     });
 };
 
@@ -661,7 +661,7 @@ exports.voteFor = (req, res, next) => {
   //If target is in array splice it
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
-    res.status(200).json({ message: "Cible déVoté !" });
+    return res.status(200).json({ message: "Cible déVoté !" });
   } else {
     //If target can't be targeted because max target reached (multiple targets allowed)
     if (
@@ -673,7 +673,7 @@ exports.voteFor = (req, res, next) => {
     }
     //Push target
     Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
-    res.status(200).json({ message: "Cible Voté !" });
+    return res.status(200).json({ message: "Cible Voté !" });
   }
   //When all players voted, skip timer and pass results
   if (

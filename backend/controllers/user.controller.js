@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemail = require("nodemailer");
 const cryptoString = require("crypto-random-string");
+const credentials = require("../credentials.json");
 
 const User = require("../models/user.model");
 
@@ -18,10 +19,7 @@ const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
   //Decode using key
-  const decodedToken = jwt.verify(
-    token,
-    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
-  );
+  const decodedToken = jwt.verify(token, credentials.jwt);
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
@@ -75,13 +73,13 @@ exports.signUp = (req, res, next) => {
       user
         .save()
         .then((createdUser) =>
-          res.status(201).json({ message: "Utilisateur créé !" })
+          {return res.status(201).json({ message: "Utilisateur créé !" })}
         )
         //Error : User already exist
-        .catch((error) => res.status(400).json({ error }));
+        .catch((error) => {return res.status(400).json({ error })});
     })
     //Internal errors
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => {return res.status(500).json({ error })});
 };
 
 //Change password : change the password of a player
@@ -111,7 +109,7 @@ exports.changePassword = (req, res, next) => {
         });
     })
     //Internal errors
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => {return res.status(500).json({ error })});
 };
 
 //Login func : check connection info and fetch with DB
@@ -139,23 +137,19 @@ exports.login = (req, res, next) => {
                 error: "Quelqu'un est déjà connecté à ce compte !",
               });
             //Return user id + a connection token that last 72h max
-            res.status(202).json({
+            return res.status(202).json({
               userId: user._id,
-              token: jwt.sign(
-                { userId: user._id },
-                "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@",
-                {
-                  expiresIn: "72h",
-                }
-              ),
+              token: jwt.sign({ userId: user._id }, credentials.jwt, {
+                expiresIn: "72h",
+              }),
               username: user.username,
             });
           })
           //Bcrypt compare errors
-          .catch((error) => res.status(500).json({ error }));
+          .catch((error) => {return res.status(500).json({ error })});
       })
       //Internal errors
-      .catch((error) => res.status(500).json({ error }));
+      .catch((error) => {return res.status(500).json({ error })});
   } else {
     //Same with username
     User.findOne({ username: req.body.login })
@@ -173,21 +167,17 @@ exports.login = (req, res, next) => {
               return res.status(401).json({
                 error: "Quelqu'un est déjà connecté à ce compte !",
               });
-            res.status(202).json({
+            return res.status(202).json({
               userId: user._id,
-              token: jwt.sign(
-                { userId: user._id },
-                "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@",
-                {
-                  expiresIn: "72h",
-                }
-              ),
+              token: jwt.sign({ userId: user._id }, credentials.jwt, {
+                expiresIn: "72h",
+              }),
               username: user.username,
             });
           })
-          .catch((error) => res.status(500).json({ error }));
+          .catch((error) => {return res.status(500).json({ error })});
       })
-      .catch((error) => res.status(500).json({ error }));
+      .catch((error) => {return res.status(500).json({ error })});
   }
 };
 
@@ -269,7 +259,7 @@ exports.recoverPassword = (req, res, next) => {
       secure: false,
       auth: {
         user: "noreply.play.undercover@gmail.com",
-        pass: "g&F_pzs2s37^_nkj",
+        pass: credentials.mail,
       },
       tls: {
         rejectUnauthorized: false,

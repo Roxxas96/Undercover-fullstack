@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
+const credentials = require("../credentials.json");
 
-const cryptKey =
-  "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@";
+const cryptKey = credentials.jwt;
 
 module.exports = (req, res, next) => {
   var authSucceded = false;
@@ -20,7 +20,9 @@ module.exports = (req, res, next) => {
     }
     //Catch any errors (can be worng token or internal errors)
   } catch (error) {
-    res.status(401).json({ error: error | "Requête non authentifiée !" });
+    return res
+      .status(401)
+      .json({ error: error | "Requête non authentifiée !" });
     //Return authSucceded var in cas we want to use Auth as a func (and not a simple middleware)
   } finally {
     return authSucceded;
