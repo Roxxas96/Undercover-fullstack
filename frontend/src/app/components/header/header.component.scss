@@ -1,5 +1,7 @@
-$navbar-color: rgb(39, 170, 98);
-$text-color: rgb(33, 37, 41);
+// $navbar-color: rgb(39, 170, 98);
+$navbar-color: #014a75;
+// $text-color: rgb(33, 37, 41);
+$text-color: black;
 
 .nav-bar {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -74,9 +76,14 @@ $text-color: rgb(33, 37, 41);
   background: none;
   border: none;
   transition: 0.2s;
+  margin-right: 179px;
+  margin-top: 30px;
 }
 .middle button:hover {
   transform: translateY(-10%);
+}
+.middle button:focus {
+  outline: none;
 }
 
 .inputs {

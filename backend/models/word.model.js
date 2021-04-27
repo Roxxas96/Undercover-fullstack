@@ -8,4 +8,4 @@ const wordSchema = mongoose.Schema({
 
 wordSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model("Word", wordSchema);
+module.exports = mongoose.model("Words_rezo", wordSchema);

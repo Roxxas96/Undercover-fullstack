@@ -122,7 +122,7 @@
 <div class="nav-bar">
   <div class="left">
     <img
-      src="assets/Logo-Undercover.svg"
+      src="assets/Logo-Undercover-green.svg"
       routerLink="lobby"
       width="50px"
       class="logo"
@@ -146,7 +146,9 @@
     </div>
   </div>
   <div class="middle" *ngIf="isAuth">
-    <button (click)="openModal(wordModal)"><h4>Proposez vos mots !</h4></button>
+    <button>
+      <img src="/assets/Logo-FEDERP-avec-contour.png" height="128px" />
+    </button>
   </div>
   <div class="right" *ngIf="isAuth">
     <div class="mobile-popup-logo">

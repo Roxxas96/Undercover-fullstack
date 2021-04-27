@@ -10,6 +10,15 @@ body {
   height: 100vh;
 }
 
+.background {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 40px;
+  left: 0;
+  z-index: -100;
+}
+
 .popover {
   max-width: 80vw;
   max-height: 80vh;
