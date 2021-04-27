@@ -2,15 +2,13 @@ const Word = require("../models/word.model");
 const jwt = require("jsonwebtoken");
 
 let connectedPlayers = require("./connectedPlayers");
+const credentials = require("../credentials.json");
 
 //Get userId from headers
 const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
-  const decodedToken = jwt.verify(
-    token,
-    "?Ybca#H9!**Rv2qQpv@f_S-+5d@tPVjH*#65@%q_XJ9k-fy^^MRns9bSpmaq8@X@"
-  );
+  const decodedToken = jwt.verify(token, credentials.jwt);
   const userId = decodedToken.userId;
   return userId;
 };

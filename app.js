@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const credentials = require("./credentials.json");
 
 const UserRoutes = require("./routes/user.route");
 const RoomRoutes = require("./routes/room.route");
@@ -11,7 +12,9 @@ const app = express();
 //MongoDB
 mongoose
   .connect(
-    "mongodb+srv://Roxxas96:Kh0mfcLw1waCSam6@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
+    "mongodb+srv://Roxxas96:" +
+      credentials.mongo +
+      "@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
