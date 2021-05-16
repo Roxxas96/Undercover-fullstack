@@ -662,15 +662,13 @@ exports.voteFor = (req, res, next) => {
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
     return res.status(200).json({ message: "Cible déVoté !" });
-  } else {
+  } else if (
+    Rooms[roomIndex].players[playerIndex].voteFor.length >=
+    Rooms[roomIndex].undercovers
+  ) {
     //If target can't be targeted because max target reached (multiple targets allowed)
-    if (
-      Rooms[roomIndex].players[playerIndex].voteFor.length >=
-      Rooms[roomIndex].undercovers
-    ) {
-      //Splice oldest target
-      Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
-    }
+    //Splice oldest target
+    Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
     //Push target
     Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
     return res.status(200).json({ message: "Cible Voté !" });
