@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const credentials = require("./credentials.json");
 
 const UserRoutes = require("./routes/user.route");
 const RoomRoutes = require("./routes/room.route");
@@ -13,7 +12,7 @@ const app = express();
 mongoose
   .connect(
     "mongodb+srv://Roxxas96:" +
-      credentials.mongo +
+      process.env.mongo +
       "@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
