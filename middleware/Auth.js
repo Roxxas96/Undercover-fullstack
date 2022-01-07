@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
-const credentials = require("../credentials.json");
 
-const cryptKey = credentials.jwt;
+const cryptKey = process.env.jwt;
 
 module.exports = (req, res, next) => {
   var authSucceded = false;

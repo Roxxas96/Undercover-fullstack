@@ -6,7 +6,6 @@ const Room = require("../models/room.model");
 const Player = require("../models/player.model");
 const Chat = require("../models/chat.model");
 const connectedPlayers = require("./connectedPlayers");
-const credentials = require("../credentials.json");
 
 let Rooms = [];
 
@@ -19,7 +18,7 @@ const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
   //Decode using key
-  const decodedToken = jwt.verify(token, credentials.jwt);
+  const decodedToken = jwt.verify(token, process.env.jwt);
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
@@ -517,9 +516,8 @@ exports.playerVote = (req, res, next) => {
   if (playerIndex == -1)
     return res.status(404).json({ error: "Utilisateur non trouvé !" });
   //Change vote
-  Rooms[roomIndex].players[playerIndex].vote = !Rooms[roomIndex].players[
-    playerIndex
-  ].vote;
+  Rooms[roomIndex].players[playerIndex].vote =
+    !Rooms[roomIndex].players[playerIndex].vote;
   //Handle spectators (they need to be ignored when dealing with game functions)
   let spectators = Rooms[roomIndex].players.filter(
     (player) => player.word == ""
@@ -592,9 +590,8 @@ exports.startGame = (req, res, next) => {
         );
         //If var was not picked before, assign undercover word to player
         if (!previousRandInts.find((val) => val == index)) {
-          Rooms[roomIndex].players[index].word = words[0].words.split("/")[
-            undercoverIndex
-          ];
+          Rooms[roomIndex].players[index].word =
+            words[0].words.split("/")[undercoverIndex];
           pickedUndercovers += 1;
           previousRandInts.push(index);
         }
@@ -662,15 +659,13 @@ exports.voteFor = (req, res, next) => {
   if (targetIndex != -1) {
     Rooms[roomIndex].players[playerIndex].voteFor.splice(targetIndex, 1);
     return res.status(200).json({ message: "Cible déVoté !" });
-  } else {
+  } else if (
+    Rooms[roomIndex].players[playerIndex].voteFor.length >=
+    Rooms[roomIndex].undercovers
+  ) {
     //If target can't be targeted because max target reached (multiple targets allowed)
-    if (
-      Rooms[roomIndex].players[playerIndex].voteFor.length >=
-      Rooms[roomIndex].undercovers
-    ) {
-      //Splice oldest target
-      Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
-    }
+    //Splice oldest target
+    Rooms[roomIndex].players[playerIndex].voteFor.splice(0, 1);
     //Push target
     Rooms[roomIndex].players[playerIndex].voteFor.push(req.body.target);
     return res.status(200).json({ message: "Cible Voté !" });
