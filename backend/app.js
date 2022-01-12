@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+require("dotenv").config()
 
 const UserRoutes = require("./routes/user.route");
 const RoomRoutes = require("./routes/room.route");
@@ -11,13 +12,11 @@ const app = express();
 //MongoDB
 mongoose
   .connect(
-    "mongodb+srv://Roxxas96:" +
-      process.env.mongo +
-      "@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority",
+    `mongodb+srv://Roxxas96:${console.log(process.env["mongo"])}@dbperso.apphb.mongodb.net/undercover?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
-  .catch(() => console.log("Connexion à MongoDB échouée !"));
+  .catch((err) => console.log("Connexion à MongoDB échouée !", err));
 
 //CURSE
 app.use((req, res, next) => {

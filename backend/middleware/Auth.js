@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-const cryptKey = process.env.jwt;
+require("dotenv").config()
+
+const cryptKey = process.env["jwt"];
 
 module.exports = (req, res, next) => {
   var authSucceded = false;

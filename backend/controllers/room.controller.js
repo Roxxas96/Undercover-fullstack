@@ -6,6 +6,7 @@ const Room = require("../models/room.model");
 const Player = require("../models/player.model");
 const Chat = require("../models/chat.model");
 const connectedPlayers = require("./connectedPlayers");
+require("dotenv").config()
 
 let Rooms = [];
 
@@ -18,7 +19,7 @@ const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
   //Decode using key
-  const decodedToken = jwt.verify(token, process.env.jwt);
+  const decodedToken = jwt.verify(token, process.env["jwt"]);
   //Get userId from decoded token
   const userId = decodedToken.userId;
 

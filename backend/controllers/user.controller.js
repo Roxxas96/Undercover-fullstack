@@ -7,6 +7,8 @@ const User = require("../models/user.model");
 
 const Auth = require("../middleware/Auth");
 
+require("dotenv").config()
+
 let connectedPlayers = require("./connectedPlayers");
 
 let recoveryLinks = [];
@@ -18,7 +20,7 @@ const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
   //Decode using key
-  const decodedToken = jwt.verify(token, process.env.jwt);
+  const decodedToken = jwt.verify(token, process.env["jwt"]);
   //Get userId from decoded token
   const userId = decodedToken.userId;
 
@@ -144,7 +146,7 @@ exports.login = (req, res, next) => {
             //Return user id + a connection token that last 72h max
             return res.status(202).json({
               userId: user._id,
-              token: jwt.sign({ userId: user._id }, process.env.jwt, {
+              token: jwt.sign({ userId: user._id }, process.env["jwt"], {
                 expiresIn: "72h",
               }),
               username: user.username,
@@ -178,7 +180,7 @@ exports.login = (req, res, next) => {
               });
             return res.status(202).json({
               userId: user._id,
-              token: jwt.sign({ userId: user._id }, process.env.jwt, {
+              token: jwt.sign({ userId: user._id }, process.env["jwt"], {
                 expiresIn: "72h",
               }),
               username: user.username,
@@ -272,7 +274,7 @@ exports.recoverPassword = (req, res, next) => {
       secure: false,
       auth: {
         user: "noreply.play.undercover@gmail.com",
-        pass: process.env.mail,
+        pass: process.env["mail"],
       },
       tls: {
         rejectUnauthorized: false,

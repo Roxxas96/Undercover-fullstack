@@ -1,5 +1,6 @@
 const Word = require("../models/word.model");
 const jwt = require("jsonwebtoken");
+require("dotenv").config()
 
 let connectedPlayers = require("./connectedPlayers");
 
@@ -7,7 +8,7 @@ let connectedPlayers = require("./connectedPlayers");
 const getUserId = (req) => {
   const token = req.headers.authorization.split(" ")[1];
   if (!token || token == "") return "";
-  const decodedToken = jwt.verify(token, process.env.jwt);
+  const decodedToken = jwt.verify(token, process.env["jwt"]);
   const userId = decodedToken.userId;
   return userId;
 };
