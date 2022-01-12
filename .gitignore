@@ -1,2 +1,3 @@
-backend/*
-frontend/*
+backend/
+frontend/
+node_modules/
